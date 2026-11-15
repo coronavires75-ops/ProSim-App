@@ -158,6 +158,7 @@
         <button class="tool-btn" style="background:#b45309; color:#fff;" onclick="document.getElementById('camIn').click()">📷 Paper-Scan</button>
         <input type="file" id="camIn" style="display:none;" accept="image/*" onchange="visionImport(event)">
         <button class="tool-btn" style="background:#047857; color:#fff;" onclick="connectWebSerial()">🔌 USB HIL</button>
+        <button class="tool-btn" style="background:#0f766e; color:#fff;" onclick="exportSpiceNetlist()">📜 SPICE Netlist</button>
         <button class="tool-btn btn-viva" onclick="openAcademicReport()">🎓 Defense & Bus</button>
         <button class="tool-btn btn-clear" onclick="clearBoard()">🗑 Clear</button>
     </div>
@@ -264,6 +265,14 @@
 
 <script>
 const DEVICE_LIBRARY = [
+    { cat: 'Proteus Interactive & Sensors', name: 'PUSH-BTN (Momentary Push Button)', type: 'PUSH_BTN', part: 'BUTTON', val: 0, desc: 'Interactive Momentary Push Switch' },
+    { cat: 'Proteus Interactive & Sensors', name: 'SW-SPDT (Changeover Toggle Switch)', type: 'SW_SPDT', part: 'SW-SPDT', val: 0, desc: '3-Pin SPDT Selector Switch' },
+    { cat: 'Proteus Interactive & Sensors', name: 'LDR-SENSOR (Interactive Lux Slider)', type: 'LDR', part: 'LDR-LUX', val: '5k', desc: 'Adjustable Light Dependent Resistor' },
+    { cat: 'Proteus Interactive & Sensors', name: 'NTC-THERMISTOR (Temp Slider °C)', type: 'NTC', part: 'NTC-10K', val: '10k', desc: 'Adjustable Temperature Thermistor' },
+    { cat: 'Proteus Interactive & Sensors', name: 'LM393 (Voltage Comparator IC)', type: 'COMPARATOR', part: 'LM393', val: 5.0, desc: 'High-Speed Analog Comparator' },
+    { cat: 'Proteus Interactive & Sensors', name: '74HC14 (Schmitt Trigger Inverter)', type: 'SCHMITT', part: '74HC14', val: 5.0, desc: 'Hysteresis Schmitt Trigger Gate' },
+    { cat: 'Proteus Interactive & Sensors', name: 'MOC3021 (Zero-Cross Opto-TRIAC)', type: 'OPTOTRIAC', part: 'MOC3021', val: 0, desc: 'Optically Isolated TRIAC Driver' },
+    { cat: 'Digital Logic & MCU', name: '74HC93 (4-Bit Binary Ripple Counter)', type: 'COUNTER4', part: '74HC93', val: 0, desc: 'CLK, RST -> Q0, Q1, Q2, Q3 Outputs' },
     { cat: 'Power & Proteus Suite', name: 'BRIDGE-4PIN (Full-Wave Bridge Rectifier)', type: 'BRIDGE', part: 'KBP206', val: 0, desc: '4-Pin AC-to-DC Diode Bridge' },
     { cat: 'Power & Proteus Suite', name: 'GATE-FIRING (SCR/TRIAC Phase Controller)', type: 'GATE_FIRING', part: 'ALPHA-CTRL', val: 60, desc: 'Zero-Cross Phase Angle Trigger (0°-180°)' },
     { cat: 'Power & Proteus Suite', name: 'WATTMETER (P, Q, S & Power Factor)', type: 'WATTMETER', part: 'WATTMETER', val: 0, desc: 'Measures Active W, Reactive VAR, PF' },
@@ -614,7 +623,7 @@ canvas.addEventListener('pointerdown', (e) => {
         }
     } else if (currentTool === 'select') {
         const comp = findCompAt(rawX, rawY);
-        if (comp && (comp.type === 'SW' || comp.type === 'LOGIC_TOGGLE')) {
+        if (comp && ['SW', 'SW_SPDT', 'PUSH_BTN', 'LOGIC_TOGGLE'].includes(comp.type)) {
             comp.closed = !comp.closed;
             runSimulation('transient');
         }
@@ -685,6 +694,14 @@ function renderProps() {
     } else if (selectedComp.type === 'GATE_FIRING') {
         html += `<div><label>🔥 Firing Angle α: <b id="alphaLbl">${selectedComp.alpha || 60}°</b></label>
             <input type="range" min="0" max="175" value="${selectedComp.alpha || 60}" oninput="selectedComp.alpha=this.value; document.getElementById('alphaLbl').innerText=this.value+'°'; runSimulation('transient');">
+        </div>`;
+    } else if (selectedComp.type === 'LDR') {
+        html += `<div><label>☀️ Light Intensity: <b id="ldrLbl">${selectedComp.val} Ω</b></label>
+            <input type="range" min="100" max="50000" step="100" value="${parseFloat(selectedComp.val)||5000}" oninput="selectedComp.val=this.value; document.getElementById('ldrLbl').innerText=this.value+' Ω'; draw(); runSimulation('transient');">
+        </div>`;
+    } else if (selectedComp.type === 'NTC') {
+        html += `<div><label>🌡 NTC Resistance: <b id="ntcLbl">${selectedComp.val} Ω</b></label>
+            <input type="range" min="200" max="20000" step="100" value="${parseFloat(selectedComp.val)||10000}" oninput="selectedComp.val=this.value; document.getElementById('ntcLbl').innerText=this.value+' Ω'; draw(); runSimulation('transient');">
         </div>`;
     } else if (selectedComp.type === 'LM35') {
         html += `<div><label>🌡 Temperature: <b id="lm35Lbl">${selectedComp.val} °C</b></label>
@@ -1159,6 +1176,25 @@ function plotResults(times, voltages, probeMap) {
     }
 
     chart = new Chart(ctxChart, { type: 'line', data: { labels: times.map(t => (t * 1000).toFixed(2) + 'ms'), datasets }, options: { responsive: true, maintainAspectRatio: false } });
+}
+
+
+function exportSpiceNetlist() {
+    const net = extractNetlist();
+    let lines = ['* ProSim Singularity v14.0 SPICE-Compatible Netlist', `* Total Nodes: ${net.num_nodes}`];
+    net.components.forEach(c => {
+        lines.push(`${c.type}${c.id} ${c.pins.join(' ')} ${c.part !== 'CUSTOM' ? c.part : ''} ${c.val || ''}`.trim());
+    });
+    lines.push(`.tran 0 ${document.getElementById('t_stop').value}`);
+    lines.push('.end');
+    const box = document.getElementById('vivaContent');
+    box.innerHTML = `<h4 style="color:#38bdf8;">📜 Standard SPICE Netlist & Live Node Watch Table</h4>
+        <textarea rows="10" readonly style="background:#060911; color:#10b981; font-family:monospace;">${lines.join('\n')}</textarea>
+        <h4 style="color:#fbbf24; margin-top:10px;">📟 Live Node Voltages (Watch Window)</h4>
+        <table><thead><tr><th>Node</th><th>Last Voltage</th></tr></thead><tbody>
+        ${Object.entries(nodeLastVoltages).map(([k,v]) => `<tr><td>Node ${k} ${k==='0'?'(GND)':''}</td><td><b>${Number(v).toFixed(4)} V</b></td></tr>`).join('')}
+        </tbody></table>`;
+    document.getElementById('vivaModal').style.display = 'flex';
 }
 
 function openAcademicReport() {

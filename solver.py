@@ -112,6 +112,30 @@ class ProCircuitSolver:
         self.gate_firings = []
         self._t_stop_ref = 0.04
 
+
+    def add_comparator(self, np_node, nm_node, nout_node, vcc=5.0):
+        if not hasattr(self, 'comparators'):
+            self.comparators = []
+        self.comparators.append({'np': np_node, 'nm': nm_node, 'nout': nout_node, 'vcc': vcc, 'v_out': 0.0})
+
+    def add_schmitt(self, nin, nout, vcc=5.0):
+        if not hasattr(self, 'schmitts'):
+            self.schmitts = []
+        self.schmitts.append({'nin': nin, 'nout': nout, 'vcc': vcc, 'state': False})
+
+    def add_counter4(self, clk, rst, q0, q1, q2, q3):
+        if not hasattr(self, 'counters4'):
+            self.counters4 = []
+        self.counters4.append({
+            'clk': clk, 'rst': rst, 'q_pins': [q0, q1, q2, q3],
+            'val': 0, 'prev_clk': False
+        })
+
+    def add_optotriac(self, na, nk, mt1, mt2, part='MOC3021'):
+        if not hasattr(self, 'optotriacs'):
+            self.optotriacs = []
+        self.optotriacs.append({'na': na, 'nk': nk, 'mt1': mt1, 'mt2': mt2, 'part': part, 'active': False})
+
     def _next_extra_idx(self):
         return (len(self.v_sources) + len(self.inductors) + len(self.opamps) +
                 len(self.transformers) + len(self.ammeters) + len(self.motors) + len(self.wattmeters))
@@ -502,7 +526,31 @@ class ProCircuitSolver:
                 self._stamp_g(A, reg['nout'], reg['ngnd'], g_out)
                 self._stamp_i(Z, reg['ngnd'], reg['nout'], reg['v_reg'] * g_out)
 
-            for ic in self.ne555s:
+            for cmp_dev in getattr(self, 'comparators', []):
+            vp = get_v_final(cmp_dev['np'])
+            vm = get_v_final(cmp_dev['nm'])
+            cmp_dev['v_out'] = cmp_dev['vcc'] if vp > vm else 0.0
+
+        for sch in getattr(self, 'schmitts', []):
+            vin_s = get_v_final(sch['nin'])
+            if vin_s >= sch['vcc'] * 0.65:
+                sch['state'] = False
+            elif vin_s <= sch['vcc'] * 0.30:
+                sch['state'] = True
+
+        for cnt in getattr(self, 'counters4', []):
+            if cnt['rst'] > 0 and get_v_final(cnt['rst']) >= 2.5:
+                cnt['val'] = 0
+            else:
+                clk_now = get_v_final(cnt['clk']) >= 2.5
+                if clk_now and not cnt['prev_clk']:
+                    cnt['val'] = (cnt['val'] + 1) & 0x0F
+                cnt['prev_clk'] = clk_now
+
+        for ot in getattr(self, 'optotriacs', []):
+            ot['active'] = ((get_v_final(ot['na']) - get_v_final(ot['nk'])) > 1.1)
+
+        for ic in self.ne555s:
                 v_o = (ic['vcc'] - 0.2) if ic['q'] else 0.05
                 g_o = 1.0 / 15.0
                 self._stamp_g(A, ic['out'], 0, g_o)
@@ -530,6 +578,31 @@ class ProCircuitSolver:
                 if ff['qb_pin'] > 0:
                     self._stamp_g(A, ff['qb_pin'], 0, g_o)
                     self._stamp_i(Z, 0, ff['qb_pin'], (0.0 if ff['q'] else 5.0) * g_o)
+
+            for cmp_dev in getattr(self, 'comparators', []):
+                if cmp_dev['nout'] > 0:
+                    g_o = 1.0 / 30.0
+                    self._stamp_g(A, cmp_dev['nout'], 0, g_o)
+                    self._stamp_i(Z, 0, cmp_dev['nout'], cmp_dev['v_out'] * g_o)
+
+            for sch in getattr(self, 'schmitts', []):
+                if sch['nout'] > 0:
+                    g_o = 1.0 / 35.0
+                    v_s = sch['vcc'] if sch['state'] else 0.0
+                    self._stamp_g(A, sch['nout'], 0, g_o)
+                    self._stamp_i(Z, 0, sch['nout'], v_s * g_o)
+
+            for cnt in getattr(self, 'counters4', []):
+                g_o = 1.0 / 35.0
+                for bit_i, qp in enumerate(cnt['q_pins']):
+                    if qp > 0:
+                        bit_v = 5.0 if ((cnt['val'] >> bit_i) & 1) else 0.0
+                        self._stamp_g(A, qp, 0, g_o)
+                        self._stamp_i(Z, 0, qp, bit_v * g_o)
+
+            for ot in getattr(self, 'optotriacs', []):
+                self._stamp_g(A, ot['na'], ot['nk'], 1.0 / 60.0)
+                self._stamp_g(A, ot['mt1'], ot['mt2'], (1.0 / 0.1) if ot['active'] else 1e-9)
 
             for gf in self.gate_firings:
                 if gf['n_gate'] > 0:
@@ -841,6 +914,30 @@ class ProCircuitSolver:
             for led in self.leds:
                 led['i_sum'] += led['last_i'] * dt
                 led['t_sum'] += dt
+
+        for cmp_dev in getattr(self, 'comparators', []):
+            vp = get_v_final(cmp_dev['np'])
+            vm = get_v_final(cmp_dev['nm'])
+            cmp_dev['v_out'] = cmp_dev['vcc'] if vp > vm else 0.0
+
+        for sch in getattr(self, 'schmitts', []):
+            vin_s = get_v_final(sch['nin'])
+            if vin_s >= sch['vcc'] * 0.65:
+                sch['state'] = False
+            elif vin_s <= sch['vcc'] * 0.30:
+                sch['state'] = True
+
+        for cnt in getattr(self, 'counters4', []):
+            if cnt['rst'] > 0 and get_v_final(cnt['rst']) >= 2.5:
+                cnt['val'] = 0
+            else:
+                clk_now = get_v_final(cnt['clk']) >= 2.5
+                if clk_now and not cnt['prev_clk']:
+                    cnt['val'] = (cnt['val'] + 1) & 0x0F
+                cnt['prev_clk'] = clk_now
+
+        for ot in getattr(self, 'optotriacs', []):
+            ot['active'] = ((get_v_final(ot['na']) - get_v_final(ot['nk'])) > 1.1)
 
         for ic in self.ne555s:
             v_trig, v_thres = get_v_final(ic['trig']), get_v_final(ic['thres'])

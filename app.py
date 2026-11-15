@@ -129,6 +129,20 @@ def build_circuit(data, override_pid=None):
             ckt.add_wattmeter(pins[0], pins[1], pins[2], pins[3], id_tag=comp['id'])
         elif ctype == 'VCC':
             ckt.add_vsource(pins[0], 0, dc=val if val != 0 else 5.0)
+        elif ctype == 'COMPARATOR':
+            ckt.add_comparator(pins[0], pins[1], pins[2], vcc=val if val > 0 else 5.0)
+        elif ctype == 'SCHMITT':
+            ckt.add_schmitt(pins[0], pins[1], vcc=val if val > 0 else 5.0)
+        elif ctype == 'COUNTER4':
+            ckt.add_counter4(pins[0], pins[1], pins[2], pins[3], pins[4], pins[5])
+        elif ctype == 'OPTOTRIAC':
+            ckt.add_optotriac(pins[0], pins[1], pins[2], pins[3], part=part)
+        elif ctype == 'SW_SPDT':
+            pos = comp.get('closed', True)
+            ckt.add_resistor(pins[0], pins[1], 0.01 if pos else 1e9)
+            ckt.add_resistor(pins[0], pins[2], 1e9 if pos else 0.01)
+        elif ctype == 'PUSH_BTN':
+            ckt.add_resistor(pins[0], pins[1], 0.01 if comp.get('closed', False) else 1e9)
         elif ctype == 'AMMETER':
             ckt.add_ammeter(pins[0], pins[1], id_tag=comp['id'])
         elif ctype == 'POT':
