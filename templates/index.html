@@ -1425,7 +1425,7 @@ function loadPreset(type) {
 }
 
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => navigator.serviceWorker.register('/service-worker.js').catch(() => {}));
+    window.addEventListener('load', () => navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {}));
 }
 
 window.onload = () => {
@@ -1744,6 +1744,11 @@ function drawLiveScopeTab(tab, data, net) {
     }
 }
 </script>
+
+
+<button id="floatingScopeBtn" onclick="openProScopeWindow()" style="position:fixed; bottom:18px; right:18px; z-index:9998; background:linear-gradient(135deg,#059669,#0284c7); color:#fff; border:2px solid #38bdf8; padding:10px 16px; border-radius:30px; font-weight:bold; font-size:0.85rem; box-shadow:0 4px 15px rgba(2,132,199,0.5); cursor:pointer;">
+    🖥️ نافذة الخرج (Pro Scope)
+</button>
 
 </body>
 </html>
