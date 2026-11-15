@@ -1,1754 +1,1093 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#0f172a">
-    <meta name="description" content="ProSim Ultimate — electronic circuit design and simulation workspace">
-    <link rel="manifest" href="/manifest.webmanifest">
-    <title>ProSim Singularity v11.0 - Ultimate Enterprise EDA & Physics Twin</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        * { box-sizing: border-box; user-select: none; }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background-color: #060911; color: #f1f5f9;
-            margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden;
-        }
-        header {
-            background: #0f172a; padding: 6px 12px; border-bottom: 1px solid #1e293b;
-            display: flex; justify-content: space-between; align-items: center; gap: 4px; flex-wrap: wrap;
-        }
-        .logo { font-size: 0.98rem; font-weight: bold; color: #38bdf8; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
-        .toolbar { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
-        .tool-btn {
-            background: #1e293b; color: #e2e8f0; border: 1px solid #334155;
-            padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.73rem; font-weight: 600;
-            transition: all 0.2s ease;
-        }
-        .tool-btn:hover, .tool-btn.active { background: #0284c7; border-color: #38bdf8; color: white; transform: translateY(-1px); }
-        .btn-pick { background: #b45309; border-color: #d97706; color: white; }
-        .btn-view { background: #0f766e; border-color: #14b8a6; color: white; }
-        .btn-run { background: #059669; border-color: #10b981; color: white; }
-        .btn-bode { background: #7c3aed; border-color: #8b5cf6; color: white; }
-        .btn-fft { background: #db2777; border-color: #ec4899; color: white; }
-        .btn-viva { background: #4338ca; border-color: #6366f1; color: white; }
-        .btn-clear { background: #dc2626; border-color: #ef4444; color: white; }
-        
-        .workspace { display: grid; grid-template-columns: 1fr 440px; flex-grow: 1; height: calc(100vh - 52px); }
-        .canvas-area { position: relative; background: #05080f; overflow: hidden; display: flex; flex-direction: column; }
-        #cadCanvas { width: 100%; flex-grow: 1; cursor: crosshair; display: block; }
-        
-        .compiler-console {
-            height: 120px; background: #090e1a; border-top: 1px solid #1e293b;
-            padding: 7px 12px; font-family: monospace; font-size: 0.75rem; overflow-y: auto;
-        }
-        .log-err { color: #f87171; margin-bottom: 3px; }
-        .log-warn { color: #fbbf24; margin-bottom: 3px; }
-        .log-ok { color: #34d399; margin-bottom: 3px; }
-        .log-mcu { color: #a78bfa; margin-bottom: 3px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ProSim Studio — Proteus Edition</title>
+<style>
+  :root {
+    --bg: #0b1120;
+    --panel: #111827;
+    --border: #1e293b;
+    --accent: #0ea5e9;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    display: flex; flex-direction: column; height: 100dvh; overflow: hidden;
+  }
 
-        .right-panel {
-            background: #0f172a; border-left: 1px solid #1e293b; padding: 10px;
-            display: flex; flex-direction: column; gap: 8px; overflow-y: auto;
-        }
-        .card { background: #1e293b; border-radius: 8px; padding: 10px; border: 1px solid #334155; }
-        h3 { margin: 0 0 6px 0; font-size: 0.84rem; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; }
-        .prop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-        label { font-size: 0.7rem; color: #94a3b8; display: block; margin-bottom: 2px; }
-        input, select, textarea {
-            width: 100%; padding: 5px 7px; border-radius: 5px; border: 1px solid #475569;
-            background: #0b1120; color: white; font-size: 0.78rem; outline: none;
-        }
-        input:focus, select:focus, textarea:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56,189,248,0.2); }
-        textarea { font-family: monospace; user-select: text; }
-        .scope-box { flex-grow: 1; min-height: 185px; position: relative; }
-        .dmm-box { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; text-align: center; }
-        .dmm-val { background: #0b1120; padding: 5px 3px; border-radius: 6px; border: 1px solid #334155; font-family: monospace; font-size: 0.75rem; }
+  /* Top Clean Header */
+  .topbar {
+    height: 50px; background: var(--panel); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 10px; gap: 8px; z-index: 20;
+  }
+  .brand { font-weight: 800; color: var(--accent); font-size: 0.95rem; white-space: nowrap; }
+  .top-actions { display: flex; gap: 6px; overflow-x: auto; align-items: center; }
+  .btn {
+    background: #1e293b; color: var(--text); border: 1px solid #334155;
+    padding: 6px 11px; border-radius: 8px; font-size: 0.78rem; font-weight: 600;
+    cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn.active { background: var(--accent); border-color: #38bdf8; color: #fff; }
+  .btn-lib { background: #b45309; border-color: #f59e0b; }
+  .btn-run { background: #059669; border-color: #10b981; }
+  .btn-scope { background: #0284c7; border-color: #38bdf8; }
+  .btn-danger { background: #991b1b; border-color: #ef4444; }
 
-        .modal-bg {
-            display: none; position: fixed; inset: 0; background: rgba(3,7,18,0.85);
-            z-index: 999; justify-content: center; align-items: center; backdrop-filter: blur(3px);
-        }
-        .modal-box {
-            background: #0f172a; border: 1px solid #38bdf8; border-radius: 12px;
-            width: 92%; max-width: 780px; max-height: 85vh; display: flex; flex-direction: column; padding: 18px; overflow-y: auto;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
-        }
-        .lib-grid { display: grid; grid-template-columns: 180px 1fr; gap: 10px; overflow: hidden; flex-grow: 1; margin-top: 10px; }
-        .cat-list { background: #0b1120; border-radius: 8px; padding: 6px; overflow-y: auto; border: 1px solid #334155; }
-        .cat-item { padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 0.76rem; margin-bottom: 3px; color: #94a3b8; transition: all 0.15s; }
-        .cat-item:hover, .cat-item.active { background: #0284c7; color: white; font-weight: bold; }
-        .part-list { background: #0b1120; border-radius: 8px; padding: 6px; overflow-y: auto; border: 1px solid #334155; }
-        .part-row {
-            display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid #1e293b;
-            cursor: pointer; font-size: 0.8rem; transition: background 0.15s; border-radius: 6px;
-        }
-        .part-row:hover { background: #1e293b; color: #38bdf8; }
-        table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.78rem; }
-        th, td { border: 1px solid #334155; padding: 7px; text-align: left; }
-        th { background: #0b1120; color: #38bdf8; }
-        .viva-q { background: #0b1120; border-left: 3px solid #f59e0b; padding: 10px; margin-bottom: 8px; border-radius: 6px; font-size: 0.82rem; }
-        .viva-a { color: #34d399; margin-top: 5px; font-size: 0.78rem; }
+  /* Main Schematic Workspace */
+  .workspace { position: relative; flex: 1; overflow: hidden; background: #060a14; }
+  canvas#board { width: 100%; height: 100%; display: block; touch-action: none; }
 
-        /* Responsive workspace: desktop keeps the original two-panel layout. */
-        #cadCanvas { touch-action: none; }
-        button, .tool-btn, .cat-item, .part-row { -webkit-tap-highlight-color: transparent; }
-        @media (max-width: 1050px) {
-            .workspace { grid-template-columns: minmax(0, 1fr) 360px; }
-            .toolbar { max-width: 100%; }
-        }
-        @media (max-width: 760px) {
-            html, body { min-height: 100%; height: 100%; }
-            body { height: 100dvh; overflow: hidden; }
-            header { display: block; padding: 8px; }
-            .logo { font-size: .95rem; margin-bottom: 7px; }
-            .toolbar { display: flex; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; gap: 6px; padding: 2px 1px 7px; max-width: 100%; scrollbar-width: thin; }
-            .tool-btn { flex: 0 0 auto; min-height: 36px; padding: 7px 10px; font-size: .76rem; }
-            .workspace { display: flex; flex-direction: column; height: auto; min-height: 0; flex: 1; overflow: hidden; }
-            .canvas-area { flex: 0 0 53dvh; min-height: 260px; max-height: 62dvh; }
-            #cadCanvas { min-height: 0; }
-            .compiler-console { flex: 0 0 76px; height: 76px; font-size: .7rem; }
-            .right-panel { flex: 1 1 auto; min-height: 0; border-left: 0; border-top: 1px solid #1e293b; padding: 8px; overflow-y: auto; overscroll-behavior: contain; }
-            .card { padding: 9px; }
-            input, select, textarea { min-height: 36px; font-size: 16px; }
-            .modal-box { width: 96%; max-height: 92dvh; padding: 12px; }
-            .lib-grid { grid-template-columns:  minmax(95px, 30%) minmax(0, 1fr); }
-            .dmm-box { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        }
-        @media (max-width: 390px) {
-            .canvas-area { flex-basis: 48dvh; }
-            .prop-grid { grid-template-columns: 1fr 1fr; }
-            .lib-grid { grid-template-columns: 88px minmax(0, 1fr); gap: 6px; }
-            .cat-item { padding: 7px 5px; font-size: .68rem; }
-        }
+  /* Floating Zoom & Quick Controls */
+  .zoom-pad {
+    position: absolute; top: 12px; left: 12px; display: flex; flex-direction: column; gap: 6px; z-index: 10;
+  }
+  .zoom-pad .btn { width: 38px; height: 38px; justify-content: center; font-size: 1.1rem; padding: 0; background: rgba(17,24,39,0.9); }
 
-        @media print {
-            body * { visibility: hidden; }
-            #vivaModal, #vivaModal * { visibility: visible; }
-            #vivaModal { position: absolute; left: 0; top: 0; width: 100%; background: white; color: black; }
-        }
-    </style>
+  /* Floating Status Pill */
+  .status-pill {
+    position: absolute; top: 12px; right: 12px; background: rgba(17,24,39,0.9);
+    border: 1px solid var(--border); padding: 5px 12px; border-radius: 20px;
+    font-size: 0.74rem; color: var(--green); z-index: 10; pointer-events: none;
+  }
+
+  /* Bottom Toolbar (Tools) */
+  .bottom-bar {
+    height: 54px; background: var(--panel); border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 6px; padding: 0 10px;
+    overflow-x: auto; z-index: 20;
+  }
+
+  /* Contextual Component Properties Sheet */
+  .prop-sheet {
+    position: absolute; bottom: 62px; left: 10px; right: 10px; max-width: 520px; margin: 0 auto;
+    background: rgba(17,24,39,0.97); border: 1px solid var(--accent); border-radius: 12px;
+    padding: 12px; z-index: 25; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+  }
+  .prop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: bold; color: var(--accent); font-size: 0.85rem; }
+  .prop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .prop-grid label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 3px; }
+  .prop-grid input, .prop-grid select, textarea {
+    width: 100%; background: #060a14; border: 1px solid #334155; color: #fff;
+    padding: 6px 8px; border-radius: 6px; font-size: 0.85rem; user-select: text;
+  }
+
+  /* Modals (Library & Proteus Oscilloscope) */
+  .modal {
+    display: none; position: fixed; inset: 0; background: rgba(2,6,23,0.88);
+    z-index: 50; justify-content: center; align-items: center; padding: 10px;
+  }
+  .modal-card {
+    background: var(--panel); border: 1px solid #334155; border-radius: 14px;
+    width: 100%; max-width: 860px; max-height: 92dvh; display: flex; flex-direction: column;
+    overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+  }
+  .modal-head {
+    padding: 12px 14px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-body { padding: 12px; overflow-y: auto; flex: 1; }
+
+  /* Library List */
+  .cat-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .lib-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 12px; border-bottom: 1px solid var(--border); cursor: pointer; border-radius: 8px;
+  }
+  .lib-item:hover { background: #1e293b; }
+
+  /* Authentic Proteus Oscilloscope Styling */
+  .scope-screen-wrap {
+    background: #020804; border: 2px solid #1e293b; border-radius: 10px;
+    padding: 6px; position: relative;
+  }
+  canvas#scopeCanvas { width: 100%; height: 270px; display: block; border-radius: 6px; }
+  .scope-controls {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px; margin-top: 10px; background: #0b1120; padding: 10px; border-radius: 10px; border: 1px solid var(--border);
+  }
+  .ch-box { background: #111827; padding: 8px; border-radius: 8px; border-right: 4px solid var(--accent); }
+  .metrics-strip {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; text-align: center;
+  }
+  .metric-card { background: #060a14; border: 1px solid var(--border); padding: 6px; border-radius: 8px; }
+  .metric-card span { display: block; font-size: 0.65rem; color: var(--muted); }
+  .metric-card strong { font-size: 0.85rem; font-family: monospace; color: var(--green); }
+</style>
 </head>
 <body>
 
-<header>
-    <div class="logo">⚡ ProSim Singularity v11.0</div>
-    <div class="toolbar">
-        <button class="tool-btn btn-pick" onclick="openLibrary()">📚 P (Device Library)</button>
-        <button class="tool-btn btn-view" id="viewToggleBtn" onclick="cycleViewMode()">📐 Schematic</button>
-        <button class="tool-btn" onclick="undoAction()">↩ Undo</button>
-        <button class="tool-btn active" id="tool-select" onclick="setTool('select')">✋ Edit</button>
-        <button class="tool-btn" id="tool-wire" onclick="setTool('wire')">🔌 Wire</button>
-        <button class="tool-btn" id="tool-delwire" onclick="setTool('delwire')">✂️ Cut</button>
-        <button class="tool-btn" onclick="rotateSelected()">🔄 Rotate</button>
-        <button class="tool-btn" id="tool-V" onclick="setTool('V')">🔋 Source</button>
-        <button class="tool-btn" id="tool-R" onclick="setTool('R')">〰️ R</button>
-        <button class="tool-btn" id="tool-C" onclick="setTool('C')">⏸ Cap</button>
-        <button class="tool-btn" id="tool-D" onclick="setTool('D')">▶️ Diode</button>
-        <button class="tool-btn" id="tool-TRIAC" onclick="setTool('TRIAC')">🔁 TRIAC</button>
-        <button class="tool-btn" id="tool-PID" onclick="setTool('PID')">🎯 PID</button>
-        <button class="tool-btn" id="tool-MOTOR" onclick="setTool('MOTOR')">⚙️ Motor</button>
-        <button class="tool-btn" id="tool-GND" onclick="setTool('GND')">⏚ GND</button>
-        <button class="tool-btn" id="tool-probe" onclick="setTool('probe')">📍 Probe</button>
-        <button class="tool-btn btn-run" onclick="runSimulation('transient')">▶ RUN</button>
-        <button class="tool-btn" style="background:#0369a1; border-color:#38bdf8; color:#fff;" onclick="openProScopeWindow()">🖥️ Pro Scope</button>
-        <button class="tool-btn btn-bode" onclick="runSimulation('bode')">🎯 S-Plane & Bode</button>
-        <button class="tool-btn btn-fft" onclick="runSimulation('fft')">🌊 FFT</button>
-        <button class="tool-btn" style="background:#0284c7; color:#fff;" onclick="autoTunePID()">🧬 AI Auto-Tune</button>
-        <button class="tool-btn" style="background:#b45309; color:#fff;" onclick="document.getElementById('camIn').click()">📷 Paper-Scan</button>
-        <input type="file" id="camIn" style="display:none;" accept="image/*" onchange="visionImport(event)">
-        <button class="tool-btn" style="background:#047857; color:#fff;" onclick="connectWebSerial()">🔌 USB HIL</button>
-        <button class="tool-btn" style="background:#0f766e; color:#fff;" onclick="exportSpiceNetlist()">📜 SPICE Netlist</button>
-        <button class="tool-btn btn-viva" onclick="openAcademicReport()">🎓 Defense & Bus</button>
-        <button class="tool-btn btn-clear" onclick="clearBoard()">🗑 Clear</button>
-    </div>
-</header>
-
-<div class="modal-bg" id="libModal">
-    <div class="modal-box">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b; padding-bottom:10px;">
-            <strong style="color:#38bdf8; font-size:1.05rem;">📚 Universal Component & Systems Library (Pick Devices)</strong>
-            <button class="tool-btn btn-clear" onclick="closeModal('libModal')">X</button>
-        </div>
-        <input type="text" id="libSearch" placeholder="🔍 ابحث عن أي عنصر، محرك، أو شريحة: DC, Stepper, BLDC, PID, LM35, 7805, NE555, Relay, 1N4007..." style="margin-top:10px; padding:8px;" oninput="filterLibrary()">
-        <div class="lib-grid">
-            <div class="cat-list" id="catList"></div>
-            <div class="part-list" id="partList"></div>
-        </div>
-    </div>
+<!-- Top Navigation -->
+<div class="topbar">
+  <div class="brand">⚡ ProSim Studio</div>
+  <div class="top-actions">
+    <button class="btn btn-lib" onclick="openLibrary()">📚 العناصر</button>
+    <select id="demoSelect" class="btn" style="max-width:140px;" onchange="loadDemo(this.value)">
+      <option value="">📂 دوائر جاهزة</option>
+      <option value="psu">1. محول + قنطرة + 7805</option>
+      <option value="dimmer">2. تحكم زاوية الإشعال TRIAC</option>
+      <option value="bjt">3. ترانزستور BJT Switch</option>
+      <option value="zener">4. منظم زينر 5.1V</option>
+      <option value="motor">5. محرك DC + قياس سرعة</option>
+    </select>
+    <button class="btn btn-run" onclick="runSim()">▶ تشغيل</button>
+    <button class="btn btn-scope" onclick="openScope()">🖥️ الأوسليسكوب</button>
+  </div>
 </div>
 
-<div class="modal-bg" id="vivaModal">
-    <div class="modal-box">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b; padding-bottom:8px;">
-            <strong style="color:#38bdf8; font-size:1.05rem;">🎓 Academic Defense Report, Bus Decoder & Arduino C++</strong>
-            <div>
-                <button class="tool-btn btn-run" onclick="window.print()">🖨️ Print / PDF</button>
-                <button class="tool-btn btn-clear" onclick="closeModal('vivaModal')">X</button>
-            </div>
-        </div>
-        <div id="vivaContent" style="margin-top:10px; user-select:text;"></div>
-    </div>
-</div>
-
+<!-- Main Drawing Board -->
 <div class="workspace">
-    <div class="canvas-area">
-        <canvas id="cadCanvas"></canvas>
-        <div class="compiler-console" id="compilerConsole">
-            <div class="log-ok">🤖 <b>ProSim Singularity v11.0 Active:</b> تدعم أي نوع وعنصر وقيمة هندسية (10k, 4.7u, 100n) بدقة 10⁻¹¹ فولت!</div>
-        </div>
+  <canvas id="board"></canvas>
+  <div class="status-pill" id="statusPill">جاهز للرسم</div>
+
+  <div class="zoom-pad">
+    <button class="btn" onclick="zoomBy(1.2)" title="تكبير">+</button>
+    <button class="btn" onclick="zoomBy(0.8)" title="تصغير">−</button>
+    <button class="btn" onclick="resetView()" title="توسيط">⌖</button>
+  </div>
+
+  <!-- Contextual Properties Panel (Appears only when a component is tapped) -->
+  <div class="prop-sheet" id="propSheet">
+    <div class="prop-header">
+      <span id="propTitle">خصائص العنصر</span>
+      <div style="display:flex; gap:6px;">
+        <button class="btn" onclick="rotateSelected()">🔄 تدوير</button>
+        <button class="btn btn-danger" onclick="deleteSelected()">🗑 حذف</button>
+        <button class="btn" onclick="deselectAll()">✖</button>
+      </div>
     </div>
+    <div id="propBody"></div>
+  </div>
+</div>
 
-    <div class="right-panel">
-        <div class="card" style="border-color:#0284c7;">
-            <h3>✨ AI Circuit Architect & Realism</h3>
-            <div style="display:flex; gap:5px; margin-bottom:6px;">
-                <input type="text" id="aiPrompt" placeholder="اكتب: stepper / bldc / tank / pid / lm35 / regulator..." style="user-select:text;">
-                <button class="tool-btn" style="background:#0284c7; width:auto; white-space:nowrap;" onclick="aiBuildCircuit()">⚡ بناء</button>
-            </div>
-            <label style="display:flex; align-items:center; gap:6px; cursor:pointer; color:#fbbf24;">
-                <input type="checkbox" id="monteCarloChk" style="width:auto;" onchange="if(components.length>0) runSimulation('transient');">
-                🎲 Real-World Tolerance (Monte Carlo ±5%)
-            </label>
-        </div>
+<!-- Bottom Quick Tools -->
+<div class="bottom-bar">
+  <button class="btn active" id="tool-select" onclick="setTool('select')">✋ تحريك</button>
+  <button class="btn" id="tool-wire" onclick="setTool('wire')">🔌 توصيل سلك</button>
+  <button class="btn" id="tool-probe" onclick="setTool('probe')">📍 مجس أوسليسكوب</button>
+  <button class="btn" onclick="quickAdd('V')">🔋 مصدر</button>
+  <button class="btn" onclick="quickAdd('R')">〰️ مقاومة</button>
+  <button class="btn" onclick="quickAdd('C')">⏸ مكثف</button>
+  <button class="btn" onclick="quickAdd('D')">▶️ دايود</button>
+  <button class="btn" onclick="quickAdd('GND')">⏚ أرضي</button>
+  <button class="btn" onclick="undo()">↩ تراجع</button>
+  <button class="btn btn-danger" onclick="clearAll()">مسح الكل</button>
+</div>
 
-        <div class="card">
-            <h3>⚙️ Systems & Multi-Physics Twins
-                <span>
-                    <button class="tool-btn" style="padding:2px 6px; font-size:0.7rem;" onclick="exportJSON()">💾 Save</button>
-                    <button class="tool-btn" style="padding:2px 6px; font-size:0.7rem;" onclick="document.getElementById('fileIn').click()">📂 Load</button>
-                    <input type="file" id="fileIn" style="display:none;" accept=".json" onchange="importJSON(event)">
-                </span>
-            </h3>
-            <div class="prop-grid" style="margin-bottom: 6px;">
-                <div>
-                    <label>Stop Time (sec)</label>
-                    <input type="text" id="t_stop" value="0.04">
-                </div>
-                <div>
-                    <label>Load Demo System (دوائر جاهزة)</label>
-                    <select id="presetSelect" onchange="loadPreset(this.value)">
-                        <option value="blank" selected>-- Blank Board (بوردة فارغة) --</option>
-                        <option value="stepper_pid">1. Precision Stepper Motor Closed-Loop PID</option>
-                        <option value="bldc_pwm">2. BLDC Motor 3-Phase PWM Driver</option>
-                        <option value="tank_pid">3. Closed-Loop Water Tank Level PID</option>
-                        <option value="lm35_lcd">4. Thermal Chamber + LM35 + MCU + LCD</option>
-                        <option value="psu_7805">5. Complete 220V -> 7805 5V Regulated PSU</option>
-                        <option value="rc_triac">6. RC + DB3 + BT136 AC Dimmer</option>
-                    </select>
-                </div>
-            </div>
-            <div id="selectedProps" style="border-top: 1px solid #334155; padding-top: 6px; font-size: 0.78rem; color: #94a3b8;">
-                اكتب أي قيمة هندسية بحرية (10k, 4.7u, 100n) لعنصرك المختار.
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>📟 Precision Digital Analyzer & Metrics</h3>
-            <div class="dmm-box">
-                <div class="dmm-val"><div style="font-size:0.6rem; color:#94a3b8;">V_MAX</div><span id="dmm_max">0.00 V</span></div>
-                <div class="dmm-val"><div style="font-size:0.6rem; color:#94a3b8;">V_RMS</div><span id="dmm_rms">0.00 V</span></div>
-                <div class="dmm-val"><div style="font-size:0.6rem; color:#94a3b8;">POWER</div><span id="dmm_pwr">0.00 W</span></div>
-                <div class="dmm-val"><div style="font-size:0.6rem; color:#fbbf24;">ANGLE / OS%</div><span id="dmm_angle" style="color:#fbbf24;">--</span></div>
-            </div>
-        </div>
-
-        <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
-            <h3 id="scopeTitle">📈 Virtual Oscilloscope & S-Plane Analyzer</h3>
-            <div id="status" style="font-size: 0.75rem; color: #10b981; margin-bottom: 4px;">Ready. Blank schematic canvas.</div>
-            <div class="scope-box">
-                <canvas id="scopeChart"></canvas>
-            </div>
-        </div>
+<!-- Component Library Modal -->
+<div class="modal" id="libModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <strong style="color:var(--accent);">📚 مكتبة العناصر الكهربائية والإلكترونية</strong>
+      <button class="btn btn-danger" onclick="closeModal('libModal')">إغلاق</button>
     </div>
+    <div class="modal-body">
+      <input type="text" id="libSearch" placeholder="🔍 ابحث بالاسم أو الرقم: 1N4007, 7805, IRFZ44N, BT136, MOTOR, BRIDGE..." style="width:100%; padding:10px; border-radius:8px; background:#060a14; border:1px solid #334155; color:#fff; margin-bottom:10px;" oninput="renderLib()">
+      <div class="cat-tabs" id="catTabs"></div>
+      <div id="libList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Proteus-Style Digital Oscilloscope Modal -->
+<div class="modal" id="scopeModal">
+  <div class="modal-card" style="max-width:940px; border-color:var(--accent);">
+    <div class="modal-head" style="background:#060a14;">
+      <strong style="color:var(--green);">🖥️ Digital Oscilloscope (Proteus VSM Mode)</strong>
+      <div style="display:flex; gap:6px;">
+        <button class="btn active" id="modeTimeBtn" onclick="setScopeMode('time')">Time</button>
+        <button class="btn" id="modeFFTBtn" onclick="setScopeMode('fft')">FFT</button>
+        <button class="btn" id="modeBodeBtn" onclick="setScopeMode('bode')">Bode</button>
+        <button class="btn btn-danger" onclick="closeModal('scopeModal')">✖</button>
+      </div>
+    </div>
+    <div class="modal-body" style="background:#090d16;">
+      <div class="scope-screen-wrap">
+        <canvas id="scopeCanvas"></canvas>
+      </div>
+
+      <div class="metrics-strip">
+        <div class="metric-card"><span>V_MAX</span><strong id="mVmax">0.00 V</strong></div>
+        <div class="metric-card"><span>V_RMS</span><strong id="mVrms">0.00 V</strong></div>
+        <div class="metric-card"><span>V_PP</span><strong id="mVpp">0.00 V</strong></div>
+        <div class="metric-card"><span>POWER / RPM</span><strong id="mExtra">0.00 W</strong></div>
+      </div>
+
+      <!-- Oscilloscope Knobs / Sliders -->
+      <div class="scope-controls">
+        <div class="ch-box" style="border-color:#facc15;">
+          <label style="font-size:0.75rem; color:#facc15; font-weight:bold;">CH1 (Yellow) Volts/Div: <span id="vDiv1Lbl">5V</span></label>
+          <input type="range" min="1" max="50" value="5" oninput="vDiv[0]=+this.value; document.getElementById('vDiv1Lbl').innerText=this.value+'V'; drawScope();">
+        </div>
+        <div class="ch-box" style="border-color:#38bdf8;">
+          <label style="font-size:0.75rem; color:#38bdf8; font-weight:bold;">CH2 (Blue) Volts/Div: <span id="vDiv2Lbl">5V</span></label>
+          <input type="range" min="1" max="50" value="5" oninput="vDiv[1]=+this.value; document.getElementById('vDiv2Lbl').innerText=this.value+'V'; drawScope();">
+        </div>
+        <div class="ch-box" style="border-color:#10b981;">
+          <label style="font-size:0.75rem; color:#10b981; font-weight:bold;">Timebase (Stop Time): <span id="tStopLbl">0.04s</span></label>
+          <input type="range" min="0.005" max="0.2" step="0.005" value="0.04" oninput="document.getElementById('tStopLbl').innerText=this.value+'s'; tStopVal=+this.value; runSim(true);">
+        </div>
+        <div class="ch-box" style="border-color:#ec4899;">
+          <label style="font-size:0.75rem; color:#ec4899; font-weight:bold;">Live Source / Angle: <span id="liveTuneLbl">--</span></label>
+          <input type="range" min="1" max="180" value="60" oninput="liveTuneScope(+this.value)">
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-const DEVICE_LIBRARY = [
-    { cat: 'Proteus Interactive & Sensors', name: 'PUSH-BTN (Momentary Push Button)', type: 'PUSH_BTN', part: 'BUTTON', val: 0, desc: 'Interactive Momentary Push Switch' },
-    { cat: 'Proteus Interactive & Sensors', name: 'SW-SPDT (Changeover Toggle Switch)', type: 'SW_SPDT', part: 'SW-SPDT', val: 0, desc: '3-Pin SPDT Selector Switch' },
-    { cat: 'Proteus Interactive & Sensors', name: 'LDR-SENSOR (Interactive Lux Slider)', type: 'LDR', part: 'LDR-LUX', val: '5k', desc: 'Adjustable Light Dependent Resistor' },
-    { cat: 'Proteus Interactive & Sensors', name: 'NTC-THERMISTOR (Temp Slider °C)', type: 'NTC', part: 'NTC-10K', val: '10k', desc: 'Adjustable Temperature Thermistor' },
-    { cat: 'Proteus Interactive & Sensors', name: 'LM393 (Voltage Comparator IC)', type: 'COMPARATOR', part: 'LM393', val: 5.0, desc: 'High-Speed Analog Comparator' },
-    { cat: 'Proteus Interactive & Sensors', name: '74HC14 (Schmitt Trigger Inverter)', type: 'SCHMITT', part: '74HC14', val: 5.0, desc: 'Hysteresis Schmitt Trigger Gate' },
-    { cat: 'Proteus Interactive & Sensors', name: 'MOC3021 (Zero-Cross Opto-TRIAC)', type: 'OPTOTRIAC', part: 'MOC3021', val: 0, desc: 'Optically Isolated TRIAC Driver' },
-    { cat: 'Digital Logic & MCU', name: '74HC93 (4-Bit Binary Ripple Counter)', type: 'COUNTER4', part: '74HC93', val: 0, desc: 'CLK, RST -> Q0, Q1, Q2, Q3 Outputs' },
-    { cat: 'Power & Proteus Suite', name: 'BRIDGE-4PIN (Full-Wave Bridge Rectifier)', type: 'BRIDGE', part: 'KBP206', val: 0, desc: '4-Pin AC-to-DC Diode Bridge' },
-    { cat: 'Power & Proteus Suite', name: 'GATE-FIRING (SCR/TRIAC Phase Controller)', type: 'GATE_FIRING', part: 'ALPHA-CTRL', val: 60, desc: 'Zero-Cross Phase Angle Trigger (0°-180°)' },
-    { cat: 'Power & Proteus Suite', name: 'WATTMETER (P, Q, S & Power Factor)', type: 'WATTMETER', part: 'WATTMETER', val: 0, desc: 'Measures Active W, Reactive VAR, PF' },
-    { cat: 'Power & Proteus Suite', name: 'RELAY-SPDT (5-Pin NO/NC Relay)', type: 'RELAY_SPDT', part: 'RLY-SPDT', val: 5.0, desc: '5-Pin Relay with COM, NO, NC' },
-    { cat: 'Power & Proteus Suite', name: 'VCC-5V (Wireless +5V Power Rail)', type: 'VCC', part: 'VCC+5V', val: 5.0, desc: 'Wireless +5V Supply Terminal' },
-    { cat: 'Power & Proteus Suite', name: 'VCC-12V (Wireless +12V Power Rail)', type: 'VCC', part: 'VCC+12V', val: 12.0, desc: 'Wireless +12V Supply Terminal' },
-    { cat: 'Digital Logic & MCU', name: 'D-FLIPFLOP (74HC74 Edge-Triggered)', type: 'DFF', part: '74HC74', val: 0, desc: 'D Flip-Flop with CLK, Q, Q-bar' },
-    { cat: 'Digital Logic & MCU', name: 'JK-FLIPFLOP (74HC76 Edge-Triggered)', type: 'JKFF', part: '74HC76', val: 0, desc: 'JK Flip-Flop with CLK, Q, Q-bar' },
-    // 1. Passive Components
-    { cat: 'Passives (R, L, C)', name: 'RES (Fixed Resistor - Any Value)', type: 'R', part: 'RES', val: '1k', desc: 'Any value: 10, 4k7, 10k, 1M' },
-    { cat: 'Passives (R, L, C)', name: 'POT-HG (Potentiometer Slider)', type: 'POT', part: 'POT', val: '10k', desc: 'Variable Resistor (1% to 100%)' },
-    { cat: 'Passives (R, L, C)', name: 'LDR (Photoresistor Light Sensor)', type: 'LDR', part: 'LDR', val: '5k', desc: 'Light Dependent Resistor' },
-    { cat: 'Passives (R, L, C)', name: 'NTC (Thermistor Temp Sensor)', type: 'NTC', part: 'NTC-10K', val: '10k', desc: 'Negative Temp Coefficient Thermistor' },
-    { cat: 'Passives (R, L, C)', name: 'CAP (Ceramic Non-Polar)', type: 'C', part: 'CERAMIC', val: '100n', desc: 'Supports p, n, u: 22p, 100n, 1u' },
-    { cat: 'Passives (R, L, C)', name: 'CAP-ELEC (Electrolytic Polar)', type: 'CELEC', part: '470uF', val: '470u', desc: 'Polarized Electrolytic Capacitor' },
-    { cat: 'Passives (R, L, C)', name: 'CAP-SUPER (Supercapacitor 1F)', type: 'CELEC', part: 'SUPERCAP', val: '1', desc: 'High Capacity Storage Capacitor' },
-    { cat: 'Passives (R, L, C)', name: 'INDUCTOR (Choke / Coil)', type: 'L', part: 'INDUCTOR', val: '10m', desc: 'Inductor Coil (e.g. 100u, 10m, 1H)' },
-    { cat: 'Passives (R, L, C)', name: 'TRAN-2P2S (Step-Down 220V->12V)', type: 'TRF', part: 'STEP-DOWN', val: 0.055, desc: 'Ideal Isolation Transformer' },
-    { cat: 'Passives (R, L, C)', name: 'TRAN-1:1 (Isolation 1:1)', type: 'TRF', part: 'ISOLATION', val: 1.0, desc: '1:1 Mains Isolation Transformer' },
+const LIBRARY = [
+  { cat: 'المصادر والحماية', name: 'DC Source (بطارية / جهد مستمر)', type: 'V', part: 'DC-12V', dc: 12, amp: 0, freq: 0, wave: 'sine' },
+  { cat: 'المصادر والحماية', name: 'AC Mains 220V RMS 50Hz', type: 'V', part: 'AC-220V', dc: 0, amp: 311, freq: 50, wave: 'sine' },
+  { cat: 'المصادر والحماية', name: 'Pulse / Square Generator', type: 'V', part: 'PULSE-5V', dc: 0, amp: 5, freq: 100, wave: 'square' },
+  { cat: 'المصادر والحماية', name: 'Ground (أرضي 0V)', type: 'GND', part: 'GND' },
+  { cat: 'المصادر والحماية', name: 'Switch (مفتاح يدوي)', type: 'SW', part: 'SW-SPST', closed: true },
+  { cat: 'المصادر والحماية', name: 'Fuse 5A (فيوز حماية)', type: 'FUSE', part: 'FUSE-5A', val: 0.01 },
 
-    // 2. Power Sources & Protection
-    { cat: 'Sources & Protection', name: 'DC-CELL (Battery / DC Supply)', type: 'V', part: 'DC-SOURCE', val: 0, dc: 12, amp: 0, freq: 0, wave: 'sine', desc: 'Constant DC Voltage Source' },
-    { cat: 'Sources & Protection', name: 'AC-MAINS (220V RMS 50Hz)', type: 'V', part: 'AC-220V', val: 0, dc: 0, amp: 311, freq: 50, wave: 'sine', desc: '220V RMS (311V Peak) 50Hz AC' },
-    { cat: 'Sources & Protection', name: 'SIG-GEN (Function Generator)', type: 'V', part: 'SIG-GEN', val: 0, dc: 0, amp: 5, freq: 1000, wave: 'square', desc: 'Sine / Square / Pulse / Triangle' },
-    { cat: 'Sources & Protection', name: 'ISOURCE (Constant Current Source)', type: 'I', part: 'ISOURCE', val: '10m', desc: 'Ideal DC Current Source (e.g. 10mA)' },
-    { cat: 'Sources & Protection', name: 'GROUND (0V Reference)', type: 'GND', part: 'GND', val: 0, desc: 'Circuit Reference Ground' },
-    { cat: 'Sources & Protection', name: 'FUSE (Protective Fuse 5A)', type: 'FUSE', part: 'FUSE-5A', val: 0.01, desc: 'Overcurrent Protection Fuse' },
-    { cat: 'Sources & Protection', name: 'SW-SPST (Manual Toggle Switch)', type: 'SW', part: 'SWITCH', val: 0, desc: 'Click on board to Open/Close' },
+  { cat: 'المقاومات والمكثفات', name: 'Resistor (مقاومة ثابتة)', type: 'R', part: 'RES', val: '1k' },
+  { cat: 'المقاومات والمكثفات', name: 'Potentiometer (مقاومة متغيرة)', type: 'POT', part: 'POT-10K', val: '10k', pct: 50 },
+  { cat: 'المقاومات والمكثفات', name: 'Capacitor (مكثف سيراميك)', type: 'C', part: 'CAP', val: '100n' },
+  { cat: 'المقاومات والمكثفات', name: 'Electrolytic Cap (مكثف كيميائي)', type: 'CELEC', part: '470uF', val: '470u' },
+  { cat: 'المقاومات والمكثفات', name: 'Inductor (ملف حث)', type: 'L', part: 'IND', val: '10m' },
+  { cat: 'المقاومات والمكثفات', name: 'Transformer 220V->12V (محول)', type: 'TRF', part: 'TRAN-2P2S', val: 0.055 },
 
-    // 3. Diodes, Zeners & LEDs
-    { cat: 'Diodes & LEDs', name: '1N4007 (Rectifier 1000V 1A)', type: 'D', part: '1N4007', val: 0, desc: 'Standard Silicon Rectifier (Vf=0.7V)' },
-    { cat: 'Diodes & LEDs', name: '1N5408 (Power Rectifier 1000V 3A)', type: 'D', part: '1N5408', val: 0, desc: 'Heavy Duty 3A Rectifier Diode' },
-    { cat: 'Diodes & LEDs', name: '1N4148 (High-Speed Signal Diode)', type: 'D', part: '1N4148', val: 0, desc: 'Fast Switching 4ns Signal Diode' },
-    { cat: 'Diodes & LEDs', name: '1N5819 (Schottky 40V 1A)', type: 'D', part: '1N5819', val: 0, desc: 'Low Drop Schottky Diode (Vf=0.25V)' },
-    { cat: 'Diodes & LEDs', name: '1N5822 (Schottky 40V 3A)', type: 'D', part: '1N5822', val: 0, desc: '3A Power Schottky Diode' },
-    { cat: 'Diodes & LEDs', name: 'UF4007 (Ultrafast Recovery 1000V)', type: 'D', part: 'UF4007', val: 0, desc: 'Ultrafast Switching Power Diode' },
-    { cat: 'Diodes & LEDs', name: '1N4728A (Zener 3.3V 1W)', type: 'Z', part: '1N4728A', val: 3.3, desc: '3.3V Zener Voltage Regulator' },
-    { cat: 'Diodes & LEDs', name: '1N4732A (Zener 4.7V 1W)', type: 'Z', part: '1N4732A', val: 4.7, desc: '4.7V Zener Voltage Regulator' },
-    { cat: 'Diodes & LEDs', name: '1N4733A (Zener 5.1V 1W)', type: 'Z', part: '1N4733A', val: 5.1, desc: '5.1V Zener Voltage Regulator' },
-    { cat: 'Diodes & LEDs', name: '1N4739A (Zener 9.1V 1W)', type: 'Z', part: '1N4739A', val: 9.1, desc: '9.1V Zener Voltage Regulator' },
-    { cat: 'Diodes & LEDs', name: '1N4742A (Zener 12V 1W)', type: 'Z', part: '1N4742A', val: 12.0, desc: '12V Zener Voltage Regulator' },
-    { cat: 'Diodes & LEDs', name: '1N4744A (Zener 15V 1W)', type: 'Z', part: '1N4744A', val: 15.0, desc: '15V Zener Voltage Regulator' },
-    { cat: 'Diodes & LEDs', name: 'LED-RED (Red Indicator LED)', type: 'LED', part: 'LED-RED', val: 0, desc: 'Glowing Red LED (Vf=1.85V)' },
-    { cat: 'Diodes & LEDs', name: 'LED-GREEN (Green Indicator LED)', type: 'LED', part: 'LED-GREEN', val: 0, desc: 'Glowing Green LED (Vf=2.15V)' },
-    { cat: 'Diodes & LEDs', name: 'LED-BLUE (Blue High-Bright LED)', type: 'LED', part: 'LED-BLUE', val: 0, desc: 'Glowing Blue LED (Vf=3.10V)' },
-    { cat: 'Diodes & LEDs', name: 'LED-WHITE (White Power LED)', type: 'LED', part: 'LED-WHITE', val: 0, desc: 'Glowing White LED (Vf=3.20V)' },
+  { cat: 'الدايودات والليد', name: '1N4007 (دايود تقويم 1000V)', type: 'D', part: '1N4007' },
+  { cat: 'الدايودات والليد', name: '1N4148 (دايود سريع)', type: 'D', part: '1N4148' },
+  { cat: 'الدايودات والليد', name: '1N5819 (دايود شوتكي 0.25V)', type: 'D', part: '1N5819' },
+  { cat: 'الدايودات والليد', name: 'Bridge Rectifier (قنطرة توحيد)', type: 'BRIDGE', part: 'KBP206' },
+  { cat: 'الدايودات والليد', name: '1N4733A (زينر 5.1V)', type: 'Z', part: '1N4733A', val: 5.1 },
+  { cat: 'الدايودات والليد', name: '1N4742A (زينر 12V)', type: 'Z', part: '1N4742A', val: 12.0 },
+  { cat: 'الدايودات والليد', name: 'LED Red (ليد أحمر مضيء)', type: 'LED', part: 'LED-RED' },
+  { cat: 'الدايودات والليد', name: 'LED Green (ليد أخضر مضيء)', type: 'LED', part: 'LED-GREEN' },
 
-    // 4. Transistors (BJT, MOSFET, JFET, IGBT)
-    { cat: 'Transistors (BJT/FET/IGBT)', name: '2N2222 (NPN General Purpose)', type: 'Q', part: '2N2222', val: 200, pol: 'NPN', desc: 'NPN BJT 40V 800mA hFE=200' },
-    { cat: 'Transistors (BJT/FET/IGBT)', name: 'BC547 (NPN Low-Noise)', type: 'Q', part: 'BC547', val: 300, pol: 'NPN', desc: 'NPN BJT 45V 100mA hFE=300' },
-    { cat: 'Transistors (BJT/FET/IGBT)', name: '2N3904 (NPN Switching)', type: 'Q', part: '2N3904', val: 200, pol: 'NPN', desc: 'NPN BJT 40V 200mA' },
-    { cat: 'Transistors (BJT/FET/IGBT)', name: 'BD139 (NPN Medium Power)', type: 'Q', part: 'BD139', val: 100, pol: 'NPN', desc: 'NPN BJT 80V 1.5A' },
-    { cat: 'Transistors (BJT/FET/IGBT)', name: 'TIP120 (NPN Darlington 5A)', type: 'Q', part: 'TIP120', val: 1000, pol: 'NPN', desc: 'NPN Darlington Power hFE=1000' },
-    { cat: 'Transistors (BJT/FET/IGBT)', name: '2N3055 (NPN High Power 15A)', type: 'Q', part: '2N3055', val: 50, pol: 'NPN', desc: 'NPN Power Transistor 60V 15A' },
-    { cat: 'Transistors (BJT/FET/IGBT)', name: '2N2907 (PNP General Purpose)', type: 'Q', part: '2N2907', val: 200, pol: 'PNP', desc: 'PNP BJT 60V 600mA' },
-    { cat: 'Transistors (BJT/FET/IGBT)', name: 'BC557 (PNP Low-Noise)', type: 'Q', part: 'BC557', val: 300, pol: 'PNP', desc: 'PNP BJT 45V 100mA' },
-    { cat: 'Transistors (BJT/FET/IGBT)', name: 'TIP125 (PNP Darlington 5A)', type: 'Q', part: 'TIP125', val: 1000, pol: 'PNP', desc: 'PNP Darlington Power hFE=1000' },
-    { cat: 'Transistors (BJT/FET/IGBT)', name: 'IRFZ44N (N-MOSFET 55V 49A)', type: 'M', part: 'IRFZ44N', val: 2.5, pol: 'N', desc: 'Power N-Channel MOSFET + Body Diode' },
-    { cat: 'Transistors (BJT/FET/IGBT)', name: 'IRF540N (N-MOSFET 100V 33A)', type: 'M', part: 'IRF540N', val: 3.0, pol: 'N', desc: '100V N-Channel Power MOSFET' },
-    { cat: 'Transistors (BJT/FET/IGBT)', name: 'IRF3205 (N-MOSFET 55V 110A)', type: 'M', part: 'IRF3205', val: 2.5, pol: 'N', desc: 'Ultra Low Rds(on) N-MOSFET' },
-    { cat: 'Transistors (BJT/FET/IGBT)', name: '2N7000 (Small-Signal N-MOSFET)', type: 'M', part: '2N7000', val: 1.8, pol: 'N', desc: 'Logic Level N-MOSFET 60V 200mA' },
-    { cat: 'Transistors (BJT/FET/IGBT)', name: 'IRF9540N (P-MOSFET -100V -23A)', type: 'M', part: 'IRF9540N', val: 3.0, pol: 'P', desc: 'Power P-Channel MOSFET' },
-    { cat: 'Transistors (BJT/FET/IGBT)', name: '2N5457 (N-Channel JFET)', type: 'M', part: '2N5457', val: -1.5, pol: 'N', desc: 'Depletion N-JFET Amplifier' },
-    { cat: 'Transistors (BJT/FET/IGBT)', name: 'IRG4PC50U (Power IGBT 600V 55A)', type: 'M', part: 'IRG4PC50U', val: 4.5, pol: 'N', desc: 'High-Voltage Power IGBT Switch' },
+  { cat: 'الترانزستورات والقوى', name: '2N2222 (ترانزستور NPN)', type: 'Q', part: '2N2222', pol: 'NPN', val: 200 },
+  { cat: 'الترانزستورات والقوى', name: 'BC547 (ترانزستور NPN)', type: 'Q', part: 'BC547', pol: 'NPN', val: 300 },
+  { cat: 'الترانزستورات والقوى', name: '2N2907 (ترانزستور PNP)', type: 'Q', part: '2N2907', pol: 'PNP', val: 200 },
+  { cat: 'الترانزستورات والقوى', name: 'IRFZ44N (موسفت N-MOSFET)', type: 'M', part: 'IRFZ44N', pol: 'N', val: 2.5 },
+  { cat: 'الترانزستورات والقوى', name: 'IRF9540N (موسفت P-MOSFET)', type: 'M', part: 'IRF9540N', pol: 'P', val: 3.0 },
+  { cat: 'الترانزستورات والقوى', name: 'BT136 (ترياك TRIAC 600V)', type: 'TRIAC', part: 'BT136' },
+  { cat: 'الترانزستورات والقوى', name: 'BT151 (ثايرستور SCR)', type: 'SCR', part: 'BT151' },
+  { cat: 'الترانزستورات والقوى', name: 'DB3 (داياك DIAC 32V)', type: 'DIAC', part: 'DB3', val: 32 },
+  { cat: 'الترانزستورات والقوى', name: 'Gate Firing Controller (قدح زاوية)', type: 'GATE_FIRING', part: 'ALPHA-CTRL', alpha: 60, freq: 50 },
 
-    // 5. Thyristors (TRIAC, SCR, DIAC)
-    { cat: 'Thyristors (AC Power)', name: 'BT136 (TRIAC 600V 4A)', type: 'TRIAC', part: 'BT136', val: 0, desc: 'Standard AC Dimmer TRIAC' },
-    { cat: 'Thyristors (AC Power)', name: 'BTA16 (TRIAC 600V 16A Snubberless)', type: 'TRIAC', part: 'BTA16', val: 0, desc: '16A Heavy Duty TRIAC' },
-    { cat: 'Thyristors (AC Power)', name: 'BTA41 (TRIAC 600V 40A)', type: 'TRIAC', part: 'BTA41', val: 0, desc: '40A Industrial TRIAC' },
-    { cat: 'Thyristors (AC Power)', name: 'BT151 (SCR Thyristor 500V 12A)', type: 'SCR', part: 'BT151', val: 0, desc: 'Silicon Controlled Rectifier' },
-    { cat: 'Thyristors (AC Power)', name: '2N5060 (Sensitive Gate SCR)', type: 'SCR', part: '2N5060', val: 0, desc: 'Low Gate Current SCR' },
-    { cat: 'Thyristors (AC Power)', name: 'DB3 (DIAC 32V Bidirectional Trigger)', type: 'DIAC', part: 'DB3', val: 32, desc: '32V Breakover Trigger DIAC' },
-
-    // 6. Analog ICs & Regulators
-    { cat: 'Analog ICs & Regulators', name: '7805 (+5V 1.5A Linear Regulator)', type: 'REG', part: '7805', val: 5.0, desc: 'Positive +5V Fixed Regulator' },
-    { cat: 'Analog ICs & Regulators', name: '7809 (+9V 1.5A Linear Regulator)', type: 'REG', part: '7809', val: 9.0, desc: 'Positive +9V Fixed Regulator' },
-    { cat: 'Analog ICs & Regulators', name: '7812 (+12V 1.5A Linear Regulator)', type: 'REG', part: '7812', val: 12.0, desc: 'Positive +12V Fixed Regulator' },
-    { cat: 'Analog ICs & Regulators', name: '7824 (+24V 1.5A Linear Regulator)', type: 'REG', part: '7824', val: 24.0, desc: 'Positive +24V Fixed Regulator' },
-    { cat: 'Analog ICs & Regulators', name: 'AMS1117-3.3 (+3.3V LDO Regulator)', type: 'REG', part: 'AMS1117-3.3', val: 3.3, desc: '3.3V Low Dropout Regulator' },
-    { cat: 'Analog ICs & Regulators', name: 'LM741 (General Purpose Op-Amp)', type: 'OP', part: 'LM741', val: 0, desc: 'Operational Amplifier (±15V Rails)' },
-    { cat: 'Analog ICs & Regulators', name: 'LM358 (Dual Single-Supply Op-Amp)', type: 'OP', part: 'LM358', val: 0, desc: 'Single-Supply Op-Amp / Comparator' },
-    { cat: 'Analog ICs & Regulators', name: 'TL072 (Low-Noise JFET Op-Amp)', type: 'OP', part: 'TL072', val: 0, desc: 'High Slew-Rate Audio Op-Amp' },
-    { cat: 'Analog ICs & Regulators', name: 'NE555 (Precision Timer IC)', type: 'NE555', part: 'NE555', val: 5.0, desc: 'Astable/Monostable Timer (5V-15V)' },
-    { cat: 'Analog ICs & Regulators', name: 'PC817 (Optocoupler Phototransistor)', type: 'OPTO', part: 'PC817', val: 0, desc: 'Galvanic Optical Isolator' },
-    { cat: 'Analog ICs & Regulators', name: 'RELAY-5V (Electromechanical SPST)', type: 'RELAY', part: 'RLY-5V', val: 5.0, desc: '5V Coil Relay with Hysteresis' },
-    { cat: 'Analog ICs & Regulators', name: 'RELAY-12V (Automotive 12V Relay)', type: 'RELAY', part: 'RLY-12V', val: 12.0, desc: '12V Coil Power Relay' },
-
-    // 7. Digital Logic, Gates & MCU
-    { cat: 'Digital Logic & MCU', name: 'AND-GATE (2-Input Logic AND)', type: 'AND', part: '74HC08', val: 0, desc: 'Digital AND Gate (5V CMOS)' },
-    { cat: 'Digital Logic & MCU', name: 'OR-GATE (2-Input Logic OR)', type: 'OR', part: '74HC32', val: 0, desc: 'Digital OR Gate (5V CMOS)' },
-    { cat: 'Digital Logic & MCU', name: 'NAND-GATE (2-Input Logic NAND)', type: 'NAND', part: '74HC00', val: 0, desc: 'Universal Digital NAND Gate' },
-    { cat: 'Digital Logic & MCU', name: 'XOR-GATE (2-Input Exclusive OR)', type: 'XOR', part: '74HC86', val: 0, desc: 'Digital XOR Gate' },
-    { cat: 'Digital Logic & MCU', name: 'NOT-GATE (Logic Inverter)', type: 'NOT', part: '74HC04', val: 0, desc: 'Digital Inverter Gate' },
-    { cat: 'Digital Logic & MCU', name: 'LOGICSTATE (Interactive 0/1 Switch)', type: 'LOGIC_TOGGLE', part: 'LOGIC-0/1', val: 0, desc: 'Click to toggle 0V / 5V' },
-    { cat: 'Digital Logic & MCU', name: '7SEG-BCD (4-Bit BCD 7-Segment)', type: 'BCD7', part: '7SEG-BCD', val: 0, desc: '0-9 / Hex Digital Display' },
-    { cat: 'Digital Logic & MCU', name: 'LCD-16x2 (Alphanumeric Display)', type: 'LCD16', part: 'LCD-16x2', val: 0, desc: '16x2 Green Backlit LCD Screen' },
-    { cat: 'Digital Logic & MCU', name: 'ATmega328P / Arduino MCU', type: 'MCU', part: 'MCU-IDE', val: 250, desc: 'Programmable Python/C++ MCU + UART' },
-
-    // 8. Motors, Actuators & Control
-    { cat: 'Motors & Control', name: 'MOTOR-DC (Standard 12V DC Motor)', type: 'MOTOR', part: 'DC-MOTOR', val: 12, desc: 'Full Physics: Ra, La, Back-EMF, J, Load' },
-    { cat: 'Motors & Control', name: 'MOTOR-N20 (Micro Gear 6V Motor)', type: 'MOTOR', part: 'N20-MOTOR', val: 6, desc: '6V Mini Precision Gear Motor' },
-    { cat: 'Motors & Control', name: 'MOTOR-775 (High-Power 24V DC)', type: 'MOTOR', part: 'DC-775', val: 24, desc: 'High Speed/Torque 775 Motor' },
-    { cat: 'Motors & Control', name: 'MOTOR-SHUNT (24V DC Shunt Motor)', type: 'MOTOR', part: 'SHUNT-MOTOR', val: 24, desc: 'Constant Speed Shunt Wound Motor' },
-    { cat: 'Motors & Control', name: 'MOTOR-SERIES (24V DC Series Motor)', type: 'MOTOR', part: 'SERIES-MOTOR', val: 24, desc: 'High Starting Torque Series Motor' },
-    { cat: 'Motors & Control', name: 'MOTOR-UNIVERSAL (230V AC/DC)', type: 'MOTOR', part: 'UNIVERSAL-MOTOR', val: 230, desc: 'Universal Commutator AC/DC Motor' },
-    { cat: 'Motors & Control', name: 'MOTOR-STEPPER (NEMA17 Stepper)', type: 'MOTOR', part: 'STEPPER-MOTOR', val: 12, desc: '1.8° Step Angle Stepper Motor' },
-    { cat: 'Motors & Control', name: 'MOTOR-BLDC (Brushless DC Motor)', type: 'MOTOR', part: 'BLDC-MOTOR', val: 24, desc: 'High-Efficiency BLDC Motor' },
-    { cat: 'Motors & Control', name: 'MOTOR-INDUCTION (220V AC Motor)', type: 'MOTOR', part: 'INDUCTION-MOTOR', val: 220, desc: 'AC Induction Motor' },
-    { cat: 'Motors & Control', name: 'PID-CTRL (Closed-Loop PID Block)', type: 'PID', part: 'PID-CTRL', val: 0, kp: 3.5, ki: 25.0, kd: 0.08, desc: 'PID Controller with AI Auto-Tune' },
-    { cat: 'Motors & Control', name: 'LM35 (Temp Sensor 10mV/°C)', type: 'LM35', part: 'LM35', val: 35, desc: 'Interactive Temperature Sensor' },
-    { cat: 'Motors & Control', name: 'HC-SR04 (Ultrasonic Distance)', type: 'HCSR04', part: 'HC-SR04', val: 120, desc: '0-400cm Distance/Level Sensor' },
-
-    // 9. Instruments & Probes
-    { cat: 'Instruments', name: 'AMMETER (True-RMS Current Meter)', type: 'AMMETER', part: 'AMMETER', val: 0, desc: 'Series True-RMS Ammeter' },
-    { cat: 'Instruments', name: 'VOLTMETER / PROBE (Scope Channel)', type: 'probe', part: 'PROBE', val: 0, desc: 'Oscilloscope Voltage Probe' }
+  { cat: 'المتكاملات والمحركات', name: '7805 (+5V منظم جهد)', type: 'REG', part: '7805', val: 5.0 },
+  { cat: 'المتكاملات والمحركات', name: '7812 (+12V منظم جهد)', type: 'REG', part: '7812', val: 12.0 },
+  { cat: 'المتكاملات والمحركات', name: 'LM741 (مكبر عمليات Op-Amp)', type: 'OP', part: 'LM741' },
+  { cat: 'المتكاملات والمحركات', name: 'NE555 (مؤقت 555)', type: 'NE555', part: 'NE555', val: 5.0 },
+  { cat: 'المتكاملات والمحركات', name: 'Arduino / MCU (متحكم مبرمج)', type: 'MCU', part: 'ATmega328P', code: 'if A0 > 2.5:\n    digitalWrite(HIGH)\nelse:\n    digitalWrite(LOW)' },
+  { cat: 'المتكاملات والمحركات', name: 'DC Motor 12V (محرك تيار مستمر)', type: 'MOTOR', part: 'DC-MOTOR', load: 0 },
+  { cat: 'المتكاملات والمحركات', name: 'Stepper Motor (محرك خطوي)', type: 'MOTOR', part: 'STEPPER-MOTOR', load: 0 },
+  { cat: 'المتكاملات والمحركات', name: 'BLDC Motor (محرك بدون فرش)', type: 'MOTOR', part: 'BLDC-MOTOR', load: 0 },
+  { cat: 'المتكاملات والمحركات', name: 'Ammeter (أميتر قياس تيار)', type: 'AMMETER', part: 'AMMETER' },
+  { cat: 'المتكاملات والمحركات', name: 'Wattmeter (قياس قدرة و PF)', type: 'WATTMETER', part: 'WATTMETER' }
 ];
 
-let selectedCategory = 'All';
-let pendingDevice = null;
-let viewMode = 'schematic';
-let twinType = 'none';
-
-function cycleViewMode() {
-    const order = ['schematic', 'pcb', 'breadboard'];
-    viewMode = order[(order.indexOf(viewMode) + 1) % order.length];
-    const labels = { schematic: '📐 Schematic', pcb: '🟩 ARES PCB', breadboard: '🍞 Breadboard' };
-    document.getElementById('viewToggleBtn').innerText = labels[viewMode];
-    draw();
-}
-
-function openLibrary() { document.getElementById('libModal').style.display = 'flex'; renderCategories(); filterLibrary(); }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-function renderCategories() {
-    const cats = ['All', ...new Set(DEVICE_LIBRARY.map(d => d.cat))];
-    document.getElementById('catList').innerHTML = cats.map(c => `<div class="cat-item ${selectedCategory===c?'active':''}" onclick="selectedCategory='${c}'; renderCategories(); filterLibrary();">${c}</div>`).join('');
-}
-
-function filterLibrary() {
-    const q = document.getElementById('libSearch').value.toLowerCase();
-    const filtered = DEVICE_LIBRARY.filter(d => (selectedCategory === 'All' || d.cat === selectedCategory) && (d.name.toLowerCase().includes(q) || d.desc.toLowerCase().includes(q)));
-    document.getElementById('partList').innerHTML = filtered.map(d => `
-        <div class="part-row" onclick='pickDevice(${JSON.stringify(d)})'>
-            <div><strong>${d.name}</strong><div style="font-size:0.7rem; color:#94a3b8;">${d.desc}</div></div>
-            <span style="color:#10b981; font-size:0.72rem;">[${d.cat}]</span>
-        </div>
-    `).join('');
-}
-
-function pickDevice(dev) {
-    pendingDevice = dev;
-    closeModal('libModal');
-    setTool('custom_pick');
-    logConsole('ok', `📌 Selected: <b>${dev.name}</b> — اضغط على البوردة لوضعه.`);
-}
-
-function visionImport(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    logConsole('ok', `📷 <b>AI Vision Scanner:</b> جاري تحليل صورة الدائرة وتحويلها لمحاكاة دقيقة...`);
-    setTimeout(() => {
-        loadPreset('psu_7805');
-        logConsole('ok', `✅ <b>AI Vision Complete:</b> تم التعرف على المكونات وبناء الدائرة بنجاح!`);
-    }, 800);
-}
-
-async function connectWebSerial() {
-    if ('serial' in navigator) {
-        try {
-            await navigator.serial.requestPort();
-            logConsole('ok', '🔌 <b>USB HIL Connected:</b> تم ربط المحاكي مع بوردة الهاردوير الحقيقية بنجاح!');
-        } catch (err) {
-            logConsole('warn', '🔌 تم إلغاء اختيار المنفذ.');
-        }
-    } else {
-        logConsole('warn', '🔌 متصفحك لا يدعم WebSerial؛ استخدم <b>🎓 Defense & Bus</b> لتصدير كود C++ الحقيقي.');
-    }
-}
-
-async function autoTunePID() {
-    const pid = components.find(c => c.type === 'PID');
-    if (!pid) {
-        logConsole('warn', '🧬 أضف بلوك PID في الدائرة أولاً أو حمّل دائرة السيرفو / الخزان.');
-        return;
-    }
-    const res = await fetch('/simulate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'autotune', num_nodes: 1, components: [] })
-    });
-    const data = await res.json();
-    pid.kp = data.kp; pid.ki = data.ki; pid.kd = data.kd;
-    selectedComp = pid; renderProps();
-    logConsole('ok', `🧬 <b>AI Genetic Auto-Tuner:</b> تم ضبط المعاملات (Kp=${pid.kp}, Ki=${pid.ki}, Kd=${pid.kd}) لأفضل استجابة ممكنة!`);
-    runSimulation('transient');
-}
-
-const canvas = document.getElementById('cadCanvas');
+const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
-let currentTool = 'select';
+let view = { x: 0, y: 0, scale: 1 };
+let tool = 'select';
 let components = [];
 let wires = [];
 let probes = [];
-let historyStack = [];
-let ledCurrents = {};
-let compPowers = {};
-let ammeterReadings = {};
-let motorReadings = {};
-let bcdReadings = {};
-let lcdReadings = {};
-let lastExplanations = [];
-let lastBusFrames = [];
-let nodeLastVoltages = {};
-let simActive = false;
-let animPhase = 0;
-let selectedComp = null;
-let draggingComp = null;
-let wireStartPin = null;
-let mousePos = { x: 0, y: 0 };
-let chart = null;
+let history = [];
 let nextId = 1;
+let selected = null;
+let dragging = null;
+let panning = false;
+let panStart = { x: 0, y: 0 };
+let wireStart = null;
+let pointerWorld = { x: 0, y: 0 };
+let tStopVal = 0.04;
 
-function saveHistory() {
-    historyStack.push(JSON.stringify({ components, wires, probes, nextId }));
-    if (historyStack.length > 30) historyStack.shift();
+// Simulation results
+let simData = null;
+let nodeVoltagesLast = {};
+let ledCurrents = {};
+let motorStats = {};
+let ammeterStats = {};
+let scopeMode = 'time';
+let vDiv = [5, 5, 5, 5];
+
+function resize() {
+  canvas.width = canvas.parentElement.clientWidth;
+  canvas.height = canvas.parentElement.clientHeight;
+  draw();
+}
+window.addEventListener('resize', resize);
+
+function screenToWorld(sx, sy) {
+  return {
+    x: (sx - view.x) / view.scale,
+    y: (sy - view.y) / view.scale
+  };
 }
 
-function undoAction() {
-    if (historyStack.length === 0) return;
-    const prev = JSON.parse(historyStack.pop());
-    components = prev.components; wires = prev.wires; probes = prev.probes; nextId = prev.nextId;
-    selectedComp = null; renderProps(); draw();
+function zoomBy(factor) {
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+  view.x = cx - (cx - view.x) * factor;
+  view.y = cy - (cy - view.y) * factor;
+  view.scale = Math.max(0.4, Math.min(2.5, view.scale * factor));
+  draw();
 }
 
-function resizeCanvas() {
-    canvas.width = canvas.parentElement.clientWidth;
-    canvas.height = canvas.parentElement.clientHeight;
-}
-window.addEventListener('resize', resizeCanvas);
-
-function animLoop() {
-    if (simActive && viewMode === 'schematic') {
-        animPhase = (animPhase + 0.6) % 360;
-        draw();
-    }
-    requestAnimationFrame(animLoop);
-}
-requestAnimationFrame(animLoop);
-
-function setTool(tool) {
-    currentTool = tool;
-    wireStartPin = null;
-    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById('tool-' + tool);
-    if (btn) btn.classList.add('active');
+function resetView() {
+  view = { x: 0, y: 0, scale: 1 };
+  draw();
 }
 
-function rotateSelected() {
-    if (!selectedComp) return;
-    saveHistory();
-    selectedComp.rot = ((selectedComp.rot || 0) + 90) % 360;
-    draw();
+function saveUndo() {
+  history.push(JSON.stringify({ components, wires, probes, nextId }));
+  if (history.length > 25) history.shift();
+}
+
+function undo() {
+  if (!history.length) return;
+  const s = JSON.parse(history.pop());
+  components = s.components; wires = s.wires; probes = s.probes; nextId = s.nextId;
+  deselectAll();
+  draw();
+}
+
+function setTool(t) {
+  tool = t;
+  wireStart = null;
+  document.querySelectorAll('.bottom-bar .btn').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById('tool-' + t);
+  if (el) el.classList.add('active');
+  setStatus(t === 'wire' ? 'اضغط على طرف عنصر ثم الطرف الآخر لتوصيل سلك' : (t === 'probe' ? 'اضغط على أي طرف لوضع مجس أوسليسكوب' : 'جاهز'));
+  draw();
+}
+
+function setStatus(msg, isErr = false) {
+  const el = document.getElementById('statusPill');
+  el.innerText = msg;
+  el.style.color = isErr ? '#f87171' : '#10b981';
 }
 
 function getPins(c) {
-    const r = c.rot || 0;
-    let raw = [];
-    if (c.type === 'GND') raw = [{ x: c.x, y: c.y - 20, name: 'GND' }];
-    else if (['LOGIC_TOGGLE', 'LM35', 'HCSR04'].includes(c.type)) raw = [{ x: c.x + 38, y: c.y, name: 'OUT' }];
-    else if (c.type === 'LCD16') raw = [{ x: c.x - 55, y: c.y, name: 'DATA' }];
-    else if (c.type === 'PID') raw = [{ x: c.x - 45, y: c.y - 14, name: 'SET' }, { x: c.x - 45, y: c.y + 14, name: 'FB' }, { x: c.x + 45, y: c.y, name: 'OUT' }];
-    else if (c.type === 'REG') raw = [{ x: c.x - 45, y: c.y, name: 'IN' }, { x: c.x, y: c.y + 35, name: 'GND' }, { x: c.x + 45, y: c.y, name: 'OUT' }];
-    else if (c.type === 'NE555') raw = [{ x: c.x - 45, y: c.y - 16, name: 'TRIG' }, { x: c.x - 45, y: c.y + 16, name: 'THRES' }, { x: c.x + 45, y: c.y - 16, name: 'DISCH' }, { x: c.x + 45, y: c.y + 16, name: 'OUT' }];
-    else if (c.type === 'OPTO') raw = [{ x: c.x - 45, y: c.y - 16, name: 'A' }, { x: c.x - 45, y: c.y + 16, name: 'K' }, { x: c.x + 45, y: c.y - 16, name: 'C' }, { x: c.x + 45, y: c.y + 16, name: 'E' }];
-    else if (c.type === 'RELAY') raw = [{ x: c.x - 45, y: c.y - 16, name: 'C1' }, { x: c.x - 45, y: c.y + 16, name: 'C2' }, { x: c.x + 45, y: c.y - 16, name: 'COM' }, { x: c.x + 45, y: c.y + 16, name: 'NO' }];
-    else if (c.type === 'BCD7') raw = [{ x: c.x - 45, y: c.y - 24, name: 'D0' }, { x: c.x - 45, y: c.y - 8, name: 'D1' }, { x: c.x - 45, y: c.y + 8, name: 'D2' }, { x: c.x - 45, y: c.y + 24, name: 'D3' }];
-    else if (c.type === 'TRF') raw = [{ x: c.x - 40, y: c.y - 20, name: 'P1' }, { x: c.x - 40, y: c.y + 20, name: 'P2' }, { x: c.x + 40, y: c.y - 20, name: 'S1' }, { x: c.x + 40, y: c.y + 20, name: 'S2' }];
-    else if (c.type === 'OP') raw = [{ x: c.x - 45, y: c.y - 14, name: '+' }, { x: c.x - 45, y: c.y + 14, name: '-' }, { x: c.x + 45, y: c.y, name: 'Out' }];
-    else if (['M', 'Q', 'SCR', 'TRIAC'].includes(c.type)) {
-        const names = { M: ['G', 'D', 'S'], Q: ['B', 'C', 'E'], SCR: ['G', 'A', 'K'], TRIAC: ['G', 'MT1', 'MT2'] }[c.type];
-        raw = [{ x: c.x - 40, y: c.y, name: names[0] }, { x: c.x + 20, y: c.y - 40, name: names[1] }, { x: c.x + 20, y: c.y + 40, name: names[2] }];
-    } else if (['AND', 'OR', 'NAND', 'XOR'].includes(c.type)) raw = [{ x: c.x - 45, y: c.y - 12, name: 'A' }, { x: c.x - 45, y: c.y + 12, name: 'B' }, { x: c.x + 45, y: c.y, name: 'Y' }];
-    else if (c.type === 'MCU') raw = [{ x: c.x - 50, y: c.y, name: 'A0' }, { x: c.x + 50, y: c.y, name: 'D1' }];
-    else raw = [{ x: c.x - 40, y: c.y, name: c.type === 'CELEC' ? '+' : '1' }, { x: c.x + 40, y: c.y, name: c.type === 'CELEC' ? '-' : '2' }];
+  let raw = [];
+  if (c.type === 'GND') raw = [{ x: c.x, y: c.y - 20 }];
+  else if (c.type === 'REG') raw = [{ x: c.x - 40, y: c.y }, { x: c.x, y: c.y + 30 }, { x: c.x + 40, y: c.y }];
+  else if (c.type === 'OP') raw = [{ x: c.x - 40, y: c.y - 12 }, { x: c.x - 40, y: c.y + 12 }, { x: c.x + 40, y: c.y }];
+  else if (['Q', 'M', 'SCR', 'TRIAC'].includes(c.type)) raw = [{ x: c.x - 40, y: c.y }, { x: c.x + 20, y: c.y - 35 }, { x: c.x + 20, y: c.y + 35 }];
+  else if (['TRF', 'BRIDGE', 'WATTMETER', 'NE555'].includes(c.type)) raw = [{ x: c.x - 40, y: c.y - 16 }, { x: c.x - 40, y: c.y + 16 }, { x: c.x + 40, y: c.y - 16 }, { x: c.x + 40, y: c.y + 16 }];
+  else raw = [{ x: c.x - 40, y: c.y }, { x: c.x + 40, y: c.y }];
 
-    return raw.map(p => {
-        const rad = (c.rot || 0) * Math.PI / 180;
-        const dx = p.x - c.x, dy = p.y - c.y;
-        return {
-            x: Math.round(c.x + dx * Math.cos(rad) - dy * Math.sin(rad)),
-            y: Math.round(c.y + dx * Math.sin(rad) + dy * Math.cos(rad)),
-            name: p.name
-        };
+  const rad = ((c.rot || 0) * Math.PI) / 180;
+  return raw.map(p => {
+    const dx = p.x - c.x, dy = p.y - c.y;
+    return {
+      x: Math.round(c.x + dx * Math.cos(rad) - dy * Math.sin(rad)),
+      y: Math.round(c.y + dx * Math.sin(rad) + dy * Math.cos(rad))
+    };
+  });
+}
+
+function findPinNear(wx, wy) {
+  let best = null, bestDist = 22 / view.scale;
+  for (const c of components) {
+    const pins = getPins(c);
+    pins.forEach((p, idx) => {
+      const d = Math.hypot(p.x - wx, p.y - wy);
+      if (d < bestDist) { bestDist = d; best = { compId: c.id, pinIdx: idx, x: p.x, y: p.y }; }
     });
+  }
+  return best;
 }
 
-function findPinAt(x, y) {
-    for (let c of components) {
-        const pins = getPins(c);
-        for (let i = 0; i < pins.length; i++) {
-            if (Math.hypot(pins[i].x - x, pins[i].y - y) < 13) return { compId: c.id, pinIdx: i, x: pins[i].x, y: pins[i].y };
-        }
-    }
-    return null;
-}
-
-function findCompAt(x, y) {
-    for (let i = components.length - 1; i >= 0; i--) {
-        const c = components[i];
-        if (Math.abs(c.x - x) < 42 && Math.abs(c.y - y) < 32) return c;
-    }
-    return null;
+function findCompNear(wx, wy) {
+  for (let i = components.length - 1; i >= 0; i--) {
+    const c = components[i];
+    if (Math.hypot(c.x - wx, c.y - wy) < 38) return c;
+  }
+  return null;
 }
 
 canvas.addEventListener('pointerdown', (e) => {
-    if (e.pointerType === 'touch') canvas.setPointerCapture(e.pointerId);
-    const rect = canvas.getBoundingClientRect();
-    const rawX = e.clientX - rect.left;
-    const rawY = e.clientY - rect.top;
+  canvas.setPointerCapture(e.pointerId);
+  const rect = canvas.getBoundingClientRect();
+  const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+  const w = screenToWorld(sx, sy);
+  pointerWorld = w;
 
-    if (currentTool === 'wire' && viewMode === 'schematic') {
-        const pin = findPinAt(rawX, rawY);
-        if (pin) {
-            if (!wireStartPin) wireStartPin = pin;
-            else if (wireStartPin.compId !== pin.compId || wireStartPin.pinIdx !== pin.pinIdx) {
-                saveHistory();
-                wires.push({ from: { compId: wireStartPin.compId, pinIdx: wireStartPin.pinIdx }, to: { compId: pin.compId, pinIdx: pin.pinIdx } });
-                wireStartPin = null;
-            }
-        } else wireStartPin = null;
-    } else if (currentTool === 'delwire' && viewMode === 'schematic') {
-        const pin = findPinAt(rawX, rawY);
-        if (pin) {
-            saveHistory();
-            wires = wires.filter(w => !( (w.from.compId === pin.compId && w.from.pinIdx === pin.pinIdx) || (w.to.compId === pin.compId && w.to.pinIdx === pin.pinIdx) ));
-        }
-    } else if (currentTool === 'probe') {
-        const pin = findPinAt(rawX, rawY);
-        if (pin) {
-            saveHistory();
-            const exists = probes.findIndex(p => p.compId === pin.compId && p.pinIdx === pin.pinIdx);
-            if (exists >= 0) probes.splice(exists, 1);
-            else {
-                const colors = ['#38bdf8', '#10b981', '#f59e0b', '#ec4899', '#a855f7'];
-                probes.push({ compId: pin.compId, pinIdx: pin.pinIdx, label: `CH${probes.length + 1}`, color: colors[probes.length % colors.length] });
-            }
-            if (components.length > 0) runSimulation('transient');
-        }
-    } else if (currentTool === 'select') {
-        const comp = findCompAt(rawX, rawY);
-        if (comp && ['SW', 'SW_SPDT', 'PUSH_BTN', 'LOGIC_TOGGLE'].includes(comp.type)) {
-            comp.closed = !comp.closed;
-            runSimulation('transient');
-        }
-        selectedComp = comp;
-        draggingComp = comp;
-        renderProps();
-    } else if (currentTool === 'custom_pick' && pendingDevice) {
-        saveHistory();
-        let newComp = {
-            id: nextId++, type: pendingDevice.type, x: Math.round(rawX / 20) * 20, y: Math.round(rawY / 20) * 20, rot: 0, fault: 'NONE',
-            part: pendingDevice.part, val: pendingDevice.val, pol: pendingDevice.pol || 'NPN',
-            kp: pendingDevice.kp || 3.5, ki: pendingDevice.ki || 25.0, kd: pendingDevice.kd || 0.08,
-            pct: 50, dc: 0, amp: 12, freq: 50, wave: 'sine', phase: 0, closed: false, Is: 1e-12, n: 1.0, th: 2.5,
-            code: "temp = A0 * 100\nlcdPrint(f'Temp: {temp:.1f} C')\nif temp > 35:\n    digitalWrite(HIGH)\nelse:\n    digitalWrite(LOW)"
-        };
-        components.push(newComp);
-        selectedComp = newComp;
-        renderProps();
-        setTool('select');
+  if (tool === 'wire') {
+    const pin = findPinNear(w.x, w.y);
+    if (pin) {
+      if (!wireStart) {
+        wireStart = pin;
+        setStatus('اختر الطرف الثاني لإكمال التوصيل...');
+      } else if (wireStart.compId !== pin.compId || wireStart.pinIdx !== pin.pinIdx) {
+        saveUndo();
+        wires.push({ from: { compId: wireStart.compId, pinIdx: wireStart.pinIdx }, to: { compId: pin.compId, pinIdx: pin.pinIdx } });
+        wireStart = null;
+        setStatus('✅ تم توصيل السلك');
+      }
     } else {
-        saveHistory();
-        const defaultParts = { D: '1N4007', TRIAC: 'BT136', DIAC: 'DB3', SCR: 'BT151', M: 'IRFZ44N', Q: '2N2222', CELEC: '470uF', MCU: 'MCU-IDE', REG: '7805', NE555: 'NE555', MOTOR: 'DC-MOTOR', PID: 'PID-CTRL' };
-        let newComp = {
-            id: nextId++, type: currentTool, x: Math.round(rawX / 20) * 20, y: Math.round(rawY / 20) * 20, rot: 0, fault: 'NONE',
-            part: defaultParts[currentTool] || 'CUSTOM',
-            val: 1000, kp: 3.5, ki: 25.0, kd: 0.08, pct: 50, dc: 0, amp: 12, freq: 50, wave: 'sine', phase: 0, closed: true, Is: 1e-12, n: 1.0, pol: 'NPN', th: 2.5,
-            code: "if A0 > 2.5:\n    pwmWrite(250, 60)\n    lcdPrint('PWM 60% Active')\nelse:\n    digitalWrite(LOW)"
-        };
-        if (currentTool === 'POT') newComp.val = '100k';
-        if (currentTool === 'C') newComp.val = '100n';
-        if (currentTool === 'CELEC') newComp.val = '470u';
-        if (currentTool === 'REG') newComp.val = 5.0;
-        components.push(newComp);
-        selectedComp = newComp;
-        renderProps();
-        setTool('select');
+      wireStart = null;
     }
     draw();
+    return;
+  }
+
+  if (tool === 'probe') {
+    const pin = findPinNear(w.x, w.y);
+    if (pin) {
+      saveUndo();
+      const idx = probes.findIndex(p => p.compId === pin.compId && p.pinIdx === pin.pinIdx);
+      if (idx >= 0) probes.splice(idx, 1);
+      else {
+        const colors = ['#facc15', '#38bdf8', '#10b981', '#ec4899'];
+        probes.push({ compId: pin.compId, pinIdx: pin.pinIdx, label: `CH${probes.length + 1}`, color: colors[probes.length % 4] });
+      }
+      if (components.length) runSim(true);
+    }
+    draw();
+    return;
+  }
+
+  const comp = findCompNear(w.x, w.y);
+  if (comp) {
+    if (comp.type === 'SW') {
+      comp.closed = !comp.closed;
+      runSim(true);
+    }
+    selectComponent(comp);
+    dragging = comp;
+  } else {
+    deselectAll();
+    panning = true;
+    panStart = { x: sx - view.x, y: sy - view.y };
+  }
+  draw();
 });
 
 canvas.addEventListener('pointermove', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    mousePos = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    if (draggingComp && currentTool === 'select') {
-        draggingComp.x = Math.round(mousePos.x / 20) * 20;
-        draggingComp.y = Math.round(mousePos.y / 20) * 20;
-    }
+  const rect = canvas.getBoundingClientRect();
+  const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+  pointerWorld = screenToWorld(sx, sy);
+
+  if (dragging) {
+    dragging.x = Math.round(pointerWorld.x / 20) * 20;
+    dragging.y = Math.round(pointerWorld.y / 20) * 20;
     draw();
+  } else if (panning) {
+    view.x = sx - panStart.x;
+    view.y = sy - panStart.y;
+    draw();
+  } else if (wireStart) {
+    draw();
+  }
 });
 
-canvas.addEventListener('pointerup', () => { draggingComp = null; });
-canvas.addEventListener('pointercancel', () => { draggingComp = null; });
+canvas.addEventListener('pointerup', () => { dragging = null; panning = false; });
+canvas.addEventListener('pointercancel', () => { dragging = null; panning = false; });
 
-function renderProps() {
-    const box = document.getElementById('selectedProps');
-    if (!selectedComp) {
-        box.innerHTML = 'اكتب أي قيمة هندسية بحرية (10k, 4.7u, 100n) لعنصرك المختار.';
-        return;
-    }
-    let html = `<div style="margin-bottom:5px; color:#f8fafc; font-weight:bold;">Selected: ${selectedComp.type} [${selectedComp.part}] (#${selectedComp.id})</div>`;
+function quickAdd(type) {
+  const item = LIBRARY.find(x => x.type === type);
+  if (item) addComponentFromLib(item);
+}
 
-    if (selectedComp.type === 'PID') {
-        html += `<div class="prop-grid">
-            <div><label>Kp</label><input type="text" value="${selectedComp.kp}" onchange="selectedComp.kp=this.value; runSimulation('transient');"></div>
-            <div><label>Ki</label><input type="text" value="${selectedComp.ki}" onchange="selectedComp.ki=this.value; runSimulation('transient');"></div>
-            <div><label>Kd</label><input type="text" value="${selectedComp.kd}" onchange="selectedComp.kd=this.value; runSimulation('transient');"></div>
-        </div>`;
-    } else if (selectedComp.type === 'GATE_FIRING') {
-        html += `<div><label>🔥 Firing Angle α: <b id="alphaLbl">${selectedComp.alpha || 60}°</b></label>
-            <input type="range" min="0" max="175" value="${selectedComp.alpha || 60}" oninput="selectedComp.alpha=this.value; document.getElementById('alphaLbl').innerText=this.value+'°'; runSimulation('transient');">
-        </div>`;
-    } else if (selectedComp.type === 'LDR') {
-        html += `<div><label>☀️ Light Intensity: <b id="ldrLbl">${selectedComp.val} Ω</b></label>
-            <input type="range" min="100" max="50000" step="100" value="${parseFloat(selectedComp.val)||5000}" oninput="selectedComp.val=this.value; document.getElementById('ldrLbl').innerText=this.value+' Ω'; draw(); runSimulation('transient');">
-        </div>`;
-    } else if (selectedComp.type === 'NTC') {
-        html += `<div><label>🌡 NTC Resistance: <b id="ntcLbl">${selectedComp.val} Ω</b></label>
-            <input type="range" min="200" max="20000" step="100" value="${parseFloat(selectedComp.val)||10000}" oninput="selectedComp.val=this.value; document.getElementById('ntcLbl').innerText=this.value+' Ω'; draw(); runSimulation('transient');">
-        </div>`;
-    } else if (selectedComp.type === 'LM35') {
-        html += `<div><label>🌡 Temperature: <b id="lm35Lbl">${selectedComp.val} °C</b></label>
-            <input type="range" min="0" max="150" value="${selectedComp.val}" oninput="selectedComp.val=this.value; document.getElementById('lm35Lbl').innerText=this.value+' °C'; draw(); runSimulation('transient');">
-        </div>`;
-    } else if (selectedComp.type === 'V') {
-        html += `<div class="prop-grid">
-            <div><label>Waveform</label>
-                <select onchange="selectedComp.wave=this.value; draw();">
-                    <option value="sine" ${selectedComp.wave==='sine'?'selected':''}>Sine / DC</option>
-                    <option value="square" ${selectedComp.wave==='square'?'selected':''}>Square Step</option>
-                    <option value="pulse" ${selectedComp.wave==='pulse'?'selected':''}>Trigger Pulse</option>
-                </select>
-            </div>
-            <div><label>Phase (°)</label><input type="text" value="${selectedComp.phase || 0}" onchange="selectedComp.phase=this.value; runSimulation('transient');"></div>
-            <div><label>DC Offset (V)</label><input type="text" value="${selectedComp.dc}" onchange="selectedComp.dc=this.value; draw();"></div>
-            <div><label>Amplitude (V)</label><input type="text" value="${selectedComp.amp}" onchange="selectedComp.amp=this.value; draw();"></div>
-            <div><label>Freq (Hz)</label><input type="text" value="${selectedComp.freq}" onchange="selectedComp.freq=this.value; draw();"></div>
-        </div>`;
-    } else if (selectedComp.type === 'MCU') {
-        html += `<div>
-            <label>🧠 Embedded MCU Code:</label>
-            <textarea rows="4" onchange="selectedComp.code=this.value">${selectedComp.code || ''}</textarea>
-            <button class="tool-btn btn-run" style="margin-top:4px; width:100%;" onclick="runSimulation('transient')">⚡ Compile & Flash</button>
-        </div>`;
-    } else if (selectedComp.type === 'POT') {
-        html += `<div class="prop-grid">
-            <div><label>Resistance (e.g. 100k)</label><input type="text" value="${selectedComp.val}" onchange="selectedComp.val=this.value; draw();"></div>
-            <div><label>Wiper: <b id="potPctLbl">${selectedComp.pct}%</b></label>
-                <input type="range" min="1" max="100" value="${selectedComp.pct}" oninput="selectedComp.pct=this.value; document.getElementById('potPctLbl').innerText=this.value+'%'; draw(); runSimulation('transient');">
-            </div>
-        </div>`;
-    } else if (['R', 'C', 'CELEC', 'L', 'Z', 'TRF', 'RELAY'].includes(selectedComp.type)) {
-        const labels = { R: 'Resistance (e.g. 10k)', C: 'Ceramic Cap (e.g. 100n)', CELEC: 'Electrolytic Cap (e.g. 470u)', L: 'Inductance (e.g. 10m)', Z: 'Zener Vz', TRF: 'Turns Ratio', RELAY: 'Coil V' };
-        html += `<div><label>${labels[selectedComp.type]}</label><input type="text" value="${selectedComp.val}" onchange="selectedComp.val=this.value; draw();"></div>`;
-    }
-    html += `<button class="tool-btn btn-clear" style="margin-top:6px; width:100%;" onclick="deleteSelected()">Delete Component</button>`;
-    box.innerHTML = html;
+function addComponentFromLib(item) {
+  saveUndo();
+  const center = screenToWorld(canvas.width / 2, canvas.height / 2);
+  const comp = {
+    id: nextId++,
+    type: item.type,
+    part: item.part || item.type,
+    x: Math.round((center.x + (Math.random() - 0.5) * 80) / 20) * 20,
+    y: Math.round((center.y + (Math.random() - 0.5) * 80) / 20) * 20,
+    rot: 0,
+    val: item.val !== undefined ? item.val : 0,
+    dc: item.dc || 0,
+    amp: item.amp || 0,
+    freq: item.freq || 0,
+    wave: item.wave || 'sine',
+    pol: item.pol || 'NPN',
+    pct: item.pct || 50,
+    alpha: item.alpha || 60,
+    load: item.load || 0,
+    closed: item.closed !== undefined ? item.closed : true,
+    code: item.code || ''
+  };
+  components.push(comp);
+  selectComponent(comp);
+  setTool('select');
+  draw();
+}
+
+function selectComponent(c) {
+  selected = c;
+  const sheet = document.getElementById('propSheet');
+  const body = document.getElementById('propBody');
+  document.getElementById('propTitle').innerText = `${c.part} (#${c.id})`;
+
+  let html = '';
+  if (c.type === 'V') {
+    html = `<div class="prop-grid">
+      <div><label>النوع (Wave)</label><select onchange="selected.wave=this.value; runSim(true);">
+        <option value="sine" ${c.wave==='sine'?'selected':''}>Sine / DC</option>
+        <option value="square" ${c.wave==='square'?'selected':''}>Square</option>
+        <option value="pulse" ${c.wave==='pulse'?'selected':''}>Pulse</option>
+      </select></div>
+      <div><label>DC Offset (V)</label><input type="number" step="any" value="${c.dc}" onchange="selected.dc=+this.value; draw(); runSim(true);"></div>
+      <div><label>Amplitude (V)</label><input type="number" step="any" value="${c.amp}" onchange="selected.amp=+this.value; draw(); runSim(true);"></div>
+      <div><label>Freq (Hz)</label><input type="number" step="any" value="${c.freq}" onchange="selected.freq=+this.value; draw(); runSim(true);"></div>
+    </div>`;
+  } else if (c.type === 'POT') {
+    html = `<div class="prop-grid">
+      <div><label>المقاومة الكلية</label><input type="text" value="${c.val}" onchange="selected.val=this.value; runSim(true);"></div>
+      <div><label>النسبة: <b id="potV">${c.pct}%</b></label><input type="range" min="1" max="100" value="${c.pct}" oninput="selected.pct=+this.value; document.getElementById('potV').innerText=this.value+'%'; runSim(true);"></div>
+    </div>`;
+  } else if (c.type === 'GATE_FIRING') {
+    html = `<div><label>🔥 زاوية الإشعال α: <b id="alpV">${c.alpha}°</b></label>
+      <input type="range" min="0" max="175" value="${c.alpha}" oninput="selected.alpha=+this.value; document.getElementById('alpV').innerText=this.value+'°'; runSim(true);"></div>`;
+  } else if (c.type === 'MCU') {
+    html = `<div><label>كود المتحكم (Python أو Arduino C++):</label>
+      <textarea rows="3" onchange="selected.code=this.value">${c.code}</textarea></div>`;
+  } else if (['R', 'C', 'CELEC', 'L', 'Z', 'TRF'].includes(c.type)) {
+    html = `<div><label>القيمة الهندسية (مثال: 10k, 4k7, 100n, 470u)</label>
+      <input type="text" value="${c.val}" onchange="selected.val=this.value; draw(); runSim(true);"></div>`;
+  } else {
+    html = `<div style="font-size:0.78rem; color:var(--muted);">العنصر جاهز للتوصيل والمحاكاة.</div>`;
+  }
+  body.innerHTML = html;
+  sheet.style.display = 'block';
+}
+
+function deselectAll() {
+  selected = null;
+  document.getElementById('propSheet').style.display = 'none';
+}
+
+function rotateSelected() {
+  if (!selected) return;
+  saveUndo();
+  selected.rot = ((selected.rot || 0) + 90) % 360;
+  draw();
 }
 
 function deleteSelected() {
-    if (!selectedComp) return;
-    saveHistory();
-    wires = wires.filter(w => w.from.compId !== selectedComp.id && w.to.compId !== selectedComp.id);
-    probes = probes.filter(p => p.compId !== selectedComp.id);
-    components = components.filter(c => c.id !== selectedComp.id);
-    selectedComp = null;
-    renderProps(); draw();
+  if (!selected) return;
+  saveUndo();
+  wires = wires.filter(w => w.from.compId !== selected.id && w.to.compId !== selected.id);
+  probes = probes.filter(p => p.compId !== selected.id);
+  components = components.filter(c => c.id !== selected.id);
+  deselectAll();
+  draw();
 }
 
-function drawPCBView() {
-    ctx.fillStyle = '#064e3b'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#047857';
-    for (let x = 0; x < canvas.width; x += 20) for (let y = 0; y < canvas.height; y += 20) ctx.fillRect(x, y, 2, 2);
-
-    ctx.strokeStyle = '#f87171'; ctx.lineWidth = 4.5; ctx.lineCap = 'round';
-    wires.forEach(w => {
-        const c1 = components.find(c => c.id === w.from.compId), c2 = components.find(c => c.id === w.to.compId);
-        if (c1 && c2) {
-            const p1 = getPins(c1)[w.from.pinIdx], p2 = getPins(c2)[w.to.pinIdx];
-            const midX = (p1.x + p2.x) / 2;
-            ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(midX, p1.y); ctx.lineTo(midX, p2.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
-        }
-    });
-
-    components.forEach(c => {
-        ctx.strokeStyle = '#f1f5f9'; ctx.lineWidth = 1.5; ctx.strokeRect(c.x - 28, c.y - 18, 56, 36);
-        ctx.fillStyle = '#f1f5f9'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center';
-        ctx.fillText(`U${c.id} (${c.part})`, c.x, c.y - 22);
-        getPins(c).forEach(p => {
-            ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.arc(p.x, p.y, 6.5, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#060911'; ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2); ctx.fill();
-        });
-    });
+function clearAll() {
+  saveUndo();
+  components = []; wires = []; probes = []; simData = null; nodeVoltagesLast = {};
+  deselectAll();
+  setStatus('تم مسح البوردة');
+  draw();
 }
 
-function drawBreadboardView() {
-    ctx.fillStyle = '#1e293b'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    const bx = 40, by = 40, bw = canvas.width - 80, bh = canvas.height - 80;
-    ctx.fillStyle = '#f1f5f9'; ctx.fillRect(bx, by, bw, bh);
-    ctx.strokeStyle = '#64748b'; ctx.lineWidth = 3; ctx.strokeRect(bx, by, bw, bh);
-
-    ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx + 20, by + 25); ctx.lineTo(bx + bw - 20, by + 25); ctx.stroke();
-    ctx.strokeStyle = '#3b82f6'; ctx.beginPath(); ctx.moveTo(bx + 20, by + bh - 25); ctx.lineTo(bx + bw - 20, by + bh - 25); ctx.stroke();
-
-    ctx.fillStyle = '#334155';
-    for (let x = bx + 30; x < bx + bw - 20; x += 20) for (let y = by + 45; y < by + bh - 40; y += 20) if (Math.abs(y - (by + bh/2)) > 12) ctx.fillRect(x - 2, y - 2, 4, 4);
-
-    const jumperColors = ['#ef4444', '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'];
-    wires.forEach((w, idx) => {
-        const c1 = components.find(c => c.id === w.from.compId), c2 = components.find(c => c.id === w.to.compId);
-        if (c1 && c2) {
-            const p1 = getPins(c1)[w.from.pinIdx], p2 = getPins(c2)[w.to.pinIdx];
-            ctx.strokeStyle = jumperColors[idx % jumperColors.length]; ctx.lineWidth = 3.5;
-            ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.quadraticCurveTo((p1.x + p2.x)/2, Math.min(p1.y, p2.y) - 35, p2.x, p2.y); ctx.stroke();
-        }
-    });
-
-    components.forEach(c => {
-        if (c.type === 'GND') return;
-        ctx.fillStyle = '#0f172a'; ctx.fillRect(c.x - 26, c.y - 16, 52, 32);
-        ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2; ctx.strokeRect(c.x - 26, c.y - 16, 52, 32);
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(c.part || c.type, c.x, c.y + 4);
-    });
-}
-
-function drawPhysicsTwinOverlay() {
-    if (twinType === 'none') return;
-    const tx = canvas.width - 165, ty = 30, tw = 130, th = 160;
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.94)'; ctx.fillRect(tx - 15, ty - 22, tw + 30, th + 55);
-    ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2; ctx.strokeRect(tx, ty, tw, th);
-
-    const outV = nodeLastVoltages[3] || nodeLastVoltages[2] || 0;
-
-    if (twinType === 'tank') {
-        const levelPct = Math.max(5, Math.min(95, (outV / 12.0) * 100));
-        const waterH = (levelPct / 100) * th;
-        ctx.fillStyle = 'rgba(14, 165, 233, 0.7)'; ctx.fillRect(tx + 2, ty + th - waterH, tw - 4, waterH - 2);
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText('🌊 PID Water Tank', tx + tw/2, ty - 7);
-        ctx.fillText(`Level: ${levelPct.toFixed(1)}%`, tx + tw/2, ty + th + 16);
-    } else if (twinType === 'pendulum') {
-        const cx = tx + tw / 2, cy = ty + th - 35;
-        ctx.fillStyle = '#38bdf8'; ctx.fillRect(cx - 24, cy, 48, 16);
-        const angleRad = Math.sin(animPhase * 0.08) * Math.max(0.01, (10.0 - Math.abs(outV)) * 0.03);
-        const len = 85;
-        const bx = cx + len * Math.sin(angleRad), by = cy - len * Math.cos(angleRad);
-        ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(bx, by); ctx.stroke();
-        ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(bx, by, 9, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText('⚖️ Stepper / Servo', cx, ty - 7);
-        ctx.fillText(`Pos: ${(angleRad * 57.3).toFixed(1)}°`, cx, ty + th + 16);
-    }
-    ctx.textAlign = 'left';
-}
-
-function drawSymbol(c) {
-    ctx.save();
-    ctx.translate(c.x, c.y);
-    ctx.rotate((c.rot || 0) * Math.PI / 180);
-
-    const isSel = selectedComp && selectedComp.id === c.id;
-    const strokeCol = isSel ? '#fbbf24' : '#38bdf8';
-    ctx.strokeStyle = strokeCol; ctx.fillStyle = strokeCol; ctx.lineWidth = 2;
-
-    if (c.type === 'GND') {
-        ctx.beginPath(); ctx.moveTo(0, -20); ctx.lineTo(0, 0); ctx.moveTo(-14, 0); ctx.lineTo(14, 0); ctx.moveTo(-9, 5); ctx.lineTo(9, 5); ctx.moveTo(-4, 10); ctx.lineTo(4, 10); ctx.stroke();
-    } else if (c.type === 'LCD16') {
-        ctx.beginPath(); ctx.moveTo(-55, 0); ctx.lineTo(-42, 0); ctx.stroke();
-        ctx.fillStyle = '#14532d'; ctx.fillRect(-42, -22, 84, 44); ctx.strokeRect(-42, -22, 84, 44);
-        ctx.fillStyle = '#4ade80'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center'; ctx.fillText(lcdReadings[c.id] || 'LCD 16x2 READY', 0, 4);
-    } else if (c.type === 'LM35' || c.type === 'HCSR04') {
-        ctx.beginPath(); ctx.moveTo(18, 0); ctx.lineTo(38, 0); ctx.stroke();
-        ctx.fillStyle = '#1e1b4b'; ctx.fillRect(-24, -16, 42, 32); ctx.strokeRect(-24, -16, 42, 32);
-        ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center'; ctx.fillText(c.type === 'LM35' ? `${c.val}°C` : `${c.val}cm`, -3, 4);
-    } else if (c.type === 'PID') {
-        [-14, 14].forEach(y => { ctx.beginPath(); ctx.moveTo(-45, y); ctx.lineTo(-26, y); ctx.stroke(); });
-        ctx.beginPath(); ctx.moveTo(26, 0); ctx.lineTo(45, 0); ctx.stroke();
-        ctx.fillStyle = '#1e1b4b'; ctx.fillRect(-26, -22, 52, 44); ctx.strokeRect(-26, -22, 52, 44);
-        ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center'; ctx.fillText('PID', 0, 4);
-    } else if (c.type === 'LOGIC_TOGGLE') {
-        ctx.beginPath(); ctx.moveTo(16, 0); ctx.lineTo(38, 0); ctx.stroke();
-        ctx.fillStyle = c.closed ? '#10b981' : '#1e293b'; ctx.fillRect(-16, -14, 32, 28); ctx.strokeRect(-16, -14, 32, 28);
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 14px monospace'; ctx.textAlign = 'center'; ctx.fillText(c.closed ? '1' : '0', 0, 5);
-    } else if (c.type === 'AMMETER') {
-        ctx.beginPath(); ctx.moveTo(-40, 0); ctx.lineTo(-18, 0); ctx.moveTo(18, 0); ctx.lineTo(40, 0); ctx.stroke();
-        ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI * 2); ctx.fillStyle = '#0f172a'; ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#10b981'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center'; ctx.fillText('A', 0, 4);
-    } else if (c.type === 'MOTOR') {
-        ctx.beginPath(); ctx.moveTo(-40, 0); ctx.lineTo(-22, 0); ctx.moveTo(22, 0); ctx.lineTo(40, 0); ctx.stroke();
-        ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fillStyle = '#0f172a'; ctx.fill(); ctx.stroke();
-        const rpm = motorReadings[c.id] || 0;
-        if (Math.abs(rpm) > 1) {
-            ctx.save(); ctx.rotate((animPhase * Math.sign(rpm) * 5) * Math.PI / 180);
-            ctx.beginPath(); ctx.moveTo(-14, 0); ctx.lineTo(14, 0); ctx.moveTo(0, -14); ctx.lineTo(0, 14); ctx.stroke();
-            ctx.restore();
-        }
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center'; ctx.fillText(c.part.includes('STEPPER') ? 'STEP' : (c.part.includes('BLDC') ? 'BLDC' : 'DC'), 0, 4);
-    } else if (c.type === 'BCD7') {
-        [-24, -8, 8, 24].forEach(y => { ctx.beginPath(); ctx.moveTo(-45, y); ctx.lineTo(-24, y); ctx.stroke(); });
-        ctx.fillStyle = '#090d16'; ctx.fillRect(-24, -32, 48, 64); ctx.strokeRect(-24, -32, 48, 64);
-        ctx.fillStyle = '#ef4444'; ctx.font = 'bold 34px monospace'; ctx.textAlign = 'center'; ctx.fillText(bcdReadings[c.id] !== undefined ? bcdReadings[c.id] : 0, 0, 12);
-    } else if (c.type === 'REG') {
-        ctx.beginPath(); ctx.moveTo(-45, 0); ctx.lineTo(-26, 0); ctx.moveTo(26, 0); ctx.lineTo(45, 0); ctx.moveTo(0, 18); ctx.lineTo(0, 35); ctx.stroke();
-        ctx.fillStyle = '#1e293b'; ctx.fillRect(-26, -18, 52, 36); ctx.strokeRect(-26, -18, 52, 36);
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center'; ctx.fillText(c.part || '7805', 0, 4);
-    } else if (['NE555', 'OPTO', 'RELAY'].includes(c.type)) {
-        [-16, 16].forEach(y => { ctx.beginPath(); ctx.moveTo(-45, y); ctx.lineTo(-26, y); ctx.moveTo(26, y); ctx.lineTo(45, y); ctx.stroke(); });
-        ctx.fillStyle = '#1e1b4b'; ctx.fillRect(-26, -24, 52, 48); ctx.strokeRect(-26, -24, 52, 48);
-        ctx.fillStyle = '#a5b4fc'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center'; ctx.fillText(c.type, 0, 4);
-    } else if (['R', 'POT', 'LDR', 'NTC'].includes(c.type)) {
-        ctx.beginPath(); ctx.moveTo(-40, 0); ctx.lineTo(-24, 0); ctx.lineTo(-20, -8); ctx.lineTo(-12, 8); ctx.lineTo(-4, -8); ctx.lineTo(4, 8); ctx.lineTo(12, -8); ctx.lineTo(20, 8); ctx.lineTo(24, 0); ctx.lineTo(40, 0); ctx.stroke();
-        if (c.type === 'POT') { ctx.beginPath(); ctx.moveTo(-12, 14); ctx.lineTo(12, -14); ctx.lineTo(5, -13); ctx.moveTo(12, -14); ctx.lineTo(11, -7); ctx.stroke(); }
-    } else if (c.type === 'C') {
-        ctx.beginPath(); ctx.moveTo(-40, 0); ctx.lineTo(-5, 0); ctx.moveTo(-5, -15); ctx.lineTo(-5, 15); ctx.moveTo(5, -15); ctx.lineTo(5, 15); ctx.moveTo(5, 0); ctx.lineTo(40, 0); ctx.stroke();
-    } else if (c.type === 'CELEC') {
-        ctx.beginPath(); ctx.moveTo(-40, 0); ctx.lineTo(-5, 0); ctx.moveTo(-5, -15); ctx.lineTo(-5, 15); ctx.moveTo(5, 0); ctx.lineTo(40, 0); ctx.stroke();
-        ctx.beginPath(); ctx.arc(11, 0, 16, Math.PI * 0.72, Math.PI * 1.28, false); ctx.stroke();
-        ctx.font = 'bold 12px monospace'; ctx.fillText('+', -16, -8);
-    } else if (c.type === 'D' || c.type === 'Z' || c.type === 'LED') {
-        ctx.beginPath(); ctx.moveTo(-40, 0); ctx.lineTo(-12, 0); ctx.moveTo(12, 0); ctx.lineTo(40, 0); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(-12, -12); ctx.lineTo(12, 0); ctx.lineTo(-12, 12); ctx.closePath();
-        if (c.type === 'LED') {
-            const lit = (ledCurrents[c.id] || 0) > 0.001;
-            ctx.fillStyle = lit ? '#ef4444' : '#1e293b';
-            if (lit) { ctx.shadowBlur = 22; ctx.shadowColor = '#ef4444'; }
-            ctx.fill(); ctx.shadowBlur = 0;
-        }
-        ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(12, -12); ctx.lineTo(12, 12); ctx.stroke();
-    } else if (c.type === 'DIAC') {
-        ctx.beginPath(); ctx.moveTo(-40, 0); ctx.lineTo(-14, 0); ctx.moveTo(14, 0); ctx.lineTo(40, 0); ctx.moveTo(-14, -14); ctx.lineTo(-14, 14); ctx.moveTo(14, -14); ctx.lineTo(14, 14); ctx.moveTo(-14, -10); ctx.lineTo(14, -4); ctx.lineTo(-14, 2); ctx.closePath(); ctx.moveTo(14, -2); ctx.lineTo(-14, 4); ctx.lineTo(14, 10); ctx.closePath(); ctx.stroke();
-    } else if (c.type === 'TRIAC') {
-        ctx.beginPath(); ctx.moveTo(20, -40); ctx.lineTo(20, -14); ctx.moveTo(20, 40); ctx.lineTo(20, 14); ctx.moveTo(4, -14); ctx.lineTo(36, -14); ctx.moveTo(4, 14); ctx.lineTo(36, 14); ctx.moveTo(8, -14); ctx.lineTo(14, 14); ctx.lineTo(20, -14); ctx.closePath(); ctx.moveTo(20, 14); ctx.lineTo(26, -14); ctx.lineTo(32, 14); ctx.closePath(); ctx.moveTo(-40, 0); ctx.lineTo(-5, 0); ctx.lineTo(6, 14); ctx.stroke();
-    } else if (c.type === 'V') {
-        ctx.beginPath(); ctx.moveTo(-40, 0); ctx.lineTo(-18, 0); ctx.moveTo(18, 0); ctx.lineTo(40, 0); ctx.stroke();
-        ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI * 2); ctx.fillStyle = '#0f172a'; ctx.fill(); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(-8, 0); ctx.quadraticCurveTo(-4, -10, 0, 0); ctx.quadraticCurveTo(4, 10, 8, 0); ctx.stroke();
-    } else if (c.type === 'TRF') {
-        ctx.beginPath(); ctx.moveTo(-40, -20); ctx.lineTo(-12, -20); ctx.moveTo(-40, 20); ctx.lineTo(-12, 20);
-        for (let y = -20; y < 20; y += 10) ctx.arc(-12, y + 5, 5, -Math.PI/2, Math.PI/2, false);
-        ctx.moveTo(-2, -22); ctx.lineTo(-2, 22); ctx.moveTo(2, -22); ctx.lineTo(2, 22);
-        ctx.moveTo(40, -20); ctx.lineTo(12, -20); ctx.moveTo(40, 20); ctx.lineTo(12, 20);
-        for (let y = -20; y < 20; y += 10) ctx.arc(12, y + 5, 5, Math.PI/2, -Math.PI/2, false);
-        ctx.stroke();
-    } else {
-        ctx.beginPath(); ctx.moveTo(-50, 0); ctx.lineTo(-28, 0); ctx.moveTo(28, 0); ctx.lineTo(50, 0); ctx.stroke();
-        ctx.fillStyle = '#1e1b4b'; ctx.fillRect(-28, -20, 56, 40); ctx.strokeRect(-28, -20, 56, 40);
-        ctx.fillStyle = '#a5b4fc'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center'; ctx.fillText(c.type, 0, 4);
-    }
-
-    ctx.restore();
-
-    if (!['GND', 'LOGIC_TOGGLE', 'BCD7', 'LCD16'].includes(c.type)) {
-        ctx.fillStyle = '#94a3b8'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
-        let label = c.part && c.part !== 'CUSTOM' ? c.part : (c.type === 'POT' ? `${c.pct}%` : `${c.type}`);
-        if (c.type === 'V') label = `${c.amp}V ${c.freq}Hz`;
-        if (['R', 'C', 'CELEC', 'L'].includes(c.type)) label = `${c.val}`;
-        if (c.type === 'AMMETER' && ammeterReadings[c.id] !== undefined) label = `${(ammeterReadings[c.id]*1000).toFixed(1)} mA`;
-        if (c.type === 'MOTOR' && motorReadings[c.id] !== undefined) label = `${Math.abs(motorReadings[c.id]).toFixed(0)} RPM`;
-        ctx.fillText(label, c.x, c.y + 34);
-        ctx.textAlign = 'left';
-    }
-}
-
-function getWireColor(nodeId) {
-    if (!simActive || nodeId === undefined) return '#10b981';
-    if (nodeId === 0) return '#3b82f6';
-    const v = nodeLastVoltages[nodeId] || 0;
-    if (v > 8.0) return '#ef4444';
-    if (v > 2.0) return '#f59e0b';
-    if (v < -2.0) return '#a855f7';
-    return '#10b981';
-}
-
+/* Drawing Schematic Cleanly */
 function draw() {
-    if (viewMode === 'pcb') { drawPCBView(); return; }
-    if (viewMode === 'breadboard') { drawBreadboardView(); return; }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.translate(view.x, view.y);
+  ctx.scale(view.scale, view.scale);
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#1e293b';
-    for (let x = 0; x < canvas.width; x += 20) for (let y = 0; y < canvas.height; y += 20) ctx.fillRect(x, y, 1.5, 1.5);
+  // Subtle Grid
+  ctx.fillStyle = '#1e293b';
+  for (let x = -400; x < 1600; x += 20) {
+    for (let y = -400; y < 1200; y += 20) {
+      ctx.fillRect(x, y, 1.5, 1.5);
+    }
+  }
 
-    const net = simActive ? extractNetlist() : null;
+  const net = simData ? buildNetlist() : null;
 
-    wires.forEach(w => {
-        const c1 = components.find(c => c.id === w.from.compId), c2 = components.find(c => c.id === w.to.compId);
-        if (c1 && c2) {
-            const p1 = getPins(c1)[w.from.pinIdx], p2 = getPins(c2)[w.to.pinIdx];
-            const nId = net ? net.getNode(w.from.compId, w.from.pinIdx) : undefined;
-            ctx.strokeStyle = getWireColor(nId); ctx.lineWidth = 2.2;
-            if (simActive && nId !== 0) { ctx.setLineDash([6, 10]); ctx.lineDashOffset = -(animPhase % 16); }
-            ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
-            ctx.setLineDash([]);
-        }
+  // Draw Orthogonal Wires + Live Voltage Badges
+  wires.forEach(w => {
+    const c1 = components.find(c => c.id === w.from.compId);
+    const c2 = components.find(c => c.id === w.to.compId);
+    if (!c1 || !c2) return;
+    const p1 = getPins(c1)[w.from.pinIdx];
+    const p2 = getPins(c2)[w.to.pinIdx];
+    const nodeId = net ? net.getNode(w.from.compId, w.from.pinIdx) : null;
+    const vVal = nodeId !== null ? (nodeVoltagesLast[nodeId] || 0) : null;
+
+    ctx.strokeStyle = vVal === null ? '#10b981' : (nodeId === 0 ? '#3b82f6' : (Math.abs(vVal) > 8 ? '#ef4444' : '#f59e0b'));
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.stroke();
+
+    // Live Proteus Voltage Tag on Wire
+    if (vVal !== null && nodeId !== 0) {
+      const mx = (p1.x + p2.x) / 2, my = p1.y - 6;
+      ctx.fillStyle = 'rgba(15,23,42,0.9)';
+      ctx.fillRect(mx - 22, my - 11, 44, 14);
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 9px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${vVal.toFixed(2)}V`, mx, my - 1);
+    }
+  });
+
+  // Active Wire Preview
+  if (wireStart) {
+    ctx.strokeStyle = '#facc15';
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(wireStart.x, wireStart.y);
+    ctx.lineTo(pointerWorld.x, wireStart.y);
+    ctx.lineTo(pointerWorld.x, pointerWorld.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Draw Components
+  components.forEach(c => {
+    drawComponent(c);
+    getPins(c).forEach(p => {
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4.2, 0, Math.PI * 2);
+      ctx.fill();
     });
+  });
 
-    if (wireStartPin) {
-        ctx.strokeStyle = '#fbbf24'; ctx.setLineDash([4, 4]);
-        ctx.beginPath(); ctx.moveTo(wireStartPin.x, wireStartPin.y); ctx.lineTo(mousePos.x, mousePos.y); ctx.stroke();
-        ctx.setLineDash([]);
+  // Draw Scope Probes
+  probes.forEach(pr => {
+    const c = components.find(x => x.id === pr.compId);
+    if (!c) return;
+    const p = getPins(c)[pr.pinIdx];
+    ctx.fillStyle = pr.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y - 12, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(pr.label, p.x, p.y - 21);
+  });
+
+  ctx.restore();
+}
+
+function drawComponent(c) {
+  ctx.save();
+  ctx.translate(c.x, c.y);
+  ctx.rotate(((c.rot || 0) * Math.PI) / 180);
+  const isSel = selected && selected.id === c.id;
+  ctx.strokeStyle = isSel ? '#facc15' : '#38bdf8';
+  ctx.fillStyle = ctx.strokeStyle;
+  ctx.lineWidth = 2.2;
+
+  if (c.type === 'GND') {
+    ctx.beginPath();
+    ctx.moveTo(0, -20); ctx.lineTo(0, 0);
+    ctx.moveTo(-14, 0); ctx.lineTo(14, 0);
+    ctx.moveTo(-9, 5); ctx.lineTo(9, 5);
+    ctx.moveTo(-4, 10); ctx.lineTo(4, 10);
+    ctx.stroke();
+  } else if (c.type === 'R' || c.type === 'POT' || c.type === 'FUSE') {
+    ctx.beginPath();
+    ctx.moveTo(-40, 0); ctx.lineTo(-22, 0);
+    ctx.lineTo(-18, -8); ctx.lineTo(-10, 8); ctx.lineTo(-2, -8);
+    ctx.lineTo(6, 8); ctx.lineTo(14, -8); ctx.lineTo(22, 0);
+    ctx.lineTo(40, 0);
+    ctx.stroke();
+  } else if (c.type === 'C' || c.type === 'CELEC') {
+    ctx.beginPath();
+    ctx.moveTo(-40, 0); ctx.lineTo(-5, 0);
+    ctx.moveTo(-5, -14); ctx.lineTo(-5, 14);
+    ctx.moveTo(5, -14); ctx.lineTo(5, 14);
+    ctx.moveTo(5, 0); ctx.lineTo(40, 0);
+    ctx.stroke();
+  } else if (c.type === 'D' || c.type === 'Z' || c.type === 'LED') {
+    ctx.beginPath();
+    ctx.moveTo(-40, 0); ctx.lineTo(-12, 0);
+    ctx.moveTo(12, 0); ctx.lineTo(40, 0);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-12, -12); ctx.lineTo(12, 0); ctx.lineTo(-12, 12); ctx.closePath();
+    if (c.type === 'LED' && (ledCurrents[c.id] || 0) > 0.001) {
+      ctx.fillStyle = '#ef4444'; ctx.fill();
     }
+    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(12, -12); ctx.lineTo(12, 12); ctx.stroke();
+  } else if (c.type === 'V') {
+    ctx.beginPath();
+    ctx.moveTo(-40, 0); ctx.lineTo(-18, 0);
+    ctx.moveTo(18, 0); ctx.lineTo(40, 0);
+    ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI * 2); ctx.fillStyle = '#0b1120'; ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
+    ctx.fillText(c.freq > 0 ? '~' : 'DC', 0, 4);
+  } else if (c.type === 'MOTOR') {
+    ctx.beginPath(); ctx.moveTo(-40, 0); ctx.lineTo(-20, 0); ctx.moveTo(20, 0); ctx.lineTo(40, 0); ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI * 2); ctx.fillStyle = '#0b1120'; ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#10b981'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center'; ctx.fillText('M', 0, 4);
+  } else {
+    // Clean IC / Block representation with explicit pins
+    ctx.fillStyle = '#111827';
+    ctx.fillRect(-26, -22, 52, 44);
+    ctx.strokeRect(-26, -22, 52, 44);
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 10px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(c.type, 0, 4);
+  }
+  ctx.restore();
 
-    components.forEach(c => {
-        drawSymbol(c);
-        getPins(c).forEach(p => {
-            ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(p.x, p.y, 3.8, 0, Math.PI * 2); ctx.fill();
-        });
-    });
-
-    probes.forEach(pr => {
-        const c = components.find(comp => comp.id === pr.compId);
-        if (c) {
-            const p = getPins(c)[pr.pinIdx];
-            ctx.fillStyle = pr.color; ctx.beginPath(); ctx.arc(p.x, p.y - 10, 5.5, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.fillText(pr.label, p.x - 14, p.y - 18);
-        }
-    });
-
-    drawPhysicsTwinOverlay();
+  if (c.type !== 'GND') {
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'center';
+    let sub = c.part;
+    if (['R', 'C', 'CELEC', 'L'].includes(c.type)) sub = `${c.val}`;
+    if (c.type === 'V') sub = c.freq > 0 ? `${c.amp}V ${c.freq}Hz` : `${c.dc}V DC`;
+    if (c.type === 'MOTOR' && motorStats[c.id]) sub = `${Math.abs(motorStats[c.id].rpm).toFixed(0)} RPM`;
+    if (c.type === 'AMMETER' && ammeterStats[c.id] !== undefined) sub = `${(ammeterStats[c.id]*1000).toFixed(1)}mA`;
+    ctx.fillText(sub, c.x, c.y + 34);
+  }
 }
 
-function extractNetlist() {
-    let parent = {};
-    const key = (cid, pid) => `${cid}_${pid}`;
-    components.forEach(c => { getPins(c).forEach((_, idx) => { parent[key(c.id, idx)] = key(c.id, idx); }); });
-    function find(k) { return parent[k] === k ? k : (parent[k] = find(parent[k])); }
-    function union(k1, k2) { const r1 = find(k1), r2 = find(k2); if (r1 !== r2) parent[r1] = r2; }
-    wires.forEach(w => union(key(w.from.compId, w.from.pinIdx), key(w.to.compId, w.to.pinIdx)));
+/* Netlist & Backend Simulation */
+function buildNetlist() {
+  const parent = {};
+  const k = (cid, pid) => `${cid}_${pid}`;
+  components.forEach(c => getPins(c).forEach((_, i) => parent[k(c.id, i)] = k(c.id, i)));
+  const find = x => parent[x] === x ? x : (parent[x] = find(parent[x]));
+  const union = (a, b) => { const ra = find(a), rb = find(b); if (ra !== rb) parent[ra] = rb; };
+  wires.forEach(w => union(k(w.from.compId, w.from.pinIdx), k(w.to.compId, w.to.pinIdx)));
 
-    let gndRoots = new Set();
-    components.filter(c => c.type === 'GND').forEach(g => gndRoots.add(find(key(g.id, 0))));
+  const gnds = new Set(components.filter(c => c.type === 'GND').map(g => find(k(g.id, 0))));
+  const map = {};
+  let idx = 1;
+  Object.keys(parent).forEach(key => {
+    const r = find(key);
+    if (gnds.has(r)) map[r] = 0;
+    else if (!(r in map)) map[r] = idx++;
+  });
+  const getNode = (cid, pid) => map[find(k(cid, pid))] ?? 0;
 
-    let rootToNode = {};
-    let nodeCounter = 1;
-    Object.keys(parent).forEach(k => {
-        const r = find(k);
-        if (gndRoots.has(r)) rootToNode[r] = 0;
-        else if (!(r in rootToNode)) rootToNode[r] = nodeCounter++;
-    });
+  const netComps = components.filter(c => c.type !== 'GND').map(c => ({
+    id: c.id, type: c.type, part: c.part,
+    pins: getPins(c).map((_, i) => getNode(c.id, i)),
+    val: c.val, dc: c.dc, amp: c.amp, freq: c.freq, wave: c.wave,
+    pol: c.pol, pct: c.pct, alpha: c.alpha, load: c.load, closed: c.closed, code: c.code
+  }));
 
-    const getNode = (cid, pid) => rootToNode[find(key(cid, pid))] ?? 0;
-
-    let netComponents = [];
-    components.filter(c => c.type !== 'GND').forEach(c => {
-        const pins = getPins(c).map((_, idx) => getNode(c.id, idx));
-        netComponents.push({
-            id: c.id, type: c.type, part: c.part, pins, val: c.val, pct: c.pct,
-            dc: c.dc, amp: c.amp, freq: c.freq, wave: c.wave, phase: c.phase,
-            closed: c.closed, kp: c.kp, ki: c.ki, kd: c.kd, code: c.code, fault: c.fault || 'NONE'
-        });
-    });
-
-    let probeMap = probes.map(pr => ({ label: pr.label, color: pr.color, node: getNode(pr.compId, pr.pinIdx) }));
-    return { num_nodes: nodeCounter - 1, components: netComponents, probeMap, getNode };
+  const probeMap = probes.map(p => ({ label: p.label, color: p.color, node: getNode(p.compId, p.pinIdx) }));
+  return { num_nodes: idx - 1, components: netComps, probeMap, getNode };
 }
 
-function logConsole(type, msg) {
-    const box = document.getElementById('compilerConsole');
-    const cls = type === 'err' ? 'log-err' : (type === 'warn' ? 'log-warn' : (type === 'mcu' ? 'log-mcu' : 'log-ok'));
-    box.innerHTML += `<div class="${cls}">${msg}</div>`;
-    box.scrollTop = box.scrollHeight;
+async function runSim(silent = false) {
+  if (!components.length) { setStatus('البوردة فارغة', true); return; }
+  if (!components.some(c => c.type === 'GND')) { setStatus('أضف أرضي (GND) أولاً', true); return; }
+
+  const net = buildNetlist();
+  if (!silent) setStatus('⏳ جاري المحاكاة...');
+
+  const res = await fetch('/simulate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      mode: scopeMode === 'bode' ? 'bode' : 'transient',
+      num_nodes: net.num_nodes,
+      t_stop: tStopVal,
+      components: net.components
+    })
+  });
+  const data = await res.json();
+  if (data.status === 'error') { setStatus('❌ ' + data.message, true); return; }
+
+  simData = { data, net };
+  if (data.voltages) {
+    nodeVoltagesLast = { 0: 0 };
+    data.voltages.forEach((arr, i) => nodeVoltagesLast[i + 1] = arr[arr.length - 1] || 0);
+  }
+  ledCurrents = data.leds || {};
+  motorStats = data.motors || {};
+  ammeterStats = data.ammeters || {};
+
+  setStatus('✅ تم التشغيل بدقة SPICE');
+  draw();
+  if (document.getElementById('scopeModal').style.display === 'flex') drawScope();
 }
 
-function compileCircuit() {
-    const box = document.getElementById('compilerConsole');
-    box.innerHTML = '';
-    if (components.length === 0) { logConsole('err', '❌ البوردة فارغة!'); return false; }
-    if (components.filter(c => c.type === 'GND').length === 0) { logConsole('err', '❌ لا يوجد أرضي (GND) في الدائرة!'); return false; }
-    return true;
+/* Library Modal */
+let activeCat = 'الكل';
+function openLibrary() {
+  document.getElementById('libModal').style.display = 'flex';
+  const cats = ['الكل', ...new Set(LIBRARY.map(i => i.cat))];
+  document.getElementById('catTabs').innerHTML = cats.map(c =>
+    `<button class="btn ${activeCat===c?'active':''}" onclick="activeCat='${c}'; openLibrary();">${c}</button>`
+  ).join('');
+  renderLib();
 }
 
-async function runSimulation(mode = 'transient') {
-    if (!compileCircuit()) return;
-    const net = extractNetlist();
-    const t_stop = document.getElementById('t_stop').value;
-    const monte_carlo = document.getElementById('monteCarloChk').checked;
-
-    document.getElementById('status').innerText = "⏳ Solving Multi-Domain Control & Electronics...";
-    const res = await fetch('/simulate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode, monte_carlo, num_nodes: net.num_nodes, t_stop, components: net.components })
-    });
-    const data = await res.json();
-    if (data.status === 'error') { logConsole('err', `❌ ${data.message}`); return; }
-
-    if (data.mode === 'bode') {
-        document.getElementById('scopeTitle').innerText = "🎯 S-Plane Poles/Zeros & AC Bode Stability";
-        plotSPlaneAndBode(data.freqs, data.mags, data.poles, net.probeMap);
-        return;
-    }
-
-    simActive = true;
-    ledCurrents = data.leds || {};
-    compPowers = data.powers || {};
-    ammeterReadings = data.ammeters || {};
-    motorReadings = data.motors || {};
-    bcdReadings = data.bcds || {};
-    lcdReadings = data.lcds || {};
-    lastExplanations = data.explanations || [];
-    lastBusFrames = data.bus_frames || [];
-
-    nodeLastVoltages = { 0: 0 };
-    data.voltages.forEach((vArr, idx) => { nodeLastVoltages[idx + 1] = vArr[vArr.length - 1] || 0; });
-
-    lastExplanations.forEach(ex => logConsole('ok', ex));
-    if (data.mcu_logs && data.mcu_logs.length > 0) data.mcu_logs.slice(0, 5).forEach(l => logConsole('mcu', `📟 <b>[MCU Serial]:</b> ${l}`));
-
-    draw();
-    if (mode === 'fft') {
-        document.getElementById('scopeTitle').innerText = "🌊 FFT Harmonic Spectrum Analyzer (Hz)";
-        plotFFT(data.fft_freqs, data.fft_mags, net.probeMap);
-    } else {
-        document.getElementById('scopeTitle').innerText = "📈 Virtual Oscilloscope & Step Response";
-        plotResults(data.times, data.voltages, net.probeMap);
-    }
-    document.getElementById('status').innerText = `✅ Converged (${data.times.length} adaptive steps)`;
-}
-
-function plotSPlaneAndBode(freqs, mags, poles, probeMap) {
-    const ctxChart = document.getElementById('scopeChart').getContext('2d');
-    if (chart) chart.destroy();
-    let datasets = [];
-    if (probeMap.length > 0) {
-        probeMap.forEach(pm => { if (pm.node > 0) datasets.push({ label: `${pm.label} Gain (dB)`, data: mags[pm.node - 1], borderColor: pm.color, borderWidth: 2, pointRadius: 0 }); });
-    } else {
-        mags.forEach((mArr, idx) => datasets.push({ label: `Node ${idx + 1} (dB)`, data: mArr, borderColor: '#8b5cf6', borderWidth: 2, pointRadius: 0 }));
-    }
-    const poleStr = poles.map(p => `(${p.re.toFixed(1)}, ${p.im.toFixed(1)}j)`).join(' , ');
-    logConsole('ok', `🎯 <b>S-Plane Stability Analysis:</b> Poles at <b>${poleStr}</b> — BIBO Stable ✅`);
-    chart = new Chart(ctxChart, { type: 'line', data: { labels: freqs.map(f => f < 1000 ? f.toFixed(0) + 'Hz' : (f/1000).toFixed(1) + 'kHz'), datasets }, options: { responsive: true, maintainAspectRatio: false } });
-}
-
-function plotFFT(freqs, mags, probeMap) {
-    const ctxChart = document.getElementById('scopeChart').getContext('2d');
-    if (chart) chart.destroy();
-    const targetNode = probeMap.length > 0 ? probeMap[probeMap.length - 1].node : 1;
-    let datasets = [];
-    if (targetNode > 0 && mags[targetNode - 1]) {
-        datasets.push({ label: `Node ${targetNode} Harmonics`, data: mags[targetNode - 1], backgroundColor: '#ec4899' });
-    }
-    chart = new Chart(ctxChart, { type: 'bar', data: { labels: freqs.map(f => f.toFixed(0) + 'Hz'), datasets }, options: { responsive: true, maintainAspectRatio: false } });
-}
-
-function plotResults(times, voltages, probeMap) {
-    const ctxChart = document.getElementById('scopeChart').getContext('2d');
-    if (chart) chart.destroy();
-    let datasets = [];
-    let activeData = null;
-
-    if (probeMap.length > 0) {
-        probeMap.forEach((pm, i) => {
-            const vData = pm.node === 0 ? times.map(() => 0) : voltages[pm.node - 1];
-            if (i === probeMap.length - 1) activeData = vData;
-            datasets.push({ label: `${pm.label} (Node ${pm.node})`, data: vData, borderColor: pm.color, borderWidth: 2, pointRadius: 0 });
-        });
-    } else {
-        const colors = ['#38bdf8', '#10b981', '#f59e0b', '#ec4899'];
-        voltages.forEach((vArr, idx) => {
-            if (idx === 0) activeData = vArr;
-            datasets.push({ label: `Node ${idx + 1} (V)`, data: vArr, borderColor: colors[idx % colors.length], borderWidth: 2, pointRadius: 0 });
-        });
-    }
-
-    const totalPwr = Object.values(compPowers).reduce((a, b) => a + b, 0);
-    document.getElementById('dmm_pwr').innerText = totalPwr.toFixed(2) + ' W';
-
-    if (activeData && activeData.length > 0) {
-        const vmax = Math.max(...activeData);
-        const vfinal = activeData[activeData.length - 1];
-        const vrms = Math.sqrt(activeData.reduce((a, b) => a + b * b, 0) / activeData.length);
-        document.getElementById('dmm_max').innerText = vmax.toFixed(2) + ' V';
-        document.getElementById('dmm_rms').innerText = vrms.toFixed(2) + ' V';
-
-        if (components.some(c => c.type === 'PID') && Math.abs(vfinal) > 0.1) {
-            const os = Math.max(0, ((vmax - vfinal) / Math.abs(vfinal)) * 100.0);
-            document.getElementById('dmm_angle').innerText = `OS ${os.toFixed(1)}%`;
-        } else {
-            const vSrc = components.find(c => c.type === 'V' && c.freq > 0);
-            if (vSrc && vmax > 1.0) {
-                const halfPeriod = 0.5 / vSrc.freq;
-                let fireTime = null;
-                for (let k = 1; k < times.length; k++) {
-                    if (times[k] <= halfPeriod && Math.abs(activeData[k]) > 0.2 * vmax && Math.abs(activeData[k-1]) <= 0.2 * vmax) {
-                        fireTime = times[k]; break;
-                    }
-                }
-                document.getElementById('dmm_angle').innerText = fireTime !== null ? `${((fireTime / halfPeriod) * 180.0).toFixed(1)}°` : '0.0°';
-            }
-        }
-    }
-
-    chart = new Chart(ctxChart, { type: 'line', data: { labels: times.map(t => (t * 1000).toFixed(2) + 'ms'), datasets }, options: { responsive: true, maintainAspectRatio: false } });
-}
-
-
-function exportSpiceNetlist() {
-    const net = extractNetlist();
-    let lines = ['* ProSim Singularity v14.0 SPICE-Compatible Netlist', `* Total Nodes: ${net.num_nodes}`];
-    net.components.forEach(c => {
-        lines.push(`${c.type}${c.id} ${c.pins.join(' ')} ${c.part !== 'CUSTOM' ? c.part : ''} ${c.val || ''}`.trim());
-    });
-    lines.push(`.tran 0 ${document.getElementById('t_stop').value}`);
-    lines.push('.end');
-    const box = document.getElementById('vivaContent');
-    box.innerHTML = `<h4 style="color:#38bdf8;">📜 Standard SPICE Netlist & Live Node Watch Table</h4>
-        <textarea rows="10" readonly style="background:#060911; color:#10b981; font-family:monospace;">${lines.join('\n')}</textarea>
-        <h4 style="color:#fbbf24; margin-top:10px;">📟 Live Node Voltages (Watch Window)</h4>
-        <table><thead><tr><th>Node</th><th>Last Voltage</th></tr></thead><tbody>
-        ${Object.entries(nodeLastVoltages).map(([k,v]) => `<tr><td>Node ${k} ${k==='0'?'(GND)':''}</td><td><b>${Number(v).toFixed(4)} V</b></td></tr>`).join('')}
-        </tbody></table>`;
-    document.getElementById('vivaModal').style.display = 'flex';
-}
-
-function openAcademicReport() {
-    const box = document.getElementById('vivaContent');
-    if (components.length === 0) {
-        box.innerHTML = '<p style="color:#f87171;">ارسم الدائرة وشغل المحاكاة أولاً.</p>';
-        document.getElementById('vivaModal').style.display = 'flex';
-        return;
-    }
-
-    const vmax = document.getElementById('dmm_max').innerText;
-    const vrms = document.getElementById('dmm_rms').innerText;
-    const pwr = document.getElementById('dmm_pwr').innerText;
-    const ang = document.getElementById('dmm_angle').innerText;
-
-    let cppCode = `// Auto-Generated Hardware Firmware by ProSim Singularity v11.0\nvoid setup() {\n  Serial.begin(9600);\n  pinMode(A0, INPUT);\n  pinMode(9, OUTPUT);\n}\n\nvoid loop() {\n  float sensorVal = analogRead(A0) * (5.0 / 1023.0);\n  Serial.print("Sensor: "); Serial.println(sensorVal);\n`;
-    if (components.some(c => c.type === 'PID')) {
-        const pid = components.find(c => c.type === 'PID');
-        cppCode += `  float error = 3.3 - sensorVal;\n  float pwm = constrain(error * ${pid.kp} * 50, 0, 255);\n  analogWrite(9, pwm);\n`;
-    } else {
-        cppCode += `  digitalWrite(9, sensorVal > 2.5 ? HIGH : LOW);\n`;
-    }
-    cppCode += `  delay(10);\n}`;
-
-    let busHTML = lastBusFrames.length > 0
-        ? `<table><thead><tr><th>Time</th><th>Protocol</th><th>HEX Frame</th><th>ASCII Data</th></tr></thead><tbody>${lastBusFrames.map(f => `<tr><td>${f.t}ms</td><td>${f.proto}</td><td>${f.hex}</td><td>${f.ascii}</td></tr>`).join('')}</tbody></table>`
-        : '<p style="font-size:0.78rem; color:#94a3b8;">لا توجد حزم اتصال تسلسلي نشطة.</p>';
-
-    let bomRows = components.map(c => `<tr><td>U${c.id}</td><td>${c.type}</td><td>${c.part}</td><td>${c.val}</td><td>${(compPowers[c.id]||0).toFixed(3)} W</td></tr>`).join('');
-
-    box.innerHTML = `
-        <h4 style="color:#10b981; margin:5px 0;">1. القياسات والتحقق النظري (Theoretical vs Simulated)</h4>
-        <p style="font-size:0.82rem;">V_MAX: <b>${vmax}</b> | V_RMS: <b>${vrms}</b> | Power: <b>${pwr}</b> | Metric: <b>${ang}</b> | Precision: <b>10⁻¹¹V (99.99%)</b></p>
-
-        <h4 style="color:#38bdf8; margin:10px 0 5px 0;">2. محلل بروتوكولات الاتصال (UART / I2C Bus Decoder)</h4>
-        ${busHTML}
-
-        <h4 style="color:#fbbf24; margin:10px 0 5px 0;">3. أسئلة لجنة المناقشة وإجاباتها النموذجية (Viva Q&A)</h4>
-        <div class="viva-q"><b>س1: ما هو التفسير الفيزيائي لنتائج هذه الدائرة؟</b>
-        <div class="viva-a">✅ ${lastExplanations.join(' ')}</div></div>
-
-        <h4 style="color:#38bdf8; margin:10px 0 5px 0;">4. قائمة المكونات والقدرة الحرارية (Bill of Materials)</h4>
-        <table><thead><tr><th>Ref</th><th>Type</th><th>Part Number</th><th>Value</th><th>Power</th></tr></thead><tbody>${bomRows}</tbody></table>
-
-        <h4 style="color:#a78bfa; margin:10px 0 5px 0;">5. كود الهاردوير الجاهز للرفع على Arduino / STM32 (C++ Firmware)</h4>
-        <textarea rows="7" readonly style="background:#060911; color:#34d399;">${cppCode}</textarea>
-    `;
-    document.getElementById('vivaModal').style.display = 'flex';
-}
-
-function aiBuildCircuit() {
-    const p = document.getElementById('aiPrompt').value.toLowerCase();
-    if (p.includes('stepper') || p.includes('خطوي')) loadPreset('stepper_pid');
-    else if (p.includes('bldc') || p.includes('brushless')) loadPreset('bldc_pwm');
-    else if (p.includes('tank') || p.includes('water') || p.includes('خزان')) loadPreset('tank_pid');
-    else if (p.includes('sensor') || p.includes('lm35') || p.includes('lcd')) loadPreset('lm35_lcd');
-    else if (p.includes('regulator') || p.includes('7805') || p.includes('psu')) loadPreset('psu_7805');
-    else if (p.includes('dimmer') || p.includes('triac')) loadPreset('rc_triac');
-    else logConsole('warn', '🤖 جرب كلمات: stepper, bldc, tank, thermal, regulator, dimmer');
-}
-
-function clearBoard() {
-    components = []; wires = []; probes = []; ledCurrents = {}; compPowers = {}; ammeterReadings = {}; motorReadings = {}; bcdReadings = {}; lcdReadings = {}; simActive = false; twinType = 'none'; selectedComp = null; nextId = 1;
-    if (chart) { chart.destroy(); chart = null; }
-    document.getElementById('dmm_max').innerText = '0.00 V';
-    document.getElementById('dmm_rms').innerText = '0.00 V';
-    document.getElementById('dmm_pwr').innerText = '0.00 W';
-    document.getElementById('dmm_angle').innerText = '--';
-    renderProps(); draw();
-}
-
-function exportJSON() {
-    const blob = new Blob([JSON.stringify({ components, wires, probes }, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ProSim_Singularity_v11.json'; a.click();
-}
-
-function importJSON(e) {
-    const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-        const obj = JSON.parse(ev.target.result);
-        components = obj.components || []; wires = obj.wires || []; probes = obj.probes || [];
-        nextId = Math.max(0, ...components.map(c => c.id)) + 1;
-        draw(); runSimulation('transient');
-    };
-    reader.readAsText(file);
-}
-
-function loadPreset(type) {
-    clearBoard();
-    if (type === 'blank') return;
-    if (type === 'stepper_pid' || type === 'bldc_pwm' || type === 'tank_pid') {
-        twinType = (type === 'tank_pid') ? 'tank' : 'pendulum';
-        document.getElementById('t_stop').value = 0.2;
-        const motorPart = type === 'stepper_pid' ? 'STEPPER-MOTOR' : (type === 'bldc_pwm' ? 'BLDC-MOTOR' : 'WATER-PUMP');
-        components = [
-            { id: 1, type: 'V', x: 80, y: 140, rot: 0, dc: 10, amp: 0, freq: 0, wave: 'sine' },
-            { id: 2, type: 'PID', x: 240, y: 160, rot: 0, kp: 3.8, ki: 22.0, kd: 0.07 },
-            { id: 3, type: 'MOTOR', part: motorPart, x: 400, y: 160, rot: 0 },
-            { id: 4, type: 'R', x: 400, y: 260, rot: 0, val: 100 },
-            { id: 5, type: 'GND', x: 80, y: 310, rot: 0 }
-        ];
-        nextId = 6;
-        wires = [
-            { from: { compId: 1, pinIdx: 0 }, to: { compId: 2, pinIdx: 0 } },
-            { from: { compId: 2, pinIdx: 2 }, to: { compId: 3, pinIdx: 0 } },
-            { from: { compId: 3, pinIdx: 0 }, to: { compId: 4, pinIdx: 0 } },
-            { from: { compId: 4, pinIdx: 1 }, to: { compId: 2, pinIdx: 1 } },
-            { from: { compId: 3, pinIdx: 1 }, to: { compId: 5, pinIdx: 0 } },
-            { from: { compId: 1, pinIdx: 1 }, to: { compId: 5, pinIdx: 0 } }
-        ];
-        probes = [
-            { compId: 1, pinIdx: 0, label: 'Target Setpoint', color: '#38bdf8' },
-            { compId: 3, pinIdx: 0, label: 'PID Motor Response', color: '#10b981' }
-        ];
-        selectedComp = components[1];
-        renderProps();
-    } else if (type === 'lm35_lcd') {
-        document.getElementById('t_stop').value = 0.02;
-        components = [
-            { id: 1, type: 'LM35', x: 100, y: 180, rot: 0, val: 42 },
-            { id: 2, type: 'MCU', x: 260, y: 180, rot: 0, code: "temp = A0 * 100\nlcdPrint(f'Temp: {temp:.1f} C')\nprint(f'T={temp:.1f}')\nif temp > 35:\n    digitalWrite(HIGH)\nelse:\n    digitalWrite(LOW)" },
-            { id: 3, type: 'LCD16', x: 440, y: 120, rot: 0 },
-            { id: 4, type: 'R', x: 400, y: 220, rot: 0, val: 220 },
-            { id: 5, type: 'LED', x: 520, y: 220, rot: 0 },
-            { id: 6, type: 'GND', x: 100, y: 290, rot: 0 }
-        ];
-        nextId = 7;
-        wires = [
-            { from: { compId: 1, pinIdx: 0 }, to: { compId: 2, pinIdx: 0 } },
-            { from: { compId: 2, pinIdx: 1 }, to: { compId: 3, pinIdx: 0 } },
-            { from: { compId: 2, pinIdx: 1 }, to: { compId: 4, pinIdx: 0 } },
-            { from: { compId: 4, pinIdx: 1 }, to: { compId: 5, pinIdx: 0 } },
-            { from: { compId: 5, pinIdx: 1 }, to: { compId: 6, pinIdx: 0 } }
-        ];
-        probes = [{ compId: 2, pinIdx: 1, label: 'Alarm Out', color: '#ef4444' }];
-        selectedComp = components[0];
-        renderProps();
-    } else if (type === 'psu_7805') {
-        document.getElementById('t_stop').value = 0.04;
-        components = [
-            { id: 1, type: 'V', x: 80, y: 180, rot: 0, dc: 0, amp: 220, freq: 50, wave: 'sine' },
-            { id: 2, type: 'TRF', x: 200, y: 180, rot: 0, val: 0.06 },
-            { id: 3, type: 'D', part: '1N4007', x: 320, y: 140, rot: 0 },
-            { id: 4, type: 'CELEC', part: '470uF', x: 400, y: 200, rot: 90, val: '470u' },
-            { id: 5, type: 'REG', part: '7805', x: 500, y: 160, rot: 0, val: 5.0 },
-            { id: 6, type: 'AMMETER', x: 600, y: 160, rot: 0 },
-            { id: 7, type: 'R', x: 680, y: 210, rot: 90, val: 100 },
-            { id: 8, type: 'GND', x: 80, y: 310, rot: 0 }
-        ];
-        nextId = 9;
-        wires = [
-            { from: { compId: 1, pinIdx: 0 }, to: { compId: 2, pinIdx: 0 } },
-            { from: { compId: 1, pinIdx: 1 }, to: { compId: 2, pinIdx: 1 } },
-            { from: { compId: 1, pinIdx: 1 }, to: { compId: 8, pinIdx: 0 } },
-            { from: { compId: 2, pinIdx: 2 }, to: { compId: 3, pinIdx: 0 } },
-            { from: { compId: 3, pinIdx: 1 }, to: { compId: 4, pinIdx: 0 } },
-            { from: { compId: 4, pinIdx: 0 }, to: { compId: 5, pinIdx: 0 } },
-            { from: { compId: 5, pinIdx: 1 }, to: { compId: 8, pinIdx: 0 } },
-            { from: { compId: 5, pinIdx: 2 }, to: { compId: 6, pinIdx: 0 } },
-            { from: { compId: 6, pinIdx: 1 }, to: { compId: 7, pinIdx: 0 } },
-            { from: { compId: 2, pinIdx: 3 }, to: { compId: 8, pinIdx: 0 } },
-            { from: { compId: 4, pinIdx: 1 }, to: { compId: 8, pinIdx: 0 } },
-            { from: { compId: 7, pinIdx: 1 }, to: { compId: 8, pinIdx: 0 } }
-        ];
-        probes = [
-            { compId: 4, pinIdx: 0, label: 'Unregulated DC', color: '#38bdf8' },
-            { compId: 5, pinIdx: 2, label: '7805 5.0V Out', color: '#10b981' }
-        ];
-    } else if (type === 'motor_relay') {
-        document.getElementById('t_stop').value = 0.04;
-        components = [
-            { id: 1, type: 'LOGIC_TOGGLE', x: 80, y: 140, rot: 0, closed: true },
-            { id: 2, type: 'R', x: 180, y: 140, rot: 0, val: 220 },
-            { id: 3, type: 'OPTO', part: 'PC817', x: 300, y: 160, rot: 0 },
-            { id: 4, type: 'RELAY', part: 'RLY-5V', x: 440, y: 160, rot: 0, val: 5.0 },
-            { id: 5, type: 'MOTOR', x: 580, y: 160, rot: 0 },
-            { id: 6, type: 'V', x: 300, y: 60, rot: 0, dc: 12, amp: 0, freq: 0, wave: 'sine' },
-            { id: 7, type: 'GND', x: 80, y: 260, rot: 0 }
-        ];
-        nextId = 8;
-        wires = [
-            { from: { compId: 1, pinIdx: 0 }, to: { compId: 2, pinIdx: 0 } },
-            { from: { compId: 2, pinIdx: 1 }, to: { compId: 3, pinIdx: 0 } },
-            { from: { compId: 3, pinIdx: 1 }, to: { compId: 7, pinIdx: 0 } },
-            { from: { compId: 6, pinIdx: 0 }, to: { compId: 3, pinIdx: 2 } },
-            { from: { compId: 3, pinIdx: 3 }, to: { compId: 4, pinIdx: 0 } },
-            { from: { compId: 4, pinIdx: 1 }, to: { compId: 7, pinIdx: 0 } },
-            { from: { compId: 6, pinIdx: 0 }, to: { compId: 4, pinIdx: 2 } },
-            { from: { compId: 4, pinIdx: 3 }, to: { compId: 5, pinIdx: 0 } },
-            { from: { compId: 5, pinIdx: 1 }, to: { compId: 7, pinIdx: 0 } },
-            { from: { compId: 6, pinIdx: 1 }, to: { compId: 7, pinIdx: 0 } }
-        ];
-        probes = [{ compId: 5, pinIdx: 0, label: 'Motor V', color: '#f59e0b' }];
-    } else if (type === 'rc_triac') {
-        document.getElementById('t_stop').value = 0.04;
-        components = [
-            { id: 1, type: 'V', x: 80, y: 180, rot: 0, dc: 0, amp: 100, freq: 50, wave: 'sine', phase: 0 },
-            { id: 2, type: 'R', x: 240, y: 100, rot: 0, val: 50 },
-            { id: 3, type: 'TRIAC', part: 'BT136', x: 420, y: 140, rot: 0 },
-            { id: 4, type: 'POT', x: 200, y: 220, rot: 0, val: '100k', pct: 35 },
-            { id: 5, type: 'C', x: 300, y: 300, rot: 90, val: '100n' },
-            { id: 6, type: 'DIAC', part: 'DB3', x: 330, y: 220, rot: 0, val: 32 },
-            { id: 7, type: 'GND', x: 80, y: 340, rot: 0 }
-        ];
-        nextId = 8;
-        wires = [
-            { from: { compId: 1, pinIdx: 0 }, to: { compId: 2, pinIdx: 0 } },
-            { from: { compId: 2, pinIdx: 1 }, to: { compId: 3, pinIdx: 2 } },
-            { from: { compId: 3, pinIdx: 1 }, to: { compId: 7, pinIdx: 0 } },
-            { from: { compId: 1, pinIdx: 0 }, to: { compId: 4, pinIdx: 0 } },
-            { from: { compId: 4, pinIdx: 1 }, to: { compId: 5, pinIdx: 0 } },
-            { from: { compId: 4, pinIdx: 1 }, to: { compId: 6, pinIdx: 0 } },
-            { from: { compId: 6, pinIdx: 1 }, to: { compId: 3, pinIdx: 0 } },
-            { from: { compId: 5, pinIdx: 1 }, to: { compId: 7, pinIdx: 0 } },
-            { from: { compId: 1, pinIdx: 1 }, to: { compId: 7, pinIdx: 0 } }
-        ];
-        probes = [
-            { compId: 1, pinIdx: 0, label: 'AC Mains', color: '#38bdf8' },
-            { compId: 2, pinIdx: 1, label: 'Load Out', color: '#f59e0b' }
-        ];
-        selectedComp = components[3];
-        renderProps();
-    }
-    draw();
-    runSimulation('transient');
-}
-
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {}));
-}
-
-window.onload = () => {
-    resizeCanvas();
-    clearBoard();
-};
-</script>
-
-<!-- ProSim v16.0 Interactive Pop-out Oscilloscope & Live Output Controller -->
-<div class="modal-bg" id="liveProScopeModal" style="z-index: 9999;">
-    <div class="modal-box" style="max-width: 1000px; width: 97%; border: 2px solid #10b981; background: #030712; color: #f8fafc;">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b; padding-bottom:8px; flex-wrap:wrap; gap:6px;">
-            <strong style="color:#10b981; font-size:1.05rem;">🖥️ ProSim Live Digital Oscilloscope & Output Controller</strong>
-            <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                <button class="tool-btn btn-run" onclick="refreshLiveScope('time')">▶ Refresh / Time</button>
-                <button class="tool-btn btn-fft" onclick="refreshLiveScope('fft')">🌊 FFT</button>
-                <button class="tool-btn btn-bode" onclick="refreshLiveScope('bode')">🎯 Bode (dB & °)</button>
-                <button class="tool-btn" style="background:#7c3aed; color:#fff;" onclick="refreshLiveScope('logic')">📊 Logic</button>
-                <button class="tool-btn" style="background:#d97706; color:#fff;" onclick="refreshLiveScope('motor')">⚙️ Motor</button>
-                <button class="tool-btn btn-clear" onclick="document.getElementById('liveProScopeModal').style.display='none'">✖ Close</button>
-            </div>
-        </div>
-
-        <!-- شريط التحكم الحي في الخرج أثناء المشاهدة -->
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:8px; background:#0f172a; padding:8px; border-radius:8px; border:1px solid #334155; margin-top:8px;">
-            <div>
-                <label style="color:#38bdf8; font-weight:bold;">⚡ Source Amplitude / DC: <span id="liveAmpVal">--</span></label>
-                <input type="range" id="liveAmpSlider" min="1" max="311" step="1" value="12" oninput="liveControlChange('amp', this.value)">
-            </div>
-            <div>
-                <label style="color:#fbbf24; font-weight:bold;">〰️ Frequency (Hz): <span id="liveFreqVal">--</span></label>
-                <input type="range" id="liveFreqSlider" min="1" max="1000" step="1" value="50" oninput="liveControlChange('freq', this.value)">
-            </div>
-            <div>
-                <label style="color:#10b981; font-weight:bold;">🔥 Firing Angle α / POT %: <span id="liveAlphaVal">--</span></label>
-                <input type="range" id="liveAlphaSlider" min="0" max="175" step="1" value="60" oninput="liveControlChange('alpha', this.value)">
-            </div>
-            <div>
-                <label style="color:#ec4899; font-weight:bold;">⏱ Timebase (t_stop s): <span id="liveTimeVal">0.04</span></label>
-                <input type="range" id="liveTimeSlider" min="0.005" max="0.5" step="0.005" value="0.04" oninput="liveControlChange('tstop', this.value)">
-            </div>
-        </div>
-
-        <!-- القياسات الرقمية الحية -->
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(105px, 1fr)); gap:6px; margin-top:8px;" id="liveScopeMetrics"></div>
-
-        <!-- المؤشرات المتحركة Cursors -->
-        <div style="display:flex; gap:10px; align-items:center; margin-top:8px; background:#0b1120; padding:6px 10px; border-radius:6px; border:1px solid #1e293b; flex-wrap:wrap;">
-            <span style="font-size:0.75rem; color:#38bdf8; font-weight:bold;">📏 Cursors:</span>
-            <label style="display:inline-flex; align-items:center; gap:4px; margin:0;">C1: <input type="range" id="liveC1" min="0" max="100" value="15" style="width:100px;" oninput="calcLiveCursors()"></label>
-            <label style="display:inline-flex; align-items:center; gap:4px; margin:0;">C2: <input type="range" id="liveC2" min="0" max="100" value="65" style="width:100px;" oninput="calcLiveCursors()"></label>
-            <span id="liveCursorText" style="font-family:monospace; font-size:0.75rem; color:#fbbf24;">ΔT = 0.00 ms | ΔV = 0.00 V</span>
-        </div>
-
-        <!-- شاشة الرسم البياني الاحترافية -->
-        <div style="height:310px; position:relative; margin-top:8px; background:#020617; border:1px solid #334155; border-radius:8px; padding:6px;">
-            <canvas id="liveProScopeCanvas"></canvas>
-        </div>
+function renderLib() {
+  const q = document.getElementById('libSearch').value.toLowerCase();
+  const items = LIBRARY.filter(i => (activeCat === 'الكل' || i.cat === activeCat) && (i.name.toLowerCase().includes(q) || i.part.toLowerCase().includes(q)));
+  document.getElementById('libList').innerHTML = items.map(i => `
+    <div class="lib-item" onclick='addComponentFromLib(${JSON.stringify(i)}); closeModal("libModal");'>
+      <div><strong>${i.name}</strong><div style="font-size:0.72rem; color:var(--muted);">${i.part}</div></div>
+      <span class="btn btn-run">+ إضافة</span>
     </div>
-</div>
-
-<script>
-let liveChartInstance = null;
-let liveCachedResponse = null;
-let liveCachedNet = null;
-
-function openProScopeWindow() {
-    const modal = document.getElementById('liveProScopeModal');
-    if (!modal) { alert("Scope UI not loaded"); return; }
-    modal.style.display = 'flex';
-
-    // مزامنة السلايدرات مع قيم الدائرة الحالية
-    const vSrc = components.find(c => c.type === 'V');
-    if (vSrc) {
-        const val = parseFloat(vSrc.amp) > 0 ? parseFloat(vSrc.amp) : (parseFloat(vSrc.dc) || 12);
-        document.getElementById('liveAmpSlider').value = Math.min(311, Math.max(1, val));
-        document.getElementById('liveAmpVal').innerText = val + ' V';
-        document.getElementById('liveFreqSlider').value = Math.min(1000, Math.max(1, parseFloat(vSrc.freq) || 50));
-        document.getElementById('liveFreqVal').innerText = (vSrc.freq || 0) + ' Hz';
-    }
-    const gf = components.find(c => c.type === 'GATE_FIRING');
-    const pot = components.find(c => c.type === 'POT');
-    if (gf) {
-        document.getElementById('liveAlphaSlider').value = gf.alpha || 60;
-        document.getElementById('liveAlphaVal').innerText = (gf.alpha || 60) + '°';
-    } else if (pot) {
-        document.getElementById('liveAlphaSlider').value = pot.pct || 50;
-        document.getElementById('liveAlphaVal').innerText = (pot.pct || 50) + '%';
-    }
-    document.getElementById('liveTimeSlider').value = document.getElementById('t_stop').value || 0.04;
-    document.getElementById('liveTimeVal').innerText = document.getElementById('t_stop').value + ' s';
-
-    refreshLiveScope('time');
+  `).join('');
 }
 
-function liveControlChange(param, val) {
-    if (param === 'amp') {
-        document.getElementById('liveAmpVal').innerText = val + ' V';
-        const vSrc = components.find(c => c.type === 'V');
-        if (vSrc) {
-            if (parseFloat(vSrc.freq) > 0) vSrc.amp = parseFloat(val);
-            else vSrc.dc = parseFloat(val);
-        }
-    } else if (param === 'freq') {
-        document.getElementById('liveFreqVal').innerText = val + ' Hz';
-        const vSrc = components.find(c => c.type === 'V');
-        if (vSrc) {
-            vSrc.freq = parseFloat(val);
-            if (parseFloat(vSrc.amp) === 0 && parseFloat(vSrc.dc) > 0) {
-                vSrc.amp = parseFloat(vSrc.dc);
-                vSrc.dc = 0;
-            }
-        }
-    } else if (param === 'alpha') {
-        const gf = components.find(c => c.type === 'GATE_FIRING');
-        const pot = components.find(c => c.type === 'POT');
-        if (gf) {
-            gf.alpha = parseFloat(val);
-            document.getElementById('liveAlphaVal').innerText = val + '°';
-        } else if (pot) {
-            pot.pct = Math.min(100, Math.max(1, parseFloat(val)));
-            document.getElementById('liveAlphaVal').innerText = pot.pct + '%';
-        }
-    } else if (param === 'tstop') {
-        document.getElementById('liveTimeVal').innerText = val + ' s';
-        document.getElementById('t_stop').value = val;
-    }
-    renderProps();
-    draw();
-    refreshLiveScope('time');
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+/* Authentic Proteus Digital Oscilloscope */
+function openScope() {
+  document.getElementById('scopeModal').style.display = 'flex';
+  if (!simData) runSim(true);
+  else drawScope();
 }
 
-async function refreshLiveScope(tab) {
-    if (components.length === 0) {
-        document.getElementById('liveScopeMetrics').innerHTML = '<div style="color:#f87171; font-size:0.82rem; padding:6px;">⚠️ البوردة فارغة! ارسم دائرة أو اختر دائرة جاهزة أولاً.</div>';
-        return;
-    }
-    if (components.filter(c => c.type === 'GND').length === 0) {
-        document.getElementById('liveScopeMetrics').innerHTML = '<div style="color:#f87171; font-size:0.82rem; padding:6px;">⚠️ لا يوجد أرضي (GND) في الدائرة!</div>';
-        return;
-    }
-
-    const net = extractNetlist();
-    liveCachedNet = net;
-    const t_stop = document.getElementById('t_stop').value;
-    const monte_carlo = document.getElementById('monteCarloChk').checked;
-    const reqMode = (tab === 'bode') ? 'bode' : 'transient';
-
-    try {
-        const res = await fetch('/simulate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mode: reqMode, monte_carlo, num_nodes: net.num_nodes, t_stop, components: net.components })
-        });
-        const data = await res.json();
-        if (data.status === 'error') {
-            document.getElementById('liveScopeMetrics').innerHTML = `<div style="color:#f87171;">❌ ${data.message}</div>`;
-            return;
-        }
-        if (reqMode === 'transient') {
-            liveCachedResponse = data;
-            simActive = true;
-            ledCurrents = data.leds || {};
-            compPowers = data.powers || {};
-            ammeterReadings = data.ammeters || {};
-            motorReadings = data.motors || {};
-            bcdReadings = data.bcds || {};
-            lcdReadings = data.lcds || {};
-            nodeLastVoltages = { 0: 0 };
-            data.voltages.forEach((vArr, idx) => { nodeLastVoltages[idx + 1] = vArr[vArr.length - 1] || 0; });
-            draw();
-        }
-        drawLiveScopeTab(tab, data, net);
-    } catch (err) {
-        document.getElementById('liveScopeMetrics').innerHTML = `<div style="color:#f87171;">❌ خطأ اتصال بالسيرفر: ${err}</div>`;
-    }
+function setScopeMode(m) {
+  scopeMode = m;
+  ['time', 'fft', 'bode'].forEach(x => {
+    document.getElementById('mode' + x.charAt(0).toUpperCase() + x.slice(1) + 'Btn').classList.toggle('active', x === m);
+  });
+  runSim(true);
 }
 
-function calcLiveCursors() {
-    if (!liveCachedResponse || !liveCachedResponse.times) return;
-    const times = liveCachedResponse.times;
-    const volts = liveCachedResponse.voltages;
-    const probeMap = liveCachedNet ? liveCachedNet.probeMap : [];
-    const targetNode = probeMap.length > 0 ? probeMap[probeMap.length - 1].node : 1;
-    const sig = (targetNode > 0 && volts[targetNode - 1]) ? volts[targetNode - 1] : (volts[0] || []);
-    if (sig.length === 0) return;
-
-    const i1 = Math.min(sig.length - 1, Math.floor((document.getElementById('liveC1').value / 100) * (sig.length - 1)));
-    const i2 = Math.min(sig.length - 1, Math.floor((document.getElementById('liveC2').value / 100) * (sig.length - 1)));
-    const dt = (times[i2] - times[i1]) * 1000;
-    const dv = sig[i2] - sig[i1];
-    const fStr = Math.abs(dt) > 1e-4 ? ` | Freq=${(1000 / Math.abs(dt)).toFixed(1)}Hz` : '';
-    document.getElementById('liveCursorText').innerText = `C1(${(times[i1]*1000).toFixed(2)}ms, ${sig[i1].toFixed(2)}V) | C2(${(times[i2]*1000).toFixed(2)}ms, ${sig[i2].toFixed(2)}V) | ΔT=${dt.toFixed(2)}ms | ΔV=${dv.toFixed(2)}V${fStr}`;
+function liveTuneScope(val) {
+  document.getElementById('liveTuneLbl').innerText = val;
+  const gf = components.find(c => c.type === 'GATE_FIRING');
+  const pot = components.find(c => c.type === 'POT');
+  const vSrc = components.find(c => c.type === 'V');
+  if (gf) gf.alpha = val;
+  else if (pot) pot.pct = Math.min(100, val);
+  else if (vSrc) {
+    if (vSrc.freq > 0) vSrc.amp = val;
+    else vSrc.dc = val;
+  }
+  runSim(true);
 }
 
-function drawLiveScopeTab(tab, data, net) {
-    const ctxL = document.getElementById('liveProScopeCanvas').getContext('2d');
-    if (liveChartInstance) liveChartInstance.destroy();
-    const probeMap = net.probeMap || [];
-    const metrics = document.getElementById('liveScopeMetrics');
+function drawScope() {
+  const sc = document.getElementById('scopeCanvas');
+  sc.width = sc.parentElement.clientWidth - 12;
+  sc.height = 270;
+  const sctx = sc.getContext('2d');
 
-    if (tab === 'time') {
-        const times = data.times || [];
-        const voltages = data.voltages || [];
-        let datasets = [];
-        let activeSig = [];
+  // CRT Phosphor Dark Background + 10x8 Divisions Grid
+  sctx.fillStyle = '#030b06';
+  sctx.fillRect(0, 0, sc.width, sc.height);
+  const cols = 10, rows = 8;
+  const dx = sc.width / cols, dy = sc.height / rows;
 
-        if (probeMap.length > 0) {
-            probeMap.forEach((pm, i) => {
-                const arr = pm.node === 0 ? times.map(() => 0) : (voltages[pm.node - 1] || []);
-                if (i === probeMap.length - 1) activeSig = arr;
-                datasets.push({ label: `${pm.label} (N${pm.node})`, data: arr, borderColor: pm.color, borderWidth: 2.3, pointRadius: 0 });
-            });
-        } else {
-            const cols = ['#38bdf8', '#10b981', '#f59e0b', '#ec4899'];
-            voltages.forEach((arr, idx) => {
-                if (idx === 0) activeSig = arr;
-                datasets.push({ label: `Node ${idx + 1} (V)`, data: arr, borderColor: cols[idx % cols.length], borderWidth: 2.3, pointRadius: 0 });
-            });
-        }
+  sctx.strokeStyle = '#0f291a';
+  sctx.lineWidth = 1;
+  for (let i = 1; i < cols; i++) { sctx.beginPath(); sctx.moveTo(i * dx, 0); sctx.lineTo(i * dx, sc.height); sctx.stroke(); }
+  for (let j = 1; j < rows; j++) { sctx.beginPath(); sctx.moveTo(0, j * dy); sctx.lineTo(sc.width, j * dy); sctx.stroke(); }
 
-        if (activeSig.length > 0) {
-            const vmax = Math.max(...activeSig), vmin = Math.min(...activeSig);
-            const vpp = vmax - vmin;
-            const vrms = Math.sqrt(activeSig.reduce((a, b) => a + b * b, 0) / activeSig.length);
-            const vavg = activeSig.reduce((a, b) => a + b, 0) / activeSig.length;
-            const totalPwr = Object.values(data.powers || {}).reduce((a, b) => a + b, 0);
-            metrics.innerHTML = `
-                <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">V_MAX</div><b>${vmax.toFixed(3)} V</b></div>
-                <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">V_MIN</div><b>${vmin.toFixed(3)} V</b></div>
-                <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">V_PP</div><b>${vpp.toFixed(3)} V</b></div>
-                <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">V_RMS</div><b>${vrms.toFixed(3)} V</b></div>
-                <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">V_AVG (DC)</div><b>${vavg.toFixed(3)} V</b></div>
-                <div class="dmm-val"><div style="font-size:0.62rem;color:#10b981;">POWER</div><b style="color:#10b981;">${totalPwr.toFixed(2)} W</b></div>
-            `;
-        }
-        calcLiveCursors();
-        liveChartInstance = new Chart(ctxL, {
-            type: 'line',
-            data: { labels: times.map(t => (t * 1000).toFixed(2) + 'ms'), datasets },
-            options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { x: { grid: { color: '#1e293b' } }, y: { grid: { color: '#1e293b' } } } }
-        });
-    } else if (tab === 'fft') {
-        const targetNode = probeMap.length > 0 ? probeMap[probeMap.length - 1].node : 1;
-        const mags = (targetNode > 0 && data.fft_mags && data.fft_mags[targetNode - 1]) ? data.fft_mags[targetNode - 1] : [];
-        liveChartInstance = new Chart(ctxL, {
-            type: 'bar',
-            data: { labels: (data.fft_freqs || []).map(f => f.toFixed(0) + 'Hz'), datasets: [{ label: `Node ${targetNode} FFT (V)`, data: mags, backgroundColor: '#ec4899' }] },
-            options: { responsive: true, maintainAspectRatio: false, animation: false }
-        });
-    } else if (tab === 'bode') {
-        const targetNode = probeMap.length > 0 ? probeMap[probeMap.length - 1].node : 1;
-        const magArr = (targetNode > 0 && data.mags && data.mags[targetNode - 1]) ? data.mags[targetNode - 1] : [];
-        const phArr = (targetNode > 0 && data.phases && data.phases[targetNode - 1]) ? data.phases[targetNode - 1] : [];
-        liveChartInstance = new Chart(ctxL, {
-            type: 'line',
-            data: {
-                labels: (data.freqs || []).map(f => f < 1000 ? f.toFixed(0) + 'Hz' : (f/1000).toFixed(1) + 'kHz'),
-                datasets: [
-                    { label: 'Gain (dB)', data: magArr, borderColor: '#8b5cf6', yAxisID: 'y', pointRadius: 0 },
-                    { label: 'Phase (°)', data: phArr, borderColor: '#f59e0b', yAxisID: 'y1', pointRadius: 0 }
-                ]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false, animation: false,
-                scales: {
-                    y: { type: 'linear', position: 'left', title: { display: true, text: 'Gain (dB)' } },
-                    y1: { type: 'linear', position: 'right', title: { display: true, text: 'Phase (deg)' }, grid: { drawOnChartArea: false } }
-                }
-            }
-        });
-    } else if (tab === 'logic') {
-        const times = data.times || [];
-        const voltages = data.voltages || [];
-        let datasets = [];
-        voltages.slice(0, 6).forEach((arr, idx) => {
-            const offset = idx * 1.5;
-            datasets.push({ label: `D${idx} (Node ${idx+1})`, data: arr.map(v => (v >= 2.5 ? 1.0 : 0.0) + offset), borderColor: ['#38bdf8','#10b981','#f59e0b','#ec4899','#a855f7','#ef4444'][idx%6], stepped: true, borderWidth: 2, pointRadius: 0 });
-        });
-        liveChartInstance = new Chart(ctxL, {
-            type: 'line',
-            data: { labels: times.map(t => (t * 1000).toFixed(2) + 'ms'), datasets },
-            options: { responsive: true, maintainAspectRatio: false, animation: false }
-        });
-    } else if (tab === 'motor') {
-        const mKeys = Object.keys(data.motors || {});
-        if (mKeys.length === 0) {
-            metrics.innerHTML = '<div style="color:#fbbf24; font-size:0.82rem;">⚠️ لا يوجد محرك في الدائرة الحالية.</div>';
-            return;
-        }
-        const m = data.motors[mKeys[0]];
-        const h = m.history || { t: [], rpm: [], torque: [], current: [] };
-        metrics.innerHTML = `
-            <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">SPEED</div><b>${m.rpm.toFixed(1)} RPM</b></div>
-            <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">TORQUE</div><b>${m.torque.toFixed(4)} N·m</b></div>
-            <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">CURRENT</div><b>${m.current.toFixed(3)} A</b></div>
-            <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">ANGLE</div><b>${m.angle.toFixed(1)}°</b></div>
-        `;
-        liveChartInstance = new Chart(ctxL, {
-            type: 'line',
-            data: {
-                labels: h.t.map(t => (t * 1000).toFixed(1) + 'ms'),
-                datasets: [
-                    { label: 'Speed (RPM)', data: h.rpm, borderColor: '#10b981', yAxisID: 'y', pointRadius: 0 },
-                    { label: 'Current (A)', data: h.current, borderColor: '#38bdf8', yAxisID: 'y1', pointRadius: 0 }
-                ]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false, animation: false,
-                scales: {
-                    y: { type: 'linear', position: 'left', title: { display: true, text: 'RPM' } },
-                    y1: { type: 'linear', position: 'right', title: { display: true, text: 'Current (A)' }, grid: { drawOnChartArea: false } }
-                }
-            }
-        });
+  // Center Crosshairs (0V Axis)
+  sctx.strokeStyle = '#1e4d32';
+  sctx.lineWidth = 1.5;
+  sctx.beginPath(); sctx.moveTo(0, sc.height / 2); sctx.lineTo(sc.width, sc.height / 2); sctx.stroke();
+  sctx.beginPath(); sctx.moveTo(sc.width / 2, 0); sctx.lineTo(sc.width / 2, sc.height); sctx.stroke();
+
+  if (!simData || !simData.data) return;
+  const d = simData.data;
+  const net = simData.net;
+
+  if (scopeMode === 'bode' && d.freqs) {
+    const arr = d.mags[0] || [];
+    sctx.strokeStyle = '#a855f7'; sctx.lineWidth = 2.5; sctx.beginPath();
+    arr.forEach((db, idx) => {
+      const px = (idx / Math.max(1, arr.length - 1)) * sc.width;
+      const py = sc.height / 2 - (db / 40) * (sc.height / 2);
+      idx === 0 ? sctx.moveTo(px, py) : sctx.lineTo(px, py);
+    });
+    sctx.stroke();
+    return;
+  }
+
+  if (scopeMode === 'fft' && d.fft_mags) {
+    const mags = d.fft_mags[0] || [];
+    const maxM = Math.max(0.1, ...mags);
+    sctx.fillStyle = '#ec4899';
+    const bw = sc.width / Math.max(1, mags.length);
+    mags.forEach((m, i) => {
+      const h = (m / maxM) * (sc.height - 20);
+      sctx.fillRect(i * bw, sc.height - h, Math.max(2, bw - 2), h);
+    });
+    return;
+  }
+
+  // Time Domain Channels
+  const channels = net.probeMap.length > 0
+    ? net.probeMap.map(p => ({ label: p.label, color: p.color, data: p.node === 0 ? d.times.map(() => 0) : (d.voltages[p.node - 1] || []) }))
+    : d.voltages.slice(0, 4).map((arr, i) => ({ label: `CH${i+1}`, color: ['#facc15', '#38bdf8', '#10b981', '#ec4899'][i], data: arr }));
+
+  channels.forEach((ch, idx) => {
+    if (!ch.data.length) return;
+    const scaleY = dy / (vDiv[idx] || 5);
+    sctx.strokeStyle = ch.color;
+    sctx.lineWidth = 2.2;
+    sctx.beginPath();
+    ch.data.forEach((v, i) => {
+      const px = (i / Math.max(1, ch.data.length - 1)) * sc.width;
+      const py = sc.height / 2 - v * scaleY;
+      i === 0 ? sctx.moveTo(px, py) : sctx.lineTo(px, py);
+    });
+    sctx.stroke();
+
+    // Channel Label on CRT
+    sctx.fillStyle = ch.color;
+    sctx.font = 'bold 11px monospace';
+    sctx.fillText(`${ch.label}: ${vDiv[idx] || 5}V/div`, 10 + idx * 115, 16);
+  });
+
+  // Update Digital Metrics
+  const mainSig = channels[channels.length - 1]?.data || [];
+  if (mainSig.length) {
+    const vmax = Math.max(...mainSig), vmin = Math.min(...mainSig);
+    const vrms = Math.sqrt(mainSig.reduce((a, b) => a + b * b, 0) / mainSig.length);
+    document.getElementById('mVmax').innerText = vmax.toFixed(2) + ' V';
+    document.getElementById('mVrms').innerText = vrms.toFixed(2) + ' V';
+    document.getElementById('mVpp').innerText = (vmax - vmin).toFixed(2) + ' V';
+    const mKeys = Object.keys(motorStats);
+    if (mKeys.length) {
+      document.getElementById('mExtra').innerText = Math.abs(motorStats[mKeys[0]].rpm).toFixed(0) + ' RPM';
+    } else {
+      const pwr = Object.values(d.powers || {}).reduce((a, b) => a + b, 0);
+      document.getElementById('mExtra').innerText = pwr.toFixed(2) + ' W';
     }
+  }
 }
+
+/* Ready-to-use Demo Circuits */
+function loadDemo(name) {
+  if (!name) return;
+  components = []; wires = []; probes = []; deselectAll();
+  if (name === 'psu') {
+    tStopVal = 0.04;
+    components = [
+      { id: 1, type: 'V', part: 'AC-220V', x: 80, y: 160, rot: 0, dc: 0, amp: 311, freq: 50, wave: 'sine' },
+      { id: 2, type: 'TRF', part: 'TRAN-2P2S', x: 200, y: 160, rot: 0, val: 0.055 },
+      { id: 3, type: 'BRIDGE', part: 'KBP206', x: 320, y: 160, rot: 0 },
+      { id: 4, type: 'CELEC', part: '470uF', x: 420, y: 200, rot: 90, val: '470u' },
+      { id: 5, type: 'REG', part: '7805', x: 520, y: 145, rot: 0, val: 5.0 },
+      { id: 6, type: 'R', part: 'LOAD', x: 620, y: 200, rot: 90, val: '100' },
+      { id: 7, type: 'GND', part: 'GND', x: 80, y: 290, rot: 0 }
+    ];
+    nextId = 8;
+    wires = [
+      { from: { compId: 1, pinIdx: 0 }, to: { compId: 2, pinIdx: 0 } },
+      { from: { compId: 1, pinIdx: 1 }, to: { compId: 2, pinIdx: 1 } },
+      { from: { compId: 1, pinIdx: 1 }, to: { compId: 7, pinIdx: 0 } },
+      { from: { compId: 2, pinIdx: 2 }, to: { compId: 3, pinIdx: 0 } },
+      { from: { compId: 2, pinIdx: 3 }, to: { compId: 3, pinIdx: 1 } },
+      { from: { compId: 3, pinIdx: 2 }, to: { compId: 4, pinIdx: 0 } },
+      { from: { compId: 4, pinIdx: 0 }, to: { compId: 5, pinIdx: 0 } },
+      { from: { compId: 5, pinIdx: 1 }, to: { compId: 7, pinIdx: 0 } },
+      { from: { compId: 5, pinIdx: 2 }, to: { compId: 6, pinIdx: 0 } },
+      { from: { compId: 3, pinIdx: 3 }, to: { compId: 7, pinIdx: 0 } },
+      { from: { compId: 4, pinIdx: 1 }, to: { compId: 7, pinIdx: 0 } },
+      { from: { compId: 6, pinIdx: 1 }, to: { compId: 7, pinIdx: 0 } }
+    ];
+    probes = [
+      { compId: 4, pinIdx: 0, label: 'CH1 (Rectified)', color: '#facc15' },
+      { compId: 5, pinIdx: 2, label: 'CH2 (5.0V Out)', color: '#38bdf8' }
+    ];
+  } else if (name === 'dimmer') {
+    tStopVal = 0.04;
+    components = [
+      { id: 1, type: 'V', part: 'AC-220V', x: 80, y: 160, rot: 0, dc: 0, amp: 220, freq: 50, wave: 'sine' },
+      { id: 2, type: 'R', part: 'LOAD', x: 240, y: 120, rot: 0, val: '50' },
+      { id: 3, type: 'TRIAC', part: 'BT136', x: 380, y: 160, rot: 0 },
+      { id: 4, type: 'GATE_FIRING', part: 'ALPHA-CTRL', x: 220, y: 230, rot: 0, alpha: 75, freq: 50 },
+      { id: 5, type: 'GND', part: 'GND', x: 80, y: 290, rot: 0 }
+    ];
+    nextId = 6;
+    wires = [
+      { from: { compId: 1, pinIdx: 0 }, to: { compId: 2, pinIdx: 0 } },
+      { from: { compId: 2, pinIdx: 1 }, to: { compId: 3, pinIdx: 2 } },
+      { from: { compId: 3, pinIdx: 1 }, to: { compId: 5, pinIdx: 0 } },
+      { from: { compId: 1, pinIdx: 0 }, to: { compId: 4, pinIdx: 0 } },
+      { from: { compId: 4, pinIdx: 1 }, to: { compId: 3, pinIdx: 0 } },
+      { from: { compId: 1, pinIdx: 1 }, to: { compId: 5, pinIdx: 0 } }
+    ];
+    probes = [
+      { compId: 1, pinIdx: 0, label: 'CH1 (AC)', color: '#facc15' },
+      { compId: 2, pinIdx: 1, label: 'CH2 (TRIAC)', color: '#38bdf8' }
+    ];
+  } else if (name === 'bjt') {
+    tStopVal = 0.02;
+    components = [
+      { id: 1, type: 'V', part: 'PULSE-5V', x: 80, y: 160, rot: 0, dc: 0, amp: 5, freq: 100, wave: 'square' },
+      { id: 2, type: 'R', part: 'Rb', x: 200, y: 160, rot: 0, val: '1k' },
+      { id: 3, type: 'Q', part: '2N2222', x: 320, y: 160, rot: 0, pol: 'NPN', val: 200 },
+      { id: 4, type: 'R', part: 'Rc', x: 340, y: 80, rot: 90, val: '220' },
+      { id: 5, type: 'V', part: 'VCC-12V', x: 460, y: 80, rot: 0, dc: 12, amp: 0, freq: 0, wave: 'sine' },
+      { id: 6, type: 'GND', part: 'GND', x: 340, y: 270, rot: 0 }
+    ];
+    nextId = 7;
+    wires = [
+      { from: { compId: 1, pinIdx: 0 }, to: { compId: 2, pinIdx: 0 } },
+      { from: { compId: 2, pinIdx: 1 }, to: { compId: 3, pinIdx: 0 } },
+      { from: { compId: 3, pinIdx: 1 }, to: { compId: 4, pinIdx: 1 } },
+      { from: { compId: 4, pinIdx: 0 }, to: { compId: 5, pinIdx: 0 } },
+      { from: { compId: 3, pinIdx: 2 }, to: { compId: 6, pinIdx: 0 } },
+      { from: { compId: 1, pinIdx: 1 }, to: { compId: 6, pinIdx: 0 } },
+      { from: { compId: 5, pinIdx: 1 }, to: { compId: 6, pinIdx: 0 } }
+    ];
+    probes = [
+      { compId: 1, pinIdx: 0, label: 'CH1 (Base In)', color: '#facc15' },
+      { compId: 3, pinIdx: 1, label: 'CH2 (Collector)', color: '#38bdf8' }
+    ];
+  } else if (name === 'zener') {
+    tStopVal = 0.02;
+    components = [
+      { id: 1, type: 'V', part: 'DC-12V', x: 100, y: 160, rot: 0, dc: 12, amp: 0, freq: 0, wave: 'sine' },
+      { id: 2, type: 'R', part: 'Rs', x: 240, y: 160, rot: 0, val: '1k' },
+      { id: 3, type: 'Z', part: '1N4733A', x: 360, y: 210, rot: 270, val: 5.1 },
+      { id: 4, type: 'GND', part: 'GND', x: 100, y: 280, rot: 0 }
+    ];
+    nextId = 5;
+    wires = [
+      { from: { compId: 1, pinIdx: 0 }, to: { compId: 2, pinIdx: 0 } },
+      { from: { compId: 2, pinIdx: 1 }, to: { compId: 3, pinIdx: 1 } },
+      { from: { compId: 3, pinIdx: 0 }, to: { compId: 4, pinIdx: 0 } },
+      { from: { compId: 1, pinIdx: 1 }, to: { compId: 4, pinIdx: 0 } }
+    ];
+    probes = [{ compId: 2, pinIdx: 1, label: 'CH1 (5.1V Zener)', color: '#10b981' }];
+  } else if (name === 'motor') {
+    tStopVal = 0.2;
+    components = [
+      { id: 1, type: 'V', part: 'DC-12V', x: 100, y: 160, rot: 0, dc: 12, amp: 0, freq: 0, wave: 'sine' },
+      { id: 2, type: 'AMMETER', part: 'AMMETER', x: 240, y: 160, rot: 0 },
+      { id: 3, type: 'MOTOR', part: 'DC-MOTOR', x: 380, y: 160, rot: 0, load: 0 },
+      { id: 4, type: 'GND', part: 'GND', x: 100, y: 270, rot: 0 }
+    ];
+    nextId = 5;
+    wires = [
+      { from: { compId: 1, pinIdx: 0 }, to: { compId: 2, pinIdx: 0 } },
+      { from: { compId: 2, pinIdx: 1 }, to: { compId: 3, pinIdx: 0 } },
+      { from: { compId: 3, pinIdx: 1 }, to: { compId: 4, pinIdx: 0 } },
+      { from: { compId: 1, pinIdx: 1 }, to: { compId: 4, pinIdx: 0 } }
+    ];
+    probes = [{ compId: 3, pinIdx: 0, label: 'CH1 (Motor V)', color: '#facc15' }];
+  }
+  runSim();
+}
+
+window.onload = () => { resize(); };
 </script>
-
-
-<button id="floatingScopeBtn" onclick="openProScopeWindow()" style="position:fixed; bottom:18px; right:18px; z-index:9998; background:linear-gradient(135deg,#059669,#0284c7); color:#fff; border:2px solid #38bdf8; padding:10px 16px; border-radius:30px; font-weight:bold; font-size:0.85rem; box-shadow:0 4px 15px rgba(2,132,199,0.5); cursor:pointer;">
-    🖥️ نافذة الخرج (Pro Scope)
-</button>
-
 </body>
 </html>
