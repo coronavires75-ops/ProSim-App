@@ -264,6 +264,14 @@
 
 <script>
 const DEVICE_LIBRARY = [
+    { cat: 'Power & Proteus Suite', name: 'BRIDGE-4PIN (Full-Wave Bridge Rectifier)', type: 'BRIDGE', part: 'KBP206', val: 0, desc: '4-Pin AC-to-DC Diode Bridge' },
+    { cat: 'Power & Proteus Suite', name: 'GATE-FIRING (SCR/TRIAC Phase Controller)', type: 'GATE_FIRING', part: 'ALPHA-CTRL', val: 60, desc: 'Zero-Cross Phase Angle Trigger (0°-180°)' },
+    { cat: 'Power & Proteus Suite', name: 'WATTMETER (P, Q, S & Power Factor)', type: 'WATTMETER', part: 'WATTMETER', val: 0, desc: 'Measures Active W, Reactive VAR, PF' },
+    { cat: 'Power & Proteus Suite', name: 'RELAY-SPDT (5-Pin NO/NC Relay)', type: 'RELAY_SPDT', part: 'RLY-SPDT', val: 5.0, desc: '5-Pin Relay with COM, NO, NC' },
+    { cat: 'Power & Proteus Suite', name: 'VCC-5V (Wireless +5V Power Rail)', type: 'VCC', part: 'VCC+5V', val: 5.0, desc: 'Wireless +5V Supply Terminal' },
+    { cat: 'Power & Proteus Suite', name: 'VCC-12V (Wireless +12V Power Rail)', type: 'VCC', part: 'VCC+12V', val: 12.0, desc: 'Wireless +12V Supply Terminal' },
+    { cat: 'Digital Logic & MCU', name: 'D-FLIPFLOP (74HC74 Edge-Triggered)', type: 'DFF', part: '74HC74', val: 0, desc: 'D Flip-Flop with CLK, Q, Q-bar' },
+    { cat: 'Digital Logic & MCU', name: 'JK-FLIPFLOP (74HC76 Edge-Triggered)', type: 'JKFF', part: '74HC76', val: 0, desc: 'JK Flip-Flop with CLK, Q, Q-bar' },
     // 1. Passive Components
     { cat: 'Passives (R, L, C)', name: 'RES (Fixed Resistor - Any Value)', type: 'R', part: 'RES', val: '1k', desc: 'Any value: 10, 4k7, 10k, 1M' },
     { cat: 'Passives (R, L, C)', name: 'POT-HG (Potentiometer Slider)', type: 'POT', part: 'POT', val: '10k', desc: 'Variable Resistor (1% to 100%)' },
@@ -673,6 +681,10 @@ function renderProps() {
             <div><label>Kp</label><input type="text" value="${selectedComp.kp}" onchange="selectedComp.kp=this.value; runSimulation('transient');"></div>
             <div><label>Ki</label><input type="text" value="${selectedComp.ki}" onchange="selectedComp.ki=this.value; runSimulation('transient');"></div>
             <div><label>Kd</label><input type="text" value="${selectedComp.kd}" onchange="selectedComp.kd=this.value; runSimulation('transient');"></div>
+        </div>`;
+    } else if (selectedComp.type === 'GATE_FIRING') {
+        html += `<div><label>🔥 Firing Angle α: <b id="alphaLbl">${selectedComp.alpha || 60}°</b></label>
+            <input type="range" min="0" max="175" value="${selectedComp.alpha || 60}" oninput="selectedComp.alpha=this.value; document.getElementById('alphaLbl').innerText=this.value+'°'; runSimulation('transient');">
         </div>`;
     } else if (selectedComp.type === 'LM35') {
         html += `<div><label>🌡 Temperature: <b id="lm35Lbl">${selectedComp.val} °C</b></label>

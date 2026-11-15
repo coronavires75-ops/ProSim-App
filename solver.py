@@ -1,3 +1,4 @@
+import re
 import numpy as np
 import ast
 
@@ -13,10 +14,68 @@ class SafeMCUExecutor:
     )
     ALLOWED_FUNCS = {'digitalWrite', 'pwmWrite', 'print', 'lcdPrint', 'sin', 'cos', 'abs', 'min', 'max', 'round', 'len'}
 
+
+    @staticmethod
+    def transpile_arduino_to_python(code):
+        if 'void setup' not in code and 'void loop' not in code and 'digitalWrite(' not in code:
+            return code
+        # Convert basic Arduino C++ syntax into clean Python for the sandbox
+        lines = []
+        in_setup = False
+        in_loop = False
+        brace_depth = 0
+        for raw_line in code.splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith('//'):
+                continue
+            if 'void setup()' in line:
+                in_setup = True
+                if '{' in line: brace_depth += 1
+                continue
+            if 'void loop()' in line:
+                in_setup = False
+                in_loop = True
+                if '{' in line: brace_depth += 1
+                continue
+            if line == '{':
+                brace_depth += 1
+                continue
+            if line == '}':
+                brace_depth = max(0, brace_depth - 1)
+                if brace_depth == 0:
+                    in_setup = False
+                    in_loop = False
+                continue
+            if in_setup or 'pinMode' in line or 'Serial.begin' in line:
+                continue
+            # Clean C++ types and semicolons
+            line = re.sub(r'\b(int|float|double|bool|long|byte)\s+', '', line)
+            line = line.rstrip(';')
+            line = line.replace('&&', ' and ').replace('||', ' or ')
+            line = line.replace('Serial.println(', 'print(').replace('Serial.print(', 'print(')
+            line = line.replace('lcd.print(', 'lcdPrint(')
+            line = re.sub(r'analogRead\s*\(\s*A0\s*\)', '(A0 * 1023.0 / 5.0)', line)
+            line = re.sub(r'digitalWrite\s*\(\s*\d+\s*,\s*(HIGH|LOW|1|0)\s*\)', r'digitalWrite(\1)', line)
+            line = re.sub(r'analogWrite\s*\(\s*\d+\s*,\s*([^)]+)\)', r'pwmWrite(500, (\1) * 100.0 / 255.0)', line)
+            if line.startswith('if') and line.endswith('{'):
+                line = line[:-1].strip() + ':'
+                lines.append(line)
+                continue
+            if line.startswith('} else {'):
+                lines.append('else:')
+                continue
+            if line.startswith('else') and line.endswith('{'):
+                lines.append('else:')
+                continue
+            indent = '    ' if (lines and lines[-1].endswith(':')) else ''
+            lines.append(indent + line)
+        return '\n'.join(lines)
+
     @classmethod
     def validate(cls, code):
         if len(code) > 4000:
             raise ValueError("MCU code exceeds 4000 characters limit")
+        code = cls.transpile_arduino_to_python(code)
         tree = ast.parse(code, mode='exec')
         for node in ast.walk(tree):
             if not isinstance(node, cls.ALLOWED_NODES):
@@ -58,9 +117,50 @@ class ProCircuitSolver:
         self.pids = []
         self.lcds = []
 
+
+    def add_bridge(self, ac1, ac2, dc_p, dc_m, Is=7.02e-9, n=1.77):
+        self.add_diode(ac1, dc_p, Is=Is, n=n, part='BRIDGE-D1')
+        self.add_diode(ac2, dc_p, Is=Is, n=n, part='BRIDGE-D2')
+        self.add_diode(dc_m, ac1, Is=Is, n=n, part='BRIDGE-D3')
+        self.add_diode(dc_m, ac2, Is=Is, n=n, part='BRIDGE-D4')
+
+    def add_spdt_relay(self, nc1, nc2, ncom, nno, nnc, v_coil=5.0, id_tag=None):
+        if not hasattr(self, 'spdt_relays'):
+            self.spdt_relays = []
+        self.spdt_relays.append({
+            'nc1': nc1, 'nc2': nc2, 'ncom': ncom, 'nno': nno, 'nnc': nnc,
+            'v_coil': v_coil, 'id': id_tag, 'closed': False
+        })
+
+    def add_flipflop(self, ff_type, d_or_j, clk_or_k, clk, q_out, qb_out):
+        if not hasattr(self, 'flipflops'):
+            self.flipflops = []
+        self.flipflops.append({
+            'type': ff_type, 'in1': d_or_j, 'in2': clk_or_k, 'clk': clk,
+            'q_pin': q_out, 'qb_pin': qb_out, 'q': False, 'prev_clk': False, 'count': 0
+        })
+
+    def add_gate_firing(self, n_sync, n_gate, alpha_deg=60.0, freq=50.0):
+        if not hasattr(self, 'gate_firings'):
+            self.gate_firings = []
+        self.gate_firings.append({
+            'n_sync': n_sync, 'n_gate': n_gate,
+            'alpha': max(0.0, min(180.0, float(alpha_deg))),
+            'freq': max(1.0, float(freq)), 'v_out': 0.0
+        })
+
+    def add_wattmeter(self, v_p, v_m, i_in, i_out, id_tag=None):
+        if not hasattr(self, 'wattmeters'):
+            self.wattmeters = []
+        idx = self._next_extra_idx() + len(self.wattmeters)
+        self.wattmeters.append({
+            'vp': v_p, 'vm': v_m, 'ii': i_in, 'io': i_out,
+            'id': id_tag, 'idx': idx, 'p_sum': 0.0, 'v_sq_sum': 0.0, 'i_sq_sum': 0.0, 't_sum': 0.0
+        })
+
     def _next_extra_idx(self):
         return (len(self.v_sources) + len(self.inductors) + len(self.opamps) +
-                len(self.transformers) + len(self.ammeters) + len(self.motors))
+                len(self.transformers) + len(self.ammeters) + len(self.motors) + len(getattr(self, 'wattmeters', [])))
 
     def add_resistor(self, n1, n2, value, id_tag=None, part='RES'):
         self.resistors.append({
@@ -425,9 +525,67 @@ class ProCircuitSolver:
                 self._stamp_g(A, opt['na'], opt['nk'], 1.0 / 60.0)
                 self._stamp_g(A, opt['nc'], opt['ne'], (1.0 / 10.0) if opt['active'] else 1e-9)
 
-            for rly in self.relays:
+            for srly in getattr(self, 'spdt_relays', []):
+            v_c = abs(get_v_final(srly['nc1']) - get_v_final(srly['nc2']))
+            srly['closed'] = (v_c >= srly['v_coil'] * (0.45 if srly['closed'] else 0.75))
+
+        for ff in getattr(self, 'flipflops', []):
+            clk_now = get_v_final(ff['clk']) >= 2.5
+            if clk_now and not ff['prev_clk']:
+                if ff['type'] == 'DFF':
+                    ff['q'] = get_v_final(ff['in1']) >= 2.5
+                elif ff['type'] == 'JKFF':
+                    j = get_v_final(ff['in1']) >= 2.5
+                    k = get_v_final(ff['in2']) >= 2.5
+                    if j and not k: ff['q'] = True
+                    elif not j and k: ff['q'] = False
+                    elif j and k: ff['q'] = not ff['q']
+            ff['prev_clk'] = clk_now
+
+        for gf in getattr(self, 'gate_firings', []):
+            half_period = 0.5 / gf['freq']
+            phase_t = t % half_period
+            fire_t = (gf['alpha'] / 180.0) * half_period
+            gf['v_out'] = 5.0 if (fire_t <= phase_t <= fire_t + half_period * 0.15) else 0.0
+
+        if not is_dc and dt > 0:
+            for wm in getattr(self, 'wattmeters', []):
+                v_w = get_v_final(wm['vp']) - get_v_final(wm['vm'])
+                i_w = X[self.num_nodes + wm['idx']]
+                wm['p_sum'] += (v_w * i_w) * dt
+                wm['v_sq_sum'] += (v_w ** 2) * dt
+                wm['i_sq_sum'] += (i_w ** 2) * dt
+                wm['t_sum'] += dt
+
+        for rly in self.relays:
                 self._stamp_g(A, rly['nc1'], rly['nc2'], 1.0 / 100.0)
                 self._stamp_g(A, rly['ncom'], rly['nno'], (1.0 / 0.02) if rly['closed'] else 1e-9)
+
+            for srly in getattr(self, 'spdt_relays', []):
+                self._stamp_g(A, srly['nc1'], srly['nc2'], 1.0 / 100.0)
+                self._stamp_g(A, srly['ncom'], srly['nno'], (1.0 / 0.02) if srly['closed'] else 1e-9)
+                self._stamp_g(A, srly['ncom'], srly['nnc'], 1e-9 if srly['closed'] else (1.0 / 0.02))
+
+            for ff in getattr(self, 'flipflops', []):
+                g_o = 1.0 / 35.0
+                if ff['q_pin'] > 0:
+                    self._stamp_g(A, ff['q_pin'], 0, g_o)
+                    self._stamp_i(Z, 0, ff['q_pin'], (5.0 if ff['q'] else 0.0) * g_o)
+                if ff['qb_pin'] > 0:
+                    self._stamp_g(A, ff['qb_pin'], 0, g_o)
+                    self._stamp_i(Z, 0, ff['qb_pin'], (0.0 if ff['q'] else 5.0) * g_o)
+
+            for gf in getattr(self, 'gate_firings', []):
+                if gf['n_gate'] > 0:
+                    g_o = 1.0 / 25.0
+                    self._stamp_g(A, gf['n_gate'], 0, g_o)
+                    self._stamp_i(Z, 0, gf['n_gate'], gf['v_out'] * g_o)
+
+            for wm in getattr(self, 'wattmeters', []):
+                row = self.num_nodes + wm['idx']
+                if wm['ii'] > 0: A[row, wm['ii']-1] = 1.0; A[wm['ii']-1, row] = 1.0
+                if wm['io'] > 0: A[row, wm['io']-1] = -1.0; A[wm['io']-1, row] = -1.0
+                A[row, row] = -1e-6
 
             # Electromechanical Motors: V_m = I_a * R_a + L_a * dI_a/dt + K_e * omega
             for mot in self.motors:
@@ -752,6 +910,38 @@ class ProCircuitSolver:
         for opt in self.optocouplers:
             opt['active'] = ((get_v_final(opt['na']) - get_v_final(opt['nk'])) > 1.05)
 
+        for srly in getattr(self, 'spdt_relays', []):
+            v_c = abs(get_v_final(srly['nc1']) - get_v_final(srly['nc2']))
+            srly['closed'] = (v_c >= srly['v_coil'] * (0.45 if srly['closed'] else 0.75))
+
+        for ff in getattr(self, 'flipflops', []):
+            clk_now = get_v_final(ff['clk']) >= 2.5
+            if clk_now and not ff['prev_clk']:
+                if ff['type'] == 'DFF':
+                    ff['q'] = get_v_final(ff['in1']) >= 2.5
+                elif ff['type'] == 'JKFF':
+                    j = get_v_final(ff['in1']) >= 2.5
+                    k = get_v_final(ff['in2']) >= 2.5
+                    if j and not k: ff['q'] = True
+                    elif not j and k: ff['q'] = False
+                    elif j and k: ff['q'] = not ff['q']
+            ff['prev_clk'] = clk_now
+
+        for gf in getattr(self, 'gate_firings', []):
+            half_period = 0.5 / gf['freq']
+            phase_t = t % half_period
+            fire_t = (gf['alpha'] / 180.0) * half_period
+            gf['v_out'] = 5.0 if (fire_t <= phase_t <= fire_t + half_period * 0.15) else 0.0
+
+        if not is_dc and dt > 0:
+            for wm in getattr(self, 'wattmeters', []):
+                v_w = get_v_final(wm['vp']) - get_v_final(wm['vm'])
+                i_w = X[self.num_nodes + wm['idx']]
+                wm['p_sum'] += (v_w * i_w) * dt
+                wm['v_sq_sum'] += (v_w ** 2) * dt
+                wm['i_sq_sum'] += (i_w ** 2) * dt
+                wm['t_sum'] += dt
+
         for rly in self.relays:
             v_c = abs(get_v_final(rly['nc1']) - get_v_final(rly['nc2']))
             thresh = rly['v_coil'] * (0.45 if rly['closed'] else 0.75)  # Hysteresis
@@ -836,6 +1026,15 @@ class ProCircuitSolver:
                 notes.append(f"🔋 <b>منظم الجهد ({reg['part']}):</b> ثبّت الجهد عند <b>{reg['vout']}V DC</b>.")
         for mot in self.motors:
             notes.append(f"⚙️ <b>محرك ({mot['part']}):</b> السرعة المستقرة <b>{mot['rpm']:.1f} RPM</b> | العزم <b>{mot['torque']:.4f} N·m</b>.")
+        for wm in getattr(self, 'wattmeters', []):
+            if wm['t_sum'] > 0:
+                p_real = wm['p_sum'] / wm['t_sum']
+                v_rms = np.sqrt(wm['v_sq_sum'] / wm['t_sum'])
+                i_rms = np.sqrt(wm['i_sq_sum'] / wm['t_sum'])
+                s_app = max(v_rms * i_rms, 1e-9)
+                pf = min(1.0, abs(p_real) / s_app)
+                q_reac = np.sqrt(max(0.0, s_app**2 - p_real**2))
+                notes.append(f"⚡ <b>Wattmeter (#{wm['id']}):</b> P = <b>{p_real:.2f} W</b> | S = <b>{s_app:.2f} VA</b> | Q = <b>{q_reac:.2f} VAR</b> | PF = <b>{pf:.3f}</b>")
         if not notes:
             notes.append("✅ الدائرة مستقرة وتطابق معادلات SPICE الفيزيائية بدقة reltol=10⁻⁴.")
         return notes

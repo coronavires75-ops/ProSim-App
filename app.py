@@ -117,6 +117,18 @@ def build_circuit(data, override_pid=None):
             r_norton = 1e5
             ckt.add_vsource(pins[0], pins[1], dc=val * r_norton)
             ckt.add_resistor(pins[0], pins[1], r_norton)
+        elif ctype == 'BRIDGE':
+            ckt.add_bridge(pins[0], pins[1], pins[2], pins[3])
+        elif ctype == 'RELAY_SPDT':
+            ckt.add_spdt_relay(pins[0], pins[1], pins[2], pins[3], pins[4], v_coil=val if val > 0 else 5.0, id_tag=comp['id'])
+        elif ctype in ['DFF', 'JKFF']:
+            ckt.add_flipflop(ctype, pins[0], pins[1], pins[2], pins[3], pins[4])
+        elif ctype == 'GATE_FIRING':
+            ckt.add_gate_firing(pins[0], pins[1], alpha_deg=parse_eng_val(comp.get('alpha', 60)), freq=parse_eng_val(comp.get('freq', 50)))
+        elif ctype == 'WATTMETER':
+            ckt.add_wattmeter(pins[0], pins[1], pins[2], pins[3], id_tag=comp['id'])
+        elif ctype == 'VCC':
+            ckt.add_vsource(pins[0], 0, dc=val if val != 0 else 5.0)
         elif ctype == 'AMMETER':
             ckt.add_ammeter(pins[0], pins[1], id_tag=comp['id'])
         elif ctype == 'POT':
