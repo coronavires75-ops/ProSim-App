@@ -1,6 +1,6 @@
-import re
 import numpy as np
 import ast
+import re
 
 class SafeMCUExecutor:
     ALLOWED_NODES = (
@@ -14,15 +14,12 @@ class SafeMCUExecutor:
     )
     ALLOWED_FUNCS = {'digitalWrite', 'pwmWrite', 'print', 'lcdPrint', 'sin', 'cos', 'abs', 'min', 'max', 'round', 'len'}
 
-
     @staticmethod
     def transpile_arduino_to_python(code):
         if 'void setup' not in code and 'void loop' not in code and 'digitalWrite(' not in code:
             return code
-        # Convert basic Arduino C++ syntax into clean Python for the sandbox
         lines = []
         in_setup = False
-        in_loop = False
         brace_depth = 0
         for raw_line in code.splitlines():
             line = raw_line.strip()
@@ -34,7 +31,6 @@ class SafeMCUExecutor:
                 continue
             if 'void loop()' in line:
                 in_setup = False
-                in_loop = True
                 if '{' in line: brace_depth += 1
                 continue
             if line == '{':
@@ -44,11 +40,9 @@ class SafeMCUExecutor:
                 brace_depth = max(0, brace_depth - 1)
                 if brace_depth == 0:
                     in_setup = False
-                    in_loop = False
                 continue
             if in_setup or 'pinMode' in line or 'Serial.begin' in line:
                 continue
-            # Clean C++ types and semicolons
             line = re.sub(r'\b(int|float|double|bool|long|byte)\s+', '', line)
             line = line.rstrip(';')
             line = line.replace('&&', ' and ').replace('||', ' or ')
@@ -58,13 +52,9 @@ class SafeMCUExecutor:
             line = re.sub(r'digitalWrite\s*\(\s*\d+\s*,\s*(HIGH|LOW|1|0)\s*\)', r'digitalWrite(\1)', line)
             line = re.sub(r'analogWrite\s*\(\s*\d+\s*,\s*([^)]+)\)', r'pwmWrite(500, (\1) * 100.0 / 255.0)', line)
             if line.startswith('if') and line.endswith('{'):
-                line = line[:-1].strip() + ':'
-                lines.append(line)
+                lines.append(line[:-1].strip() + ':')
                 continue
-            if line.startswith('} else {'):
-                lines.append('else:')
-                continue
-            if line.startswith('else') and line.endswith('{'):
+            if line.startswith('} else {') or (line.startswith('else') and line.endswith('{')):
                 lines.append('else:')
                 continue
             indent = '    ' if (lines and lines[-1].endswith(':')) else ''
@@ -111,56 +101,20 @@ class ProCircuitSolver:
         self.ne555s = []
         self.optocouplers = []
         self.relays = []
+        self.spdt_relays = []
         self.motors = []
         self.bcd_displays = []
         self.ammeters = []
+        self.wattmeters = []
         self.pids = []
         self.lcds = []
-
-
-    def add_bridge(self, ac1, ac2, dc_p, dc_m, Is=7.02e-9, n=1.77):
-        self.add_diode(ac1, dc_p, Is=Is, n=n, part='BRIDGE-D1')
-        self.add_diode(ac2, dc_p, Is=Is, n=n, part='BRIDGE-D2')
-        self.add_diode(dc_m, ac1, Is=Is, n=n, part='BRIDGE-D3')
-        self.add_diode(dc_m, ac2, Is=Is, n=n, part='BRIDGE-D4')
-
-    def add_spdt_relay(self, nc1, nc2, ncom, nno, nnc, v_coil=5.0, id_tag=None):
-        if not hasattr(self, 'spdt_relays'):
-            self.spdt_relays = []
-        self.spdt_relays.append({
-            'nc1': nc1, 'nc2': nc2, 'ncom': ncom, 'nno': nno, 'nnc': nnc,
-            'v_coil': v_coil, 'id': id_tag, 'closed': False
-        })
-
-    def add_flipflop(self, ff_type, d_or_j, clk_or_k, clk, q_out, qb_out):
-        if not hasattr(self, 'flipflops'):
-            self.flipflops = []
-        self.flipflops.append({
-            'type': ff_type, 'in1': d_or_j, 'in2': clk_or_k, 'clk': clk,
-            'q_pin': q_out, 'qb_pin': qb_out, 'q': False, 'prev_clk': False, 'count': 0
-        })
-
-    def add_gate_firing(self, n_sync, n_gate, alpha_deg=60.0, freq=50.0):
-        if not hasattr(self, 'gate_firings'):
-            self.gate_firings = []
-        self.gate_firings.append({
-            'n_sync': n_sync, 'n_gate': n_gate,
-            'alpha': max(0.0, min(180.0, float(alpha_deg))),
-            'freq': max(1.0, float(freq)), 'v_out': 0.0
-        })
-
-    def add_wattmeter(self, v_p, v_m, i_in, i_out, id_tag=None):
-        if not hasattr(self, 'wattmeters'):
-            self.wattmeters = []
-        idx = self._next_extra_idx() + len(self.wattmeters)
-        self.wattmeters.append({
-            'vp': v_p, 'vm': v_m, 'ii': i_in, 'io': i_out,
-            'id': id_tag, 'idx': idx, 'p_sum': 0.0, 'v_sq_sum': 0.0, 'i_sq_sum': 0.0, 't_sum': 0.0
-        })
+        self.flipflops = []
+        self.gate_firings = []
+        self._t_stop_ref = 0.04
 
     def _next_extra_idx(self):
         return (len(self.v_sources) + len(self.inductors) + len(self.opamps) +
-                len(self.transformers) + len(self.ammeters) + len(self.motors) + len(getattr(self, 'wattmeters', [])))
+                len(self.transformers) + len(self.ammeters) + len(self.motors) + len(self.wattmeters))
 
     def add_resistor(self, n1, n2, value, id_tag=None, part='RES'):
         self.resistors.append({
@@ -172,6 +126,13 @@ class ProCircuitSolver:
         self.ammeters.append({
             'n1': n1, 'n2': n2, 'id': id_tag, 'idx': self._next_extra_idx(),
             'i_sq_sum': 0.0, 't_sum': 0.0
+        })
+
+    def add_wattmeter(self, v_p, v_m, i_in, i_out, id_tag=None):
+        self.wattmeters.append({
+            'vp': v_p, 'vm': v_m, 'ii': i_in, 'io': i_out,
+            'id': id_tag, 'idx': self._next_extra_idx(),
+            'p_sum': 0.0, 'v_sq_sum': 0.0, 'i_sq_sum': 0.0, 't_sum': 0.0
         })
 
     def add_capacitor(self, n1, n2, value):
@@ -205,8 +166,13 @@ class ProCircuitSolver:
             'v_guess': 0.65, 'conducted': False, 'v_drop': 0.0
         })
 
-    def add_led(self, n1, n2, id_tag, vf=1.9, part='LED-RED'):
-        # Calibrate Is to match exact forward voltage Vf at 20mA
+    def add_bridge(self, ac1, ac2, dc_p, dc_m, Is=7.02e-9, n=1.77):
+        self.add_diode(ac1, dc_p, Is=Is, n=n, part='BRIDGE-D1')
+        self.add_diode(ac2, dc_p, Is=Is, n=n, part='BRIDGE-D2')
+        self.add_diode(dc_m, ac1, Is=Is, n=n, part='BRIDGE-D3')
+        self.add_diode(dc_m, ac2, Is=Is, n=n, part='BRIDGE-D4')
+
+    def add_led(self, n1, n2, id_tag, vf=1.85, part='LED-RED'):
         n_ideality = 1.8
         vt = 0.02585
         is_calc = 0.020 / (np.exp(vf / (n_ideality * vt)) - 1.0)
@@ -262,6 +228,19 @@ class ProCircuitSolver:
     def add_logic_gate(self, gate_type, in1, in2, out):
         self.logic_gates.append({'type': gate_type, 'in1': in1, 'in2': in2, 'out': out, 'v_out': 0.0})
 
+    def add_flipflop(self, ff_type, d_or_j, clk_or_k, clk, q_out, qb_out):
+        self.flipflops.append({
+            'type': ff_type, 'in1': d_or_j, 'in2': clk_or_k, 'clk': clk,
+            'q_pin': q_out, 'qb_pin': qb_out, 'q': False, 'prev_clk': False
+        })
+
+    def add_gate_firing(self, n_sync, n_gate, alpha_deg=60.0, freq=50.0):
+        self.gate_firings.append({
+            'n_sync': n_sync, 'n_gate': n_gate,
+            'alpha': max(0.0, min(180.0, float(alpha_deg))),
+            'freq': max(1.0, float(freq)), 'v_out': 0.0
+        })
+
     def add_mcu(self, in_pin, out_pin, code="", pwm_freq=250.0, threshold=2.5):
         compiled = None
         err_msg = None
@@ -298,8 +277,13 @@ class ProCircuitSolver:
             'v_coil': v_coil, 'id': id_tag, 'closed': False, 'ever_closed': False
         })
 
+    def add_spdt_relay(self, nc1, nc2, ncom, nno, nnc, v_coil=5.0, id_tag=None):
+        self.spdt_relays.append({
+            'nc1': nc1, 'nc2': nc2, 'ncom': ncom, 'nno': nno, 'nnc': nnc,
+            'v_coil': v_coil, 'id': id_tag, 'closed': False
+        })
+
     def add_motor(self, n1, n2, motor_type='DC', load_torque=0.0, id_tag=None, part='DC-MOTOR'):
-        # Physical parameters: Ra (Ohm), La (H), Ke (V/(rad/s)), Kt (N.m/A), J (kg.m^2), B (N.m.s/rad)
         specs = {
             'N20':       {'Ra': 6.5, 'La': 0.002, 'Ke': 0.0085, 'Kt': 0.0085, 'J': 1.2e-6, 'B': 2e-6},
             'DC':        {'Ra': 2.2, 'La': 0.005, 'Ke': 0.0350, 'Kt': 0.0350, 'J': 2.5e-5, 'B': 1.5e-5},
@@ -461,6 +445,12 @@ class ProCircuitSolver:
                 if am['n2'] > 0: A[row, am['n2']-1] = -1.0; A[am['n2']-1, row] = -1.0
                 A[row, row] = -1e-6
 
+            for wm in self.wattmeters:
+                row = self.num_nodes + wm['idx']
+                if wm['ii'] > 0: A[row, wm['ii']-1] = 1.0; A[wm['ii']-1, row] = 1.0
+                if wm['io'] > 0: A[row, wm['io']-1] = -1.0; A[wm['io']-1, row] = -1.0
+                A[row, row] = -1e-6
+
             for vs in self.v_sources:
                 row = self.num_nodes + vs['idx']
                 n1, n2 = vs['n1'], vs['n2']
@@ -472,7 +462,6 @@ class ProCircuitSolver:
 
             for op in self.opamps:
                 row = self.num_nodes + op['idx']
-                # Soft rail clamping
                 v_diff = (X_prev_iter[op['np']-1] if op['np'] > 0 else 0.0) - (X_prev_iter[op['nm']-1] if op['nm'] > 0 else 0.0)
                 gain = 1e5
                 v_ideal = gain * v_diff
@@ -494,7 +483,6 @@ class ProCircuitSolver:
             for trf in self.transformers:
                 row = self.num_nodes + trf['idx']
                 n = trf['n']
-                # Magnetizing inductance leakage path to prevent DC pass-through
                 self._stamp_g(A, trf['p1'], trf['p2'], 1e-4)
                 if trf['s1'] > 0: A[row, trf['s1']-1] = 1.0; A[trf['s1']-1, row] = 1.0
                 if trf['s2'] > 0: A[row, trf['s2']-1] = -1.0; A[trf['s2']-1, row] = -1.0
@@ -525,67 +513,324 @@ class ProCircuitSolver:
                 self._stamp_g(A, opt['na'], opt['nk'], 1.0 / 60.0)
                 self._stamp_g(A, opt['nc'], opt['ne'], (1.0 / 10.0) if opt['active'] else 1e-9)
 
-        for srly in getattr(self, 'spdt_relays', []):
-            v_c = abs(get_v_final(srly['nc1']) - get_v_final(srly['nc2']))
-            srly['closed'] = (v_c >= srly['v_coil'] * (0.45 if srly['closed'] else 0.75))
-
-        for ff in getattr(self, 'flipflops', []):
-            clk_now = get_v_final(ff['clk']) >= 2.5
-            if clk_now and not ff['prev_clk']:
-                if ff['type'] == 'DFF':
-                    ff['q'] = get_v_final(ff['in1']) >= 2.5
-                elif ff['type'] == 'JKFF':
-                    j = get_v_final(ff['in1']) >= 2.5
-                    k = get_v_final(ff['in2']) >= 2.5
-                    if j and not k: ff['q'] = True
-                    elif not j and k: ff['q'] = False
-                    elif j and k: ff['q'] = not ff['q']
-            ff['prev_clk'] = clk_now
-
-        for gf in getattr(self, 'gate_firings', []):
-            half_period = 0.5 / gf['freq']
-            phase_t = t % half_period
-            fire_t = (gf['alpha'] / 180.0) * half_period
-            gf['v_out'] = 5.0 if (fire_t <= phase_t <= fire_t + half_period * 0.15) else 0.0
-
-        if not is_dc and dt > 0:
-            for wm in getattr(self, 'wattmeters', []):
-                v_w = get_v_final(wm['vp']) - get_v_final(wm['vm'])
-                i_w = X[self.num_nodes + wm['idx']]
-                wm['p_sum'] += (v_w * i_w) * dt
-                wm['v_sq_sum'] += (v_w ** 2) * dt
-                wm['i_sq_sum'] += (i_w ** 2) * dt
-                wm['t_sum'] += dt
-
-        for rly in self.relays:
+            for rly in self.relays:
                 self._stamp_g(A, rly['nc1'], rly['nc2'], 1.0 / 100.0)
                 self._stamp_g(A, rly['ncom'], rly['nno'], (1.0 / 0.02) if rly['closed'] else 1e-9)
 
-        for srly in getattr(self, 'spdt_relays', []):
-            v_c = abs(get_v_final(srly['nc1']) - get_v_final(srly['nc2']))
-            srly['closed'] = (v_c >= srly['v_coil'] * (0.45 if srly['closed'] else 0.75))
+            for srly in self.spdt_relays:
+                self._stamp_g(A, srly['nc1'], srly['nc2'], 1.0 / 100.0)
+                self._stamp_g(A, srly['ncom'], srly['nno'], (1.0 / 0.02) if srly['closed'] else 1e-9)
+                self._stamp_g(A, srly['ncom'], srly['nnc'], 1e-9 if srly['closed'] else (1.0 / 0.02))
 
-        for ff in getattr(self, 'flipflops', []):
-            clk_now = get_v_final(ff['clk']) >= 2.5
-            if clk_now and not ff['prev_clk']:
-                if ff['type'] == 'DFF':
-                    ff['q'] = get_v_final(ff['in1']) >= 2.5
-                elif ff['type'] == 'JKFF':
-                    j = get_v_final(ff['in1']) >= 2.5
-                    k = get_v_final(ff['in2']) >= 2.5
-                    if j and not k: ff['q'] = True
-                    elif not j and k: ff['q'] = False
-                    elif j and k: ff['q'] = not ff['q']
-            ff['prev_clk'] = clk_now
+            for ff in self.flipflops:
+                g_o = 1.0 / 35.0
+                if ff['q_pin'] > 0:
+                    self._stamp_g(A, ff['q_pin'], 0, g_o)
+                    self._stamp_i(Z, 0, ff['q_pin'], (5.0 if ff['q'] else 0.0) * g_o)
+                if ff['qb_pin'] > 0:
+                    self._stamp_g(A, ff['qb_pin'], 0, g_o)
+                    self._stamp_i(Z, 0, ff['qb_pin'], (0.0 if ff['q'] else 5.0) * g_o)
 
-        for gf in getattr(self, 'gate_firings', []):
-            half_period = 0.5 / gf['freq']
-            phase_t = t % half_period
-            fire_t = (gf['alpha'] / 180.0) * half_period
-            gf['v_out'] = 5.0 if (fire_t <= phase_t <= fire_t + half_period * 0.15) else 0.0
+            for gf in self.gate_firings:
+                if gf['n_gate'] > 0:
+                    g_o = 1.0 / 25.0
+                    self._stamp_g(A, gf['n_gate'], 0, g_o)
+                    self._stamp_i(Z, 0, gf['n_gate'], gf['v_out'] * g_o)
+
+            for mot in self.motors:
+                row = self.num_nodes + mot['idx']
+                n1, n2 = mot['n1'], mot['n2']
+                if n1 > 0: A[row, n1-1] = 1.0; A[n1-1, row] = 1.0
+                if n2 > 0: A[row, n2-1] = -1.0; A[n2-1, row] = -1.0
+                if is_dc or dt <= 0:
+                    r_eq = mot['Ra']
+                    z_eq = mot['Ke'] * mot['omega']
+                else:
+                    r_eq = mot['Ra'] + mot['La'] / dt
+                    z_eq = mot['Ke'] * mot['omega'] - (mot['La'] / dt) * mot['i_prev']
+                A[row, row] = -r_eq
+                Z[row] = z_eq
+
+            for lg in self.logic_gates:
+                if lg['out'] > 0:
+                    g_out = 1.0 / 40.0
+                    self._stamp_g(A, lg['out'], 0, g_out)
+                    self._stamp_i(Z, 0, lg['out'], lg['v_out'] * g_out)
+
+            for mcu in self.mcus:
+                if mcu['out'] > 0:
+                    g_out = 1.0 / 30.0
+                    self._stamp_g(A, mcu['out'], 0, g_out)
+                    self._stamp_i(Z, 0, mcu['out'], mcu['v_out'] * g_out)
+
+            if not is_dc and dt > 0:
+                for cap in self.capacitors:
+                    g_eq = cap['C'] / dt
+                    i_eq = g_eq * cap['v_prev']
+                    self._stamp_g(A, cap['n1'], cap['n2'], g_eq)
+                    self._stamp_i(Z, cap['n2'], cap['n1'], i_eq)
+
+            for ind in self.inductors:
+                row = self.num_nodes + ind['idx']
+                n1, n2 = ind['n1'], ind['n2']
+                if n1 > 0: A[row, n1-1] = 1.0; A[n1-1, row] = 1.0
+                if n2 > 0: A[row, n2-1] = -1.0; A[n2-1, row] = -1.0
+                if is_dc or dt <= 0:
+                    A[row, row] = -1e-6; Z[row] = 0.0
+                else:
+                    r_eq = ind['L'] / dt
+                    A[row, row] = -r_eq; Z[row] = -r_eq * ind['i_prev']
+
+            for d in self.diodes:
+                vd = np.clip(d['v_guess'], -d['bv'] - 1.0, 1.1)
+                nvt = d['n'] * Vt
+                exp_val = np.exp(np.clip(vd / nvt, -60.0, 38.0))
+                id_curr = d['Is'] * (exp_val - 1.0)
+                gd = (d['Is'] / nvt) * exp_val + gmin
+                ieq = id_curr - gd * vd
+                self._stamp_g(A, d['n1'], d['n2'], gd)
+                self._stamp_i(Z, d['n1'], d['n2'], ieq)
+
+            for led in self.leds:
+                vd = np.clip(led['v_guess'], -10.0, 3.6)
+                nvt = led['n'] * Vt
+                exp_val = np.exp(np.clip(vd / nvt, -60.0, 42.0))
+                id_curr = led['Is'] * (exp_val - 1.0)
+                led['last_i'] = max(0.0, id_curr)
+                led['max_i'] = max(led['max_i'], led['last_i'])
+                gd = (led['Is'] / nvt) * exp_val + gmin
+                ieq = id_curr - gd * vd
+                self._stamp_g(A, led['n1'], led['n2'], gd)
+                self._stamp_i(Z, led['n1'], led['n2'], ieq)
+
+            for z in self.zeners:
+                vd = np.clip(z['v_guess'], -z['vz'] - 1.0, 1.0)
+                exp_f = np.exp(np.clip(vd / Vt, -60.0, 36.0))
+                if_curr = z['Is'] * (exp_f - 1.0)
+                gf = (z['Is'] / Vt) * exp_f
+                v_knee_offset = Vt * np.log(0.005 / z['Is'])
+                v_rev = (-vd - z['vz']) + v_knee_offset
+                exp_r = np.exp(np.clip(v_rev / Vt, -60.0, 36.0))
+                ir_curr = -z['Is'] * (exp_r - 1.0)
+                gr = (z['Is'] / Vt) * exp_r
+                i_tot = if_curr + ir_curr
+                g_tot = gf + gr + gmin
+                ieq = i_tot - g_tot * vd
+                self._stamp_g(A, z['n1'], z['n2'], g_tot)
+                self._stamp_i(Z, z['n1'], z['n2'], ieq)
+
+            for m in self.mosfets:
+                sgn = 1.0 if m['pol'] == 'N' else -1.0
+                vgs, vds, vth, kp = sgn * m['vgs_g'], sgn * m['vds_g'], m['vth'], m['kp']
+                if vgs <= vth:
+                    ids, gm, gds = 0.0, 0.0, 1e-10
+                elif vds < (vgs - vth):
+                    m['turned_on'] = True
+                    ids = kp * ((vgs - vth) * vds - 0.5 * vds**2)
+                    gm = kp * vds
+                    gds = kp * (vgs - vth - vds) + 1e-10
+                else:
+                    m['turned_on'] = True
+                    ids = 0.5 * kp * (vgs - vth)**2 * (1.0 + 0.01 * vds)
+                    gm = kp * (vgs - vth) * (1.0 + 0.01 * vds)
+                    gds = 0.5 * kp * (vgs - vth)**2 * 0.01 + 1e-10
+
+                v_bd = np.clip(-vds, -100.0, 0.9)
+                exp_bd = np.exp(np.clip(v_bd / Vt, -60.0, 36.0))
+                i_bd = 1e-11 * (exp_bd - 1.0)
+                g_bd = (1e-11 / Vt) * exp_bd
+                ids_total = ids - i_bd
+                gds_total = gds + g_bd
+
+                ieq = sgn * (ids_total - gm * vgs - gds_total * vds)
+                self._stamp_g(A, m['nd'], m['ns'], gds_total)
+                self._stamp_vccs(A, m['nd'], m['ns'], m['ng'], m['ns'], gm)
+                self._stamp_i(Z, m['nd'], m['ns'], ieq)
+
+            for q in self.bjts:
+                sgn = 1.0 if q['pol'] == 'NPN' else -1.0
+                vbe = np.clip(sgn * q['vbe_g'], -30.0, 0.92)
+                vbc = np.clip(sgn * q['vbc_g'], -30.0, 0.92)
+                if vbe > 0.55:
+                    q['active'] = True
+
+                exp_be = np.exp(np.clip(vbe / Vt, -60.0, 36.0))
+                exp_bc = np.exp(np.clip(vbc / Vt, -60.0, 36.0))
+
+                ifwd = q['Is'] * (exp_be - 1.0)
+                irev = q['Is'] * (exp_bc - 1.0)
+                g_be = (q['Is'] / Vt) * exp_be
+                g_bc = (q['Is'] / Vt) * exp_bc
+
+                ib = ifwd / q['bf'] + irev / q['br']
+                ic = (ifwd - irev) - irev / q['br']
+
+                dib_dvbe = g_be / q['bf'] + gmin
+                dib_dvbc = g_bc / q['br'] + gmin
+                dic_dvbe = g_be
+                dic_dvbc = -g_bc * (1.0 + 1.0 / q['br'])
+
+                ib_eq = sgn * (ib - dib_dvbe * vbe - dib_dvbc * vbc)
+                ic_eq = sgn * (ic - dic_dvbe * vbe - dic_dvbc * vbc)
+
+                self._stamp_g(A, q['nb'], q['ne'], dib_dvbe)
+                self._stamp_i(Z, q['nb'], q['ne'], ib_eq)
+                self._stamp_g(A, q['nb'], q['nc'], dib_dvbc)
+                self._stamp_i(Z, q['nb'], q['nc'], 0.0)
+                self._stamp_vccs(A, q['nc'], q['ne'], q['nb'], q['ne'], dic_dvbe)
+                self._stamp_vccs(A, q['nc'], q['ne'], q['nb'], q['nc'], dic_dvbc)
+                self._stamp_g(A, q['nc'], q['ne'], 1e-9)
+                self._stamp_i(Z, q['nc'], q['ne'], ic_eq)
+
+            for s in self.scrs:
+                self._stamp_g(A, s['ng'], s['nk'], 1.0 / 250.0)
+                if s['latched']:
+                    g_on = 1.0 / 0.02
+                    self._stamp_g(A, s['na'], s['nk'], g_on)
+                    self._stamp_i(Z, s['nk'], s['na'], 0.7 * g_on)
+                else:
+                    self._stamp_g(A, s['na'], s['nk'], 1e-9)
+
+            for tr in self.triacs:
+                self._stamp_g(A, tr['ng'], tr['mt1'], 1.0 / 250.0)
+                if tr['latched']:
+                    g_on = 1.0 / 0.02
+                    vmt = (X_prev_iter[tr['mt2']-1] if tr['mt2'] > 0 else 0.0) - (X_prev_iter[tr['mt1']-1] if tr['mt1'] > 0 else 0.0)
+                    v_drop = 0.8 if vmt >= 0 else -0.8
+                    self._stamp_g(A, tr['mt2'], tr['mt1'], g_on)
+                    self._stamp_i(Z, tr['mt1'], tr['mt2'], v_drop * g_on)
+                else:
+                    self._stamp_g(A, tr['mt2'], tr['mt1'], 1e-9)
+
+            for dc in self.diacs:
+                self._stamp_g(A, dc['mt1'], dc['mt2'], (1.0 / 35.0) if dc['conducting'] else 1e-9)
+
+            try:
+                X = np.linalg.solve(A, Z)
+            except np.linalg.LinAlgError:
+                A += np.eye(size) * 1e-7
+                X = np.linalg.lstsq(A, Z, rcond=None)[0]
+
+            def get_v(n):
+                return X[n-1] if n > 0 else 0.0
+
+            max_nl_diff = 0.0
+
+            for reg in self.regulators:
+                vin = get_v(reg['nin']) - get_v(reg['ngnd'])
+                if vin >= reg['vout'] + 1.5:
+                    reg['v_reg'] = reg['vout']
+                    reg['active'] = True
+                else:
+                    reg['v_reg'] = max(0.0, vin - 1.5)
+
+            for d in self.diodes:
+                v_new = get_v(d['n1']) - get_v(d['n2'])
+                if v_new > 0.45:
+                    d['conducted'] = True
+                    d['v_drop'] = max(d['v_drop'], min(v_new, 1.1))
+                vcrit = d['n'] * Vt * np.log(d['n'] * Vt / (np.sqrt(2) * d['Is']))
+                v_limited = self._pn_limit(v_new, d['v_guess'], d['n'] * Vt, vcrit)
+                max_nl_diff = max(max_nl_diff, abs(v_limited - d['v_guess']))
+                d['v_guess'] = v_limited
+
+            for led in self.leds:
+                v_new = get_v(led['n1']) - get_v(led['n2'])
+                if abs(v_new - led['v_guess']) > 0.25:
+                    v_new = led['v_guess'] + np.sign(v_new - led['v_guess']) * 0.25
+                max_nl_diff = max(max_nl_diff, abs(v_new - led['v_guess']))
+                led['v_guess'] = v_new
+
+            for z in self.zeners:
+                v_new = get_v(z['n1']) - get_v(z['n2'])
+                if -v_new >= (z['vz'] - 0.15):
+                    z['clamped'] = True
+                if abs(v_new - z['v_guess']) > 0.25:
+                    v_new = z['v_guess'] + np.sign(v_new - z['v_guess']) * 0.25
+                max_nl_diff = max(max_nl_diff, abs(v_new - z['v_guess']))
+                z['v_guess'] = v_new
+
+            for m in self.mosfets:
+                vgs_n = get_v(m['ng']) - get_v(m['ns'])
+                vds_n = get_v(m['nd']) - get_v(m['ns'])
+                max_nl_diff = max(max_nl_diff, abs(vgs_n - m['vgs_g']), abs(vds_n - m['vds_g']))
+                m['vgs_g'] = 0.5 * m['vgs_g'] + 0.5 * vgs_n
+                m['vds_g'] = 0.5 * m['vds_g'] + 0.5 * vds_n
+
+            for q in self.bjts:
+                vbe_n = get_v(q['nb']) - get_v(q['ne'])
+                vbc_n = get_v(q['nb']) - get_v(q['nc'])
+                if abs(vbe_n - q['vbe_g']) > 0.15:
+                    vbe_n = q['vbe_g'] + np.sign(vbe_n - q['vbe_g']) * 0.15
+                if abs(vbc_n - q['vbc_g']) > 0.2:
+                    vbc_n = q['vbc_g'] + np.sign(vbc_n - q['vbc_g']) * 0.2
+                max_nl_diff = max(max_nl_diff, abs(vbe_n - q['vbe_g']), abs(vbc_n - q['vbc_g']))
+                q['vbe_g'] = vbe_n
+                q['vbc_g'] = vbc_n
+
+            for lg in self.logic_gates:
+                b1 = get_v(lg['in1']) >= 2.5
+                b2 = get_v(lg['in2']) >= 2.5
+                res = (b1 and b2) if lg['type'] == 'AND' else (
+                      (b1 or b2) if lg['type'] == 'OR' else (
+                      (not b1) if lg['type'] == 'NOT' else (
+                      (not (b1 and b2)) if lg['type'] == 'NAND' else (b1 != b2))))
+                lg['v_out'] = 5.0 if res else 0.0
+
+            x_tol = np.max(np.abs(X - X_prev_iter) - (reltol * np.maximum(np.abs(X), np.abs(X_prev_iter)) + abstol))
+            X_prev_iter = X.copy()
+
+            if it >= 1 and max_nl_diff < 1e-6 and x_tol <= 0:
+                converged = True
+                break
+
+        def get_v_final(n):
+            return X[n-1] if n > 0 else 0.0
+
+        if not is_dc:
+            for mcu in self.mcus:
+                vin = get_v_final(mcu['in'])
+                self._exec_mcu_code(mcu, vin, t, self._t_stop_ref)
 
         if not is_dc and dt > 0:
-            for wm in getattr(self, 'wattmeters', []):
+            for pid in self.pids:
+                err = get_v_final(pid['n_set']) - get_v_final(pid['n_fb'])
+                pid['integral'] = np.clip(pid['integral'] + err * dt, -20.0, 20.0)
+                deriv = (err - pid['prev_err']) / dt
+                pid['v_out'] = np.clip(pid['kp'] * err + pid['ki'] * pid['integral'] + pid['kd'] * deriv, -30.0, 30.0)
+                pid['prev_err'] = err
+
+            for mot in self.motors:
+                row = self.num_nodes + mot['idx']
+                ia = X[row]
+                t_elec = mot['Kt'] * (abs(ia) if mot['type'] == 'UNIVERSAL' else ia)
+                t_net = t_elec - mot['B'] * mot['omega'] - np.sign(mot['omega'] + 1e-9) * mot['t_load']
+                alpha = t_net / mot['J']
+                mot['omega'] = mot['omega'] + alpha * dt
+                if abs(mot['omega']) < 1e-4 and abs(t_elec) <= mot['t_load']:
+                    mot['omega'] = 0.0
+                mot['i_prev'] = ia
+                mot['current'] = float(ia)
+                mot['torque'] = float(t_elec)
+                mot['rpm'] = float(mot['omega'] * 60.0 / (2.0 * np.pi))
+                mot['angle'] = float((mot['angle'] + np.rad2deg(mot['omega'] * dt)) % 360.0)
+                mot['history']['t'].append(float(t))
+                mot['history']['rpm'].append(mot['rpm'])
+                mot['history']['torque'].append(mot['torque'])
+                mot['history']['current'].append(mot['current'])
+                mot['history']['angle'].append(mot['angle'])
+
+            for r in self.resistors:
+                vr = get_v_final(r['n1']) - get_v_final(r['n2'])
+                r['e_sum'] += ((vr ** 2) / r['R']) * dt
+                r['t_sum'] += dt
+
+            for am in self.ammeters:
+                row = self.num_nodes + am['idx']
+                am['i_sq_sum'] += (X[row] ** 2) * dt
+                am['t_sum'] += dt
+
+            for wm in self.wattmeters:
                 v_w = get_v_final(wm['vp']) - get_v_final(wm['vm'])
                 i_w = X[self.num_nodes + wm['idx']]
                 wm['p_sum'] += (v_w * i_w) * dt
@@ -593,44 +838,50 @@ class ProCircuitSolver:
                 wm['i_sq_sum'] += (i_w ** 2) * dt
                 wm['t_sum'] += dt
 
-        for srly in getattr(self, 'spdt_relays', []):
-            v_c = abs(get_v_final(srly['nc1']) - get_v_final(srly['nc2']))
-            srly['closed'] = (v_c >= srly['v_coil'] * (0.45 if srly['closed'] else 0.75))
+            for led in self.leds:
+                led['i_sum'] += led['last_i'] * dt
+                led['t_sum'] += dt
 
-        for ff in getattr(self, 'flipflops', []):
-            clk_now = get_v_final(ff['clk']) >= 2.5
-            if clk_now and not ff['prev_clk']:
-                if ff['type'] == 'DFF':
-                    ff['q'] = get_v_final(ff['in1']) >= 2.5
-                elif ff['type'] == 'JKFF':
-                    j = get_v_final(ff['in1']) >= 2.5
-                    k = get_v_final(ff['in2']) >= 2.5
-                    if j and not k: ff['q'] = True
-                    elif not j and k: ff['q'] = False
-                    elif j and k: ff['q'] = not ff['q']
-            ff['prev_clk'] = clk_now
+        for ic in self.ne555s:
+            v_trig, v_thres = get_v_final(ic['trig']), get_v_final(ic['thres'])
+            v_low, v_high = ic['vcc'] / 3.0, (2.0 * ic['vcc']) / 3.0
+            if v_trig < v_low:
+                ic['q'] = True; ic['oscillated'] = True
+            elif v_thres > v_high:
+                ic['q'] = False
 
-        for gf in getattr(self, 'gate_firings', []):
-            half_period = 0.5 / gf['freq']
-            phase_t = t % half_period
-            fire_t = (gf['alpha'] / 180.0) * half_period
-            gf['v_out'] = 5.0 if (fire_t <= phase_t <= fire_t + half_period * 0.15) else 0.0
-
-        if not is_dc and dt > 0:
-            for wm in getattr(self, 'wattmeters', []):
-                v_w = get_v_final(wm['vp']) - get_v_final(wm['vm'])
-                i_w = X[self.num_nodes + wm['idx']]
-                wm['p_sum'] += (v_w * i_w) * dt
-                wm['v_sq_sum'] += (v_w ** 2) * dt
-                wm['i_sq_sum'] += (i_w ** 2) * dt
-                wm['t_sum'] += dt
+        for opt in self.optocouplers:
+            opt['active'] = ((get_v_final(opt['na']) - get_v_final(opt['nk'])) > 1.05)
 
         for rly in self.relays:
             v_c = abs(get_v_final(rly['nc1']) - get_v_final(rly['nc2']))
-            thresh = rly['v_coil'] * (0.45 if rly['closed'] else 0.75)  # Hysteresis
+            thresh = rly['v_coil'] * (0.45 if rly['closed'] else 0.75)
             rly['closed'] = (v_c >= thresh)
             if rly['closed']:
                 rly['ever_closed'] = True
+
+        for srly in self.spdt_relays:
+            v_c = abs(get_v_final(srly['nc1']) - get_v_final(srly['nc2']))
+            srly['closed'] = (v_c >= srly['v_coil'] * (0.45 if srly['closed'] else 0.75))
+
+        for ff in self.flipflops:
+            clk_now = get_v_final(ff['clk']) >= 2.5
+            if clk_now and not ff['prev_clk']:
+                if ff['type'] == 'DFF':
+                    ff['q'] = get_v_final(ff['in1']) >= 2.5
+                elif ff['type'] == 'JKFF':
+                    j = get_v_final(ff['in1']) >= 2.5
+                    k = get_v_final(ff['in2']) >= 2.5
+                    if j and not k: ff['q'] = True
+                    elif not j and k: ff['q'] = False
+                    elif j and k: ff['q'] = not ff['q']
+            ff['prev_clk'] = clk_now
+
+        for gf in self.gate_firings:
+            half_period = 0.5 / gf['freq']
+            phase_t = t % half_period
+            fire_t = (gf['alpha'] / 180.0) * half_period
+            gf['v_out'] = 5.0 if (fire_t <= phase_t <= fire_t + half_period * 0.15) else 0.0
 
         for bcd in self.bcd_displays:
             val = 0
@@ -643,19 +894,6 @@ class ProCircuitSolver:
         for lcd in self.lcds:
             vin = get_v_final(lcd['n_in'])
             lcd['text'] = f"V={vin:.2f}V ({vin*100:.1f}C)"
-
-        if not is_dc and dt > 0:
-            for r in self.resistors:
-                vr = get_v_final(r['n1']) - get_v_final(r['n2'])
-                r['e_sum'] += ((vr ** 2) / r['R']) * dt
-                r['t_sum'] += dt
-            for am in self.ammeters:
-                row = self.num_nodes + am['idx']
-                am['i_sq_sum'] += (X[row] ** 2) * dt
-                am['t_sum'] += dt
-            for led in self.leds:
-                led['i_sum'] += led['last_i'] * dt
-                led['t_sum'] += dt
 
         for dc in self.diacs:
             v_diac = abs(get_v_final(dc['mt1']) - get_v_final(dc['mt2']))
@@ -702,14 +940,7 @@ class ProCircuitSolver:
         notes = []
         if not all_converged:
             notes.append("⚠️ <b>تحذير تقارب عددي:</b> بعض الخطوات واجهت تغيراً حاداً جداً (تأكد من وجود مقاومة توالي مع المصادر والدايودات).")
-        for pid in self.pids:
-            notes.append("🎛 <b>متحكم PID:</b> حقق استقرار الحلقة المغلقة بتعديل الخرج ديناميكياً.")
-        for reg in self.regulators:
-            if reg['active']:
-                notes.append(f"🔋 <b>منظم الجهد ({reg['part']}):</b> ثبّت الجهد عند <b>{reg['vout']}V DC</b>.")
-        for mot in self.motors:
-            notes.append(f"⚙️ <b>محرك ({mot['part']}):</b> السرعة المستقرة <b>{mot['rpm']:.1f} RPM</b> | العزم <b>{mot['torque']:.4f} N·m</b>.")
-        for wm in getattr(self, 'wattmeters', []):
+        for wm in self.wattmeters:
             if wm['t_sum'] > 0:
                 p_real = wm['p_sum'] / wm['t_sum']
                 v_rms = np.sqrt(wm['v_sq_sum'] / wm['t_sum'])
@@ -718,6 +949,13 @@ class ProCircuitSolver:
                 pf = min(1.0, abs(p_real) / s_app)
                 q_reac = np.sqrt(max(0.0, s_app**2 - p_real**2))
                 notes.append(f"⚡ <b>Wattmeter (#{wm['id']}):</b> P = <b>{p_real:.2f} W</b> | S = <b>{s_app:.2f} VA</b> | Q = <b>{q_reac:.2f} VAR</b> | PF = <b>{pf:.3f}</b>")
+        for pid in self.pids:
+            notes.append("🎛 <b>متحكم PID:</b> حقق استقرار الحلقة المغلقة بتعديل الخرج ديناميكياً.")
+        for reg in self.regulators:
+            if reg['active']:
+                notes.append(f"🔋 <b>منظم الجهد ({reg['part']}):</b> ثبّت الجهد عند <b>{reg['vout']}V DC</b>.")
+        for mot in self.motors:
+            notes.append(f"⚙️ <b>محرك ({mot['part']}):</b> السرعة المستقرة <b>{mot['rpm']:.1f} RPM</b> | العزم <b>{mot['torque']:.4f} N·m</b>.")
         if not notes:
             notes.append("✅ الدائرة مستقرة وتطابق معادلات SPICE الفيزيائية بدقة reltol=10⁻⁴.")
         return notes
@@ -792,7 +1030,6 @@ class ProCircuitSolver:
                 fft_freqs, fft_mags, explanations, all_converged)
 
     def run_ac_bode_and_stability(self, f_start=10.0, f_stop=100000.0, points=120):
-        # Solve DC operating point first to linearize diodes/BJTs/MOSFETs
         self.solve_step(0, 0, is_dc=True, source_scale=1.0)
         freqs = np.logspace(np.log10(f_start), np.log10(f_stop), points)
         num_extra = self._next_extra_idx()
