@@ -152,6 +152,7 @@
         <button class="tool-btn" id="tool-GND" onclick="setTool('GND')">⏚ GND</button>
         <button class="tool-btn" id="tool-probe" onclick="setTool('probe')">📍 Probe</button>
         <button class="tool-btn btn-run" onclick="runSimulation('transient')">▶ RUN</button>
+        <button class="tool-btn" style="background:#0369a1; border-color:#38bdf8; color:#fff;" onclick="openProScopeWindow()">🖥️ Pro Scope</button>
         <button class="tool-btn btn-bode" onclick="runSimulation('bode')">🎯 S-Plane & Bode</button>
         <button class="tool-btn btn-fft" onclick="runSimulation('fft')">🌊 FFT</button>
         <button class="tool-btn" style="background:#0284c7; color:#fff;" onclick="autoTunePID()">🧬 AI Auto-Tune</button>
@@ -1432,5 +1433,317 @@ window.onload = () => {
     clearBoard();
 };
 </script>
+
+<!-- ProSim v16.0 Interactive Pop-out Oscilloscope & Live Output Controller -->
+<div class="modal-bg" id="liveProScopeModal" style="z-index: 9999;">
+    <div class="modal-box" style="max-width: 1000px; width: 97%; border: 2px solid #10b981; background: #030712; color: #f8fafc;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b; padding-bottom:8px; flex-wrap:wrap; gap:6px;">
+            <strong style="color:#10b981; font-size:1.05rem;">🖥️ ProSim Live Digital Oscilloscope & Output Controller</strong>
+            <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                <button class="tool-btn btn-run" onclick="refreshLiveScope('time')">▶ Refresh / Time</button>
+                <button class="tool-btn btn-fft" onclick="refreshLiveScope('fft')">🌊 FFT</button>
+                <button class="tool-btn btn-bode" onclick="refreshLiveScope('bode')">🎯 Bode (dB & °)</button>
+                <button class="tool-btn" style="background:#7c3aed; color:#fff;" onclick="refreshLiveScope('logic')">📊 Logic</button>
+                <button class="tool-btn" style="background:#d97706; color:#fff;" onclick="refreshLiveScope('motor')">⚙️ Motor</button>
+                <button class="tool-btn btn-clear" onclick="document.getElementById('liveProScopeModal').style.display='none'">✖ Close</button>
+            </div>
+        </div>
+
+        <!-- شريط التحكم الحي في الخرج أثناء المشاهدة -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:8px; background:#0f172a; padding:8px; border-radius:8px; border:1px solid #334155; margin-top:8px;">
+            <div>
+                <label style="color:#38bdf8; font-weight:bold;">⚡ Source Amplitude / DC: <span id="liveAmpVal">--</span></label>
+                <input type="range" id="liveAmpSlider" min="1" max="311" step="1" value="12" oninput="liveControlChange('amp', this.value)">
+            </div>
+            <div>
+                <label style="color:#fbbf24; font-weight:bold;">〰️ Frequency (Hz): <span id="liveFreqVal">--</span></label>
+                <input type="range" id="liveFreqSlider" min="1" max="1000" step="1" value="50" oninput="liveControlChange('freq', this.value)">
+            </div>
+            <div>
+                <label style="color:#10b981; font-weight:bold;">🔥 Firing Angle α / POT %: <span id="liveAlphaVal">--</span></label>
+                <input type="range" id="liveAlphaSlider" min="0" max="175" step="1" value="60" oninput="liveControlChange('alpha', this.value)">
+            </div>
+            <div>
+                <label style="color:#ec4899; font-weight:bold;">⏱ Timebase (t_stop s): <span id="liveTimeVal">0.04</span></label>
+                <input type="range" id="liveTimeSlider" min="0.005" max="0.5" step="0.005" value="0.04" oninput="liveControlChange('tstop', this.value)">
+            </div>
+        </div>
+
+        <!-- القياسات الرقمية الحية -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(105px, 1fr)); gap:6px; margin-top:8px;" id="liveScopeMetrics"></div>
+
+        <!-- المؤشرات المتحركة Cursors -->
+        <div style="display:flex; gap:10px; align-items:center; margin-top:8px; background:#0b1120; padding:6px 10px; border-radius:6px; border:1px solid #1e293b; flex-wrap:wrap;">
+            <span style="font-size:0.75rem; color:#38bdf8; font-weight:bold;">📏 Cursors:</span>
+            <label style="display:inline-flex; align-items:center; gap:4px; margin:0;">C1: <input type="range" id="liveC1" min="0" max="100" value="15" style="width:100px;" oninput="calcLiveCursors()"></label>
+            <label style="display:inline-flex; align-items:center; gap:4px; margin:0;">C2: <input type="range" id="liveC2" min="0" max="100" value="65" style="width:100px;" oninput="calcLiveCursors()"></label>
+            <span id="liveCursorText" style="font-family:monospace; font-size:0.75rem; color:#fbbf24;">ΔT = 0.00 ms | ΔV = 0.00 V</span>
+        </div>
+
+        <!-- شاشة الرسم البياني الاحترافية -->
+        <div style="height:310px; position:relative; margin-top:8px; background:#020617; border:1px solid #334155; border-radius:8px; padding:6px;">
+            <canvas id="liveProScopeCanvas"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+let liveChartInstance = null;
+let liveCachedResponse = null;
+let liveCachedNet = null;
+
+function openProScopeWindow() {
+    const modal = document.getElementById('liveProScopeModal');
+    if (!modal) { alert("Scope UI not loaded"); return; }
+    modal.style.display = 'flex';
+
+    // مزامنة السلايدرات مع قيم الدائرة الحالية
+    const vSrc = components.find(c => c.type === 'V');
+    if (vSrc) {
+        const val = parseFloat(vSrc.amp) > 0 ? parseFloat(vSrc.amp) : (parseFloat(vSrc.dc) || 12);
+        document.getElementById('liveAmpSlider').value = Math.min(311, Math.max(1, val));
+        document.getElementById('liveAmpVal').innerText = val + ' V';
+        document.getElementById('liveFreqSlider').value = Math.min(1000, Math.max(1, parseFloat(vSrc.freq) || 50));
+        document.getElementById('liveFreqVal').innerText = (vSrc.freq || 0) + ' Hz';
+    }
+    const gf = components.find(c => c.type === 'GATE_FIRING');
+    const pot = components.find(c => c.type === 'POT');
+    if (gf) {
+        document.getElementById('liveAlphaSlider').value = gf.alpha || 60;
+        document.getElementById('liveAlphaVal').innerText = (gf.alpha || 60) + '°';
+    } else if (pot) {
+        document.getElementById('liveAlphaSlider').value = pot.pct || 50;
+        document.getElementById('liveAlphaVal').innerText = (pot.pct || 50) + '%';
+    }
+    document.getElementById('liveTimeSlider').value = document.getElementById('t_stop').value || 0.04;
+    document.getElementById('liveTimeVal').innerText = document.getElementById('t_stop').value + ' s';
+
+    refreshLiveScope('time');
+}
+
+function liveControlChange(param, val) {
+    if (param === 'amp') {
+        document.getElementById('liveAmpVal').innerText = val + ' V';
+        const vSrc = components.find(c => c.type === 'V');
+        if (vSrc) {
+            if (parseFloat(vSrc.freq) > 0) vSrc.amp = parseFloat(val);
+            else vSrc.dc = parseFloat(val);
+        }
+    } else if (param === 'freq') {
+        document.getElementById('liveFreqVal').innerText = val + ' Hz';
+        const vSrc = components.find(c => c.type === 'V');
+        if (vSrc) {
+            vSrc.freq = parseFloat(val);
+            if (parseFloat(vSrc.amp) === 0 && parseFloat(vSrc.dc) > 0) {
+                vSrc.amp = parseFloat(vSrc.dc);
+                vSrc.dc = 0;
+            }
+        }
+    } else if (param === 'alpha') {
+        const gf = components.find(c => c.type === 'GATE_FIRING');
+        const pot = components.find(c => c.type === 'POT');
+        if (gf) {
+            gf.alpha = parseFloat(val);
+            document.getElementById('liveAlphaVal').innerText = val + '°';
+        } else if (pot) {
+            pot.pct = Math.min(100, Math.max(1, parseFloat(val)));
+            document.getElementById('liveAlphaVal').innerText = pot.pct + '%';
+        }
+    } else if (param === 'tstop') {
+        document.getElementById('liveTimeVal').innerText = val + ' s';
+        document.getElementById('t_stop').value = val;
+    }
+    renderProps();
+    draw();
+    refreshLiveScope('time');
+}
+
+async function refreshLiveScope(tab) {
+    if (components.length === 0) {
+        document.getElementById('liveScopeMetrics').innerHTML = '<div style="color:#f87171; font-size:0.82rem; padding:6px;">⚠️ البوردة فارغة! ارسم دائرة أو اختر دائرة جاهزة أولاً.</div>';
+        return;
+    }
+    if (components.filter(c => c.type === 'GND').length === 0) {
+        document.getElementById('liveScopeMetrics').innerHTML = '<div style="color:#f87171; font-size:0.82rem; padding:6px;">⚠️ لا يوجد أرضي (GND) في الدائرة!</div>';
+        return;
+    }
+
+    const net = extractNetlist();
+    liveCachedNet = net;
+    const t_stop = document.getElementById('t_stop').value;
+    const monte_carlo = document.getElementById('monteCarloChk').checked;
+    const reqMode = (tab === 'bode') ? 'bode' : 'transient';
+
+    try {
+        const res = await fetch('/simulate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode: reqMode, monte_carlo, num_nodes: net.num_nodes, t_stop, components: net.components })
+        });
+        const data = await res.json();
+        if (data.status === 'error') {
+            document.getElementById('liveScopeMetrics').innerHTML = `<div style="color:#f87171;">❌ ${data.message}</div>`;
+            return;
+        }
+        if (reqMode === 'transient') {
+            liveCachedResponse = data;
+            simActive = true;
+            ledCurrents = data.leds || {};
+            compPowers = data.powers || {};
+            ammeterReadings = data.ammeters || {};
+            motorReadings = data.motors || {};
+            bcdReadings = data.bcds || {};
+            lcdReadings = data.lcds || {};
+            nodeLastVoltages = { 0: 0 };
+            data.voltages.forEach((vArr, idx) => { nodeLastVoltages[idx + 1] = vArr[vArr.length - 1] || 0; });
+            draw();
+        }
+        drawLiveScopeTab(tab, data, net);
+    } catch (err) {
+        document.getElementById('liveScopeMetrics').innerHTML = `<div style="color:#f87171;">❌ خطأ اتصال بالسيرفر: ${err}</div>`;
+    }
+}
+
+function calcLiveCursors() {
+    if (!liveCachedResponse || !liveCachedResponse.times) return;
+    const times = liveCachedResponse.times;
+    const volts = liveCachedResponse.voltages;
+    const probeMap = liveCachedNet ? liveCachedNet.probeMap : [];
+    const targetNode = probeMap.length > 0 ? probeMap[probeMap.length - 1].node : 1;
+    const sig = (targetNode > 0 && volts[targetNode - 1]) ? volts[targetNode - 1] : (volts[0] || []);
+    if (sig.length === 0) return;
+
+    const i1 = Math.min(sig.length - 1, Math.floor((document.getElementById('liveC1').value / 100) * (sig.length - 1)));
+    const i2 = Math.min(sig.length - 1, Math.floor((document.getElementById('liveC2').value / 100) * (sig.length - 1)));
+    const dt = (times[i2] - times[i1]) * 1000;
+    const dv = sig[i2] - sig[i1];
+    const fStr = Math.abs(dt) > 1e-4 ? ` | Freq=${(1000 / Math.abs(dt)).toFixed(1)}Hz` : '';
+    document.getElementById('liveCursorText').innerText = `C1(${(times[i1]*1000).toFixed(2)}ms, ${sig[i1].toFixed(2)}V) | C2(${(times[i2]*1000).toFixed(2)}ms, ${sig[i2].toFixed(2)}V) | ΔT=${dt.toFixed(2)}ms | ΔV=${dv.toFixed(2)}V${fStr}`;
+}
+
+function drawLiveScopeTab(tab, data, net) {
+    const ctxL = document.getElementById('liveProScopeCanvas').getContext('2d');
+    if (liveChartInstance) liveChartInstance.destroy();
+    const probeMap = net.probeMap || [];
+    const metrics = document.getElementById('liveScopeMetrics');
+
+    if (tab === 'time') {
+        const times = data.times || [];
+        const voltages = data.voltages || [];
+        let datasets = [];
+        let activeSig = [];
+
+        if (probeMap.length > 0) {
+            probeMap.forEach((pm, i) => {
+                const arr = pm.node === 0 ? times.map(() => 0) : (voltages[pm.node - 1] || []);
+                if (i === probeMap.length - 1) activeSig = arr;
+                datasets.push({ label: `${pm.label} (N${pm.node})`, data: arr, borderColor: pm.color, borderWidth: 2.3, pointRadius: 0 });
+            });
+        } else {
+            const cols = ['#38bdf8', '#10b981', '#f59e0b', '#ec4899'];
+            voltages.forEach((arr, idx) => {
+                if (idx === 0) activeSig = arr;
+                datasets.push({ label: `Node ${idx + 1} (V)`, data: arr, borderColor: cols[idx % cols.length], borderWidth: 2.3, pointRadius: 0 });
+            });
+        }
+
+        if (activeSig.length > 0) {
+            const vmax = Math.max(...activeSig), vmin = Math.min(...activeSig);
+            const vpp = vmax - vmin;
+            const vrms = Math.sqrt(activeSig.reduce((a, b) => a + b * b, 0) / activeSig.length);
+            const vavg = activeSig.reduce((a, b) => a + b, 0) / activeSig.length;
+            const totalPwr = Object.values(data.powers || {}).reduce((a, b) => a + b, 0);
+            metrics.innerHTML = `
+                <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">V_MAX</div><b>${vmax.toFixed(3)} V</b></div>
+                <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">V_MIN</div><b>${vmin.toFixed(3)} V</b></div>
+                <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">V_PP</div><b>${vpp.toFixed(3)} V</b></div>
+                <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">V_RMS</div><b>${vrms.toFixed(3)} V</b></div>
+                <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">V_AVG (DC)</div><b>${vavg.toFixed(3)} V</b></div>
+                <div class="dmm-val"><div style="font-size:0.62rem;color:#10b981;">POWER</div><b style="color:#10b981;">${totalPwr.toFixed(2)} W</b></div>
+            `;
+        }
+        calcLiveCursors();
+        liveChartInstance = new Chart(ctxL, {
+            type: 'line',
+            data: { labels: times.map(t => (t * 1000).toFixed(2) + 'ms'), datasets },
+            options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { x: { grid: { color: '#1e293b' } }, y: { grid: { color: '#1e293b' } } } }
+        });
+    } else if (tab === 'fft') {
+        const targetNode = probeMap.length > 0 ? probeMap[probeMap.length - 1].node : 1;
+        const mags = (targetNode > 0 && data.fft_mags && data.fft_mags[targetNode - 1]) ? data.fft_mags[targetNode - 1] : [];
+        liveChartInstance = new Chart(ctxL, {
+            type: 'bar',
+            data: { labels: (data.fft_freqs || []).map(f => f.toFixed(0) + 'Hz'), datasets: [{ label: `Node ${targetNode} FFT (V)`, data: mags, backgroundColor: '#ec4899' }] },
+            options: { responsive: true, maintainAspectRatio: false, animation: false }
+        });
+    } else if (tab === 'bode') {
+        const targetNode = probeMap.length > 0 ? probeMap[probeMap.length - 1].node : 1;
+        const magArr = (targetNode > 0 && data.mags && data.mags[targetNode - 1]) ? data.mags[targetNode - 1] : [];
+        const phArr = (targetNode > 0 && data.phases && data.phases[targetNode - 1]) ? data.phases[targetNode - 1] : [];
+        liveChartInstance = new Chart(ctxL, {
+            type: 'line',
+            data: {
+                labels: (data.freqs || []).map(f => f < 1000 ? f.toFixed(0) + 'Hz' : (f/1000).toFixed(1) + 'kHz'),
+                datasets: [
+                    { label: 'Gain (dB)', data: magArr, borderColor: '#8b5cf6', yAxisID: 'y', pointRadius: 0 },
+                    { label: 'Phase (°)', data: phArr, borderColor: '#f59e0b', yAxisID: 'y1', pointRadius: 0 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, animation: false,
+                scales: {
+                    y: { type: 'linear', position: 'left', title: { display: true, text: 'Gain (dB)' } },
+                    y1: { type: 'linear', position: 'right', title: { display: true, text: 'Phase (deg)' }, grid: { drawOnChartArea: false } }
+                }
+            }
+        });
+    } else if (tab === 'logic') {
+        const times = data.times || [];
+        const voltages = data.voltages || [];
+        let datasets = [];
+        voltages.slice(0, 6).forEach((arr, idx) => {
+            const offset = idx * 1.5;
+            datasets.push({ label: `D${idx} (Node ${idx+1})`, data: arr.map(v => (v >= 2.5 ? 1.0 : 0.0) + offset), borderColor: ['#38bdf8','#10b981','#f59e0b','#ec4899','#a855f7','#ef4444'][idx%6], stepped: true, borderWidth: 2, pointRadius: 0 });
+        });
+        liveChartInstance = new Chart(ctxL, {
+            type: 'line',
+            data: { labels: times.map(t => (t * 1000).toFixed(2) + 'ms'), datasets },
+            options: { responsive: true, maintainAspectRatio: false, animation: false }
+        });
+    } else if (tab === 'motor') {
+        const mKeys = Object.keys(data.motors || {});
+        if (mKeys.length === 0) {
+            metrics.innerHTML = '<div style="color:#fbbf24; font-size:0.82rem;">⚠️ لا يوجد محرك في الدائرة الحالية.</div>';
+            return;
+        }
+        const m = data.motors[mKeys[0]];
+        const h = m.history || { t: [], rpm: [], torque: [], current: [] };
+        metrics.innerHTML = `
+            <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">SPEED</div><b>${m.rpm.toFixed(1)} RPM</b></div>
+            <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">TORQUE</div><b>${m.torque.toFixed(4)} N·m</b></div>
+            <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">CURRENT</div><b>${m.current.toFixed(3)} A</b></div>
+            <div class="dmm-val"><div style="font-size:0.62rem;color:#94a3b8;">ANGLE</div><b>${m.angle.toFixed(1)}°</b></div>
+        `;
+        liveChartInstance = new Chart(ctxL, {
+            type: 'line',
+            data: {
+                labels: h.t.map(t => (t * 1000).toFixed(1) + 'ms'),
+                datasets: [
+                    { label: 'Speed (RPM)', data: h.rpm, borderColor: '#10b981', yAxisID: 'y', pointRadius: 0 },
+                    { label: 'Current (A)', data: h.current, borderColor: '#38bdf8', yAxisID: 'y1', pointRadius: 0 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, animation: false,
+                scales: {
+                    y: { type: 'linear', position: 'left', title: { display: true, text: 'RPM' } },
+                    y1: { type: 'linear', position: 'right', title: { display: true, text: 'Current (A)' }, grid: { drawOnChartArea: false } }
+                }
+            }
+        });
+    }
+}
+</script>
+
 </body>
 </html>
