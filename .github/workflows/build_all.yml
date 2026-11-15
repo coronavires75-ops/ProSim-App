@@ -23,20 +23,113 @@ jobs:
           path: dist/ProSimUltimate.exe
 
   build-android:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build Android APK with Buildozer Action
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
+      - uses: actions/setup-java@v4
         with:
-          command: buildozer android debug
-          buildozer_version: stable
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Generate Native Android WebView App & Build APK
+        run: |
+          mkdir -p android_app/app/src/main/java/org/prosim/isis
+          mkdir -p android_app/app/src/main/res/values
+
+          cat << 'INNER' > android_app/settings.gradle
+          rootProject.name = "ProSimUltimate"
+          include ':app'
+          INNER
+
+          cat << 'INNER' > android_app/build.gradle
+          buildscript {
+              repositories { google(); mavenCentral() }
+              dependencies { classpath 'com.android.tools.build:gradle:8.2.2' }
+          }
+          allprojects {
+              repositories { google(); mavenCentral() }
+          }
+          INNER
+
+          cat << 'INNER' > android_app/app/build.gradle
+          apply plugin: 'com.android.application'
+          android {
+              namespace 'org.prosim.isis'
+              compileSdk 34
+              defaultConfig {
+                  applicationId "org.prosim.isis"
+                  minSdk 21
+                  targetSdk 34
+                  versionCode 1
+                  versionName "1.0"
+              }
+              buildTypes {
+                  release { minifyEnabled false }
+              }
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+          }
+          dependencies {}
+          INNER
+
+          cat << 'INNER' > android_app/app/src/main/AndroidManifest.xml
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.INTERNET" />
+              <application
+                  android:label="ProSim Ultimate"
+                  android:usesCleartextTraffic="true"
+                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+                  <activity android:name=".MainActivity" android:exported="true" android:configChanges="orientation|screenSize">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          INNER
+
+          cat << 'INNER' > android_app/app/src/main/java/org/prosim/isis/MainActivity.java
+          package org.prosim.isis;
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+
+          public class MainActivity extends Activity {
+              private WebView webView;
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  webView = new WebView(this);
+                  WebSettings settings = webView.getSettings();
+                  settings.setJavaScriptEnabled(true);
+                  settings.setDomStorageEnabled(true);
+                  settings.setAllowFileAccess(true);
+                  webView.setWebViewClient(new WebViewClient());
+                  webView.loadUrl("http://127.0.0.1:5000");
+                  setContentView(webView);
+              }
+              @Override
+              public void onBackPressed() {
+                  if (webView.canGoBack()) webView.goBack();
+                  else super.onBackPressed();
+              }
+          }
+          INNER
+
+          cd android_app
+          gradle wrapper --gradle-version 8.5
+          ./gradlew assembleDebug
+
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
           name: ProSimUltimate-Android-APK
-          path: ${{ steps.buildozer.outputs.filename }}
+          path: android_app/app/build/outputs/apk/debug/app-debug.apk
 
   build-ios:
     runs-on: macos-latest
