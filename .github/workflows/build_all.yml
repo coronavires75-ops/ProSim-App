@@ -16,7 +16,7 @@ jobs:
       - run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt pyinstaller pywebview pillow
-          python -c "from PIL import Image; Image.open('static/app_icon.png').save('static/app_icon.ico', format='ICO', sizes=[(256,256)])"
+          python -c "from PIL import Image; Image.open('static/app_icon.png').save('static/app_icon.ico', format='ICO', sizes=[(256,256),(128,128),(64,64),(32,32)])"
           pyinstaller --noconfirm --clean --windowed --name ProSimUltimate --onefile --icon=static/app_icon.ico --add-data "templates;templates" --add-data "static;static" desktop_app.py
       - uses: actions/upload-artifact@v4
         with:
@@ -34,8 +34,11 @@ jobs:
       - name: Build Android APK with Custom Icon
         run: |
           mkdir -p android_app/app/src/main/java/org/prosim/isis
-          mkdir -p android_app/app/src/main/res/mipmap-xxxhdpi
-          cp static/app_icon.png android_app/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            mkdir -p android_app/app/src/main/res/mipmap-$d
+            cp static/app_icon.png android_app/app/src/main/res/mipmap-$d/ic_launcher.png
+            cp static/app_icon.png android_app/app/src/main/res/mipmap-$d/ic_launcher_round.png
+          done
 
           cat << 'INNER' > android_app/settings.gradle
           rootProject.name = "ProSimUltimate"
@@ -61,8 +64,8 @@ jobs:
                   applicationId "org.prosim.isis"
                   minSdk 21
                   targetSdk 34
-                  versionCode 2
-                  versionName "1.1"
+                  versionCode 3
+                  versionName "1.2"
               }
               buildTypes {
                   release { minifyEnabled false }
@@ -82,6 +85,7 @@ jobs:
               <application
                   android:label="ProSim Ultimate"
                   android:icon="@mipmap/ic_launcher"
+                  android:roundIcon="@mipmap/ic_launcher_round"
                   android:usesCleartextTraffic="true"
                   android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
                   <activity android:name=".MainActivity" android:exported="true" android:configChanges="orientation|screenSize">
