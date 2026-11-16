@@ -1736,7 +1736,7 @@ function launchExactDemoCircuit(key) {
     srcId = idCounter++;
     builtComps.push({
       id: srcId, type: src.type, part: src.part || 'AC-220V',
-      x: 100, y: 200, rot: 0,
+      x: 70, y: 170, rot: 0,
       dc: src.dc || 0, amp: src.amp || 0, freq: src.freq || 0, wave: src.wave || 'sine'
     });
   }
@@ -1745,7 +1745,7 @@ function launchExactDemoCircuit(key) {
     loadId = idCounter++;
     builtComps.push({
       id: loadId, type: load.type, part: load.part || 'LOAD',
-      x: 280, y: 110, rot: 0,
+      x: 190, y: 100, rot: 0,
       val: load.val || 50, load: load.load || 0
     });
   }
@@ -1755,7 +1755,7 @@ function launchExactDemoCircuit(key) {
     const visualType = (mainSw.type === 'SCR') ? 'TRIAC' : mainSw.type;
     builtComps.push({
       id: swId, type: visualType, part: mainSw.part || 'BT151-500R',
-      x: 480, y: 200, rot: 0,
+      x: 310, y: 170, rot: 0,
       vgt: mainSw.vgt || 0.65, bf: mainSw.bf || 150, pol: mainSw.pol || 'NPN'
     });
   }
@@ -1767,8 +1767,8 @@ function launchExactDemoCircuit(key) {
     const visualT = (c.type === 'UJT') ? 'Q' : c.type;
     builtComps.push({
       id: cid, type: visualT, part: c.part || c.type,
-      x: 240 + (idx % 2) * 110,
-      y: isShunt ? 285 : 200,
+      x: 165 + (idx % 2) * 75,
+      y: isShunt ? 245 : 170,
       rot: isShunt ? 90 : 0,
       val: c.val || 1000,
       pct: c.pct || 50,
@@ -1780,7 +1780,7 @@ function launchExactDemoCircuit(key) {
   });
 
   gndId = idCounter++;
-  builtComps.push({ id: gndId, type: 'GND', part: 'GND', x: 100, y: 340, rot: 0 });
+  builtComps.push({ id: gndId, type: 'GND', part: 'GND', x: 70, y: 290, rot: 0 });
 
   function addWire(c1, p1, c2, p2) {
     builtWires.push({ from: { compId: c1, pinIdx: p1 }, to: { compId: c2, pinIdx: p2 } });
@@ -1836,9 +1836,9 @@ function launchExactDemoCircuit(key) {
 
 if (typeof resetView === 'function') resetView();
   if (typeof centerView === 'function') centerView();
-  if (typeof panX !== 'undefined') panX = 20;
-  if (typeof panY !== 'undefined') panY = 40;
-  if (typeof zoom !== 'undefined') zoom = 0.72;
+  if (typeof panX !== 'undefined') panX = 0;
+  if (typeof panY !== 'undefined') panY = 0;
+  if (typeof zoom !== 'undefined') zoom = 1.0;
   if (typeof draw === 'function') draw();
   if (typeof render === 'function') render();
 }

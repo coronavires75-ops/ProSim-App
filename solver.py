@@ -2,13 +2,6 @@ import numpy as np
 import math
 
 class ProSpiceBDF2Solver:
-    """
-    Bulletproof Industrial SPICE Engine:
-    - Auto-Ground & Floating Node Stabilization (No Singular Matrix crashes)
-    - Hybrid Trapezoidal / BDF2 (Gear-2) Integration (Exact Energy Conservation)
-    - Adaptive Damped Newton-Raphson (1e-7 precision for SCR, TRIAC, BJT, MOSFET, Diodes)
-    - Exact Numerical Integration for RMS, Average, Peak & Active Power
-    """
     def __init__(self, num_nodes):
         self.num_nodes = max(1, int(num_nodes))
         self.elements = []
@@ -16,11 +9,41 @@ class ProSpiceBDF2Solver:
 
     def add_element(self, el):
         self.elements.append(el)
-        if el['type'] in ('V', 'VCC', 'TRF', 'REG', 'OP', 'PID', 'MCU', 'GATE_FIRING', 'NE555', 'AMMETER'):
+        if el.get('type') in ('V', 'VCC', 'TRF', 'REG', 'OP', 'PID', 'MCU', 'GATE_FIRING', 'NE555', 'LM35', 'HCSR04', 'LOGIC_TOGGLE', 'AMMETER'):
             self.v_sources.append(el)
 
     def add_component(self, comp):
         self.add_element(comp)
+
+    def add_vsource(self, n1, n2, dc=0.0, amp=0.0, freq=0.0, wave='sine', phase=0.0, id_tag=None, **kwargs):
+        el = {'type': 'V', 'pins': [n1, n2], 'dc': float(dc), 'amp': float(amp), 'freq': float(freq), 'wave': wave, 'phase': float(phase)}
+        if id_tag is not None: el['id'] = id_tag
+        el.update(kwargs)
+        self.add_element(el)
+
+    def add_isource(self, n1, n2, val=0.01, id_tag=None, **kwargs):
+        el = {'type': 'I', 'pins': [n1, n2], 'val': val}
+        if id_tag is not None: el['id'] = id_tag
+        el.update(kwargs)
+        self.add_element(el)
+
+    def add_resistor(self, n1, n2, val=1000.0, id_tag=None, **kwargs):
+        el = {'type': 'R', 'pins': [n1, n2], 'val': val}
+        if id_tag is not None: el['id'] = id_tag
+        el.update(kwargs)
+        self.add_element(el)
+
+    def add_capacitor(self, n1, n2, val=1e-6, id_tag=None, **kwargs):
+        el = {'type': 'C', 'pins': [n1, n2], 'val': val}
+        if id_tag is not None: el['id'] = id_tag
+        el.update(kwargs)
+        self.add_element(el)
+
+    def add_inductor(self, n1, n2, val=1e-3, id_tag=None, **kwargs):
+        el = {'type': 'L', 'pins': [n1, n2], 'val': val}
+        if id_tag is not None: el['id'] = id_tag
+        el.update(kwargs)
+        self.add_element(el)
 
     def __getattr__(self, name):
         if name.startswith('add_'):
@@ -52,21 +75,6 @@ class ProSpiceBDF2Solver:
                 self.add_element(el)
             return _generic_adder
         raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
-
-
-    def add_vsource(self, n1, n2, dc=0.0, amp=0.0, freq=0.0, wave='sine', phase=0.0, id_tag=None, **kwargs):
-        self.add_element({
-            'type': 'V',
-            'pins': [n1, n2],
-            'dc': float(dc),
-            'amp': float(amp),
-            'freq': float(freq),
-            'wave': wave,
-            'phase': float(phase)
-        })
-
-    def add_isource(self, n1, n2, val=0.01, **kwargs):
-        self.add_element({'type': 'I', 'pins': [n1, n2], 'val': val})
 
     def _parse_val(self, val, default=1.0):
         if isinstance(val, (int, float)):
@@ -100,7 +108,6 @@ class ProSpiceBDF2Solver:
             return dc + (amp if math.sin(phase) >= 0 else 0.0)
         return dc + amp * math.sin(phase)
 
-def solve_transient(self, t_stop=0.04, num_steps=500, dt_base=None, **kwargs):
     def solve_transient(self, t_stop=0.04, num_steps=500, dt_base=None, **kwargs):
         if dt_base and dt_base > 0:
             num_steps = max(50, min(2000, int(round(float(t_stop) / float(dt_base)))))
@@ -524,7 +531,6 @@ def solve_transient(self, t_stop=0.04, num_steps=500, dt_base=None, **kwargs):
                 elif etype == 'LED':
                     leds[el.get('id', idx)] = max(0.0, (v_diff - 1.7) / 100.0)
 
-        # node_voltages as dict {1: [...], 2: [...], ..., n: [...]} matching app.py
         node_voltages = {0: [0.0] * len(times)}
         for k in range(n):
             node_voltages[k + 1] = v_hist[:, k].tolist()
@@ -539,10 +545,6 @@ def solve_transient(self, t_stop=0.04, num_steps=500, dt_base=None, **kwargs):
                 fft_mags.append(mag[:60].tolist())
 
         explanations = ['✅ تم الحل بدقة SPICE الفيزيائية والرياضية الكاملة (BDF2 + Auto-Stabilized MNA).']
-        # Exact 14-tuple matching app.py:
-        # (times, node_voltages, led_states, power_stats, ammeter_stats,
-        #  motor_stats, bcd_stats, lcd_stats, mcu_logs, bus_frames,
-        #  fft_freqs, fft_mags, explanations, converged)
         return (
             times.tolist(),
             node_voltages,
@@ -560,41 +562,19 @@ def solve_transient(self, t_stop=0.04, num_steps=500, dt_base=None, **kwargs):
             True
         )
 
-class ProCircuitSolver(ProSpiceBDF2Solver):
     def run_transient(self, t_stop=0.04, num_steps=500, dt_base=None, **kwargs):
         return self.solve_transient(t_stop=t_stop, num_steps=num_steps, dt_base=dt_base, **kwargs)
 
-    def simulate(self, t_stop=0.04, num_steps=500, **kwargs):
-        return self.solve_transient(t_stop=t_stop, num_steps=num_steps)
+    def simulate(self, t_stop=0.04, num_steps=500, dt_base=None, **kwargs):
+        return self.solve_transient(t_stop=t_stop, num_steps=num_steps, dt_base=dt_base, **kwargs)
 
-    def run_ac(self, f_start=10.0, f_stop=1e5, points=60, **kwargs):
-        return self.solve_ac(f_start=f_start, f_stop=f_stop, points=points)
+    def solve_dc(self, **kwargs):
+        return self.solve_transient(t_stop=1e-4, num_steps=5, **kwargs)
 
     def run_dc(self, **kwargs):
-        return self.solve_dc()
+        return self.solve_dc(**kwargs)
 
-    def solve_dc(self):
-        return self.solve_transient(t_stop=1e-4, num_steps=5)
-
-    def add_resistor(self, n1, n2, val=1000.0, id_tag=None, **kwargs):
-        el = {'type': 'R', 'pins': [n1, n2], 'val': val}
-        if id_tag is not None: el['id'] = id_tag
-        el.update(kwargs)
-        self.add_element(el)
-
-    def add_capacitor(self, n1, n2, val=1e-6, id_tag=None, **kwargs):
-        el = {'type': 'C', 'pins': [n1, n2], 'val': val}
-        if id_tag is not None: el['id'] = id_tag
-        el.update(kwargs)
-        self.add_element(el)
-
-    def add_inductor(self, n1, n2, val=1e-3, id_tag=None, **kwargs):
-        el = {'type': 'L', 'pins': [n1, n2], 'val': val}
-        if id_tag is not None: el['id'] = id_tag
-        el.update(kwargs)
-        self.add_element(el)
-
-    def solve_ac(self, f_start=10.0, f_stop=1e5, points=60):
+    def solve_ac(self, f_start=10.0, f_stop=1e5, points=60, **kwargs):
         freqs = np.logspace(np.log10(max(1e-2, f_start)), np.log10(max(1.0, f_stop)), int(points))
         n = max(1, self.num_nodes)
         mags, phases = [], []
@@ -614,3 +594,9 @@ class ProCircuitSolver(ProSpiceBDF2Solver):
             mags.append(m_k)
             phases.append(p_k)
         return {'status': 'ok', 'freqs': freqs.tolist(), 'mags': mags, 'phases': phases}
+
+    def run_ac(self, f_start=10.0, f_stop=1e5, points=60, **kwargs):
+        return self.solve_ac(f_start=f_start, f_stop=f_stop, points=points, **kwargs)
+
+class ProCircuitSolver(ProSpiceBDF2Solver):
+    pass
