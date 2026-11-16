@@ -176,6 +176,7 @@
     <div class="modal-body">
       <input type="text" id="libSearch" placeholder="🔍 ابحث بالرقم أو النوع: 1N4007, 1N5819, 1N4733A, IRFZ44N, 2N2222, BT136, 7805, LM358, NE555, 74HC, BLDC..." style="width:100%; padding:10px; border-radius:8px; background:#060a14; border:1px solid #334155; color:#fff; margin-bottom:10px;" oninput="renderLib()">
       <div class="cat-tabs" id="catTabs"></div>
+    <div class="cat-tabs" id="subCatTabs" style="background:rgba(15,23,42,0.85); border-bottom:1px solid #334155; padding-top:4px; padding-bottom:6px;"></div>
       <div id="libList"></div>
     </div>
   </div>
@@ -883,33 +884,40 @@ async function runSim(silent = false) {
 
 
 
+
 let activeCat = 'الكل';
+let activeSubCat = 'الكل';
+let catTreeCache = {};
 let libOffset = 0;
 let libItemsCache = [];
-const ALL_CATS = [
-  'الكل',
-  '1. المصادر والحماية',
-  '2. المقاومات والمكثفات والملفات',
-  '3. الدايودات والزينر والليد',
-  '4. الترانزستورات وأشباه الموصلات',
-  '5. إلكترونيات القوى',
-  '6. المتكاملات والشرائح الرقمية',
-  '7. الدوائر الرقمية',
-  '8. المحركات والحساسات',
-  '9. أجهزة القياس'
-];
 
 function openLibrary() {
   const modal = document.getElementById('libModal');
   if (modal) modal.style.display = 'flex';
-  const tabs = document.getElementById('catTabs');
-  if (tabs) {
-    tabs.innerHTML = ALL_CATS.map(c =>
-      `<button class="btn ${activeCat===c?'active':''}" onclick="activeCat='${c}'; libOffset=0; openLibrary();">${c}</button>`
-    ).join('');
-  }
   libOffset = 0;
   renderLib(false);
+}
+
+function renderCategoryBars() {
+  const tabs = document.getElementById('catTabs');
+  const subTabs = document.getElementById('subCatTabs');
+  const mainCats = ['الكل'].concat(Object.keys(catTreeCache));
+  if (tabs) {
+    tabs.innerHTML = mainCats.map(c =>
+      `<button class="btn ${activeCat===c?'active':''}" onclick="activeCat='${c}'; activeSubCat='الكل'; libOffset=0; renderLib(false);">${c}</button>`
+    ).join('');
+  }
+  if (subTabs) {
+    if (activeCat === 'الكل' || !catTreeCache[activeCat]) {
+      subTabs.style.display = 'none';
+    } else {
+      subTabs.style.display = 'flex';
+      const subs = ['الكل'].concat(catTreeCache[activeCat]);
+      subTabs.innerHTML = `<span style="font-size:0.72rem; color:#94a3b8; align-self:center; margin-left:6px;">النوع:</span>` + subs.map(s =>
+        `<button class="btn ${activeSubCat===s?'active':''}" style="font-size:0.72rem; padding:3px 8px;" onclick="activeSubCat='${s}'; libOffset=0; renderLib(false);">${s}</button>`
+      ).join('');
+    }
+  }
 }
 
 async function renderLib(append = false) {
@@ -918,15 +926,20 @@ async function renderLib(append = false) {
   if (!append) {
     libOffset = 0;
     libItemsCache = [];
-    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#38bdf8;">⏳ جاري تحميل القطع من قاعدة البيانات...</div>';
+    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#38bdf8;">⏳ جاري تحميل التصنيفات والقطع...</div>';
   }
   const qEl = document.getElementById('libSearch');
   const q = qEl ? qEl.value : '';
   try {
-    const res = await fetch(`/api/parts?q=${encodeURIComponent(q)}&cat=${encodeURIComponent(activeCat)}&offset=${libOffset}`);
+    const res = await fetch(`/api/parts?q=${encodeURIComponent(q)}&cat=${encodeURIComponent(activeCat)}&subcat=${encodeURIComponent(activeSubCat)}&offset=${libOffset}`);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     if (data.status === 'error') throw new Error(data.message);
+
+    if (data.tree && Object.keys(data.tree).length > 0) {
+      catTreeCache = data.tree;
+      renderCategoryBars();
+    }
 
     const headEl = document.querySelector('#libModal .modal-head strong');
     if (headEl) {
@@ -937,7 +950,7 @@ async function renderLib(append = false) {
       const merged = Object.assign({ type: i.type, part: i.part }, i.props || {});
       const safeJson = JSON.stringify(merged).replace(/'/g, "&#39;");
       return `<div class="lib-item" onclick='addComponentFromLib(${safeJson}); closeModal("libModal");'>
-        <div><strong>${i.name}</strong><div style="font-size:0.72rem; color:var(--muted);">Part: ${i.part} | ${i.cat}</div></div>
+        <div><strong>${i.name}</strong><div style="font-size:0.72rem; color:var(--muted);">${i.cat} ◀ <b>${i.subcat || 'عام'}</b></div></div>
         <span class="btn btn-run">+ إضافة</span>
       </div>`;
     }).join('');
@@ -949,7 +962,7 @@ async function renderLib(append = false) {
     }
     listEl.innerHTML = html || '<div style="padding:20px; text-align:center; color:var(--muted);">لا توجد نتائج مطابقة لبحثك</div>';
   } catch (err) {
-    listEl.innerHTML = `<div style="padding:20px; text-align:center; color:#ef4444;">⚠️ تعذر الاتصال بالمكتبة (${err.message}). تأكد من تحديث الصفحة (Ctrl+F5).</div>`;
+    listEl.innerHTML = `<div style="padding:20px; text-align:center; color:#ef4444;">⚠️ تعذر الاتصال بالمكتبة (${err.message}).</div>`;
   }
 }
 
