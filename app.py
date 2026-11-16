@@ -1,4 +1,4 @@
-from parts_db import CATALOG, MODELS_MAP, search_catalog, CATEGORIES_TREE
+from parts_db import CATALOG, MODELS_MAP, search_catalog, CATEGORIES_TREE, get_spice_model_params
 from solver import ProSpiceBDF2Solver
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from solver import ProCircuitSolver

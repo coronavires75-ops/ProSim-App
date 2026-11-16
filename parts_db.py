@@ -362,3 +362,53 @@ def search_catalog(query='', category='الكل', subcategory='الكل', limit=
             contains.append(item)
     merged = exact + starts + contains
     return {'total_matched': len(merged), 'items': merged[offset:offset + limit]}
+
+
+def get_spice_model_params(part_name):
+    if not part_name:
+        return {}
+    p = str(part_name).strip().upper()
+    base = dict(MODELS_MAP[p][1]) if p in MODELS_MAP else {}
+
+    # استنتاج ذكي دقيق للمعاملات الفيزيائية من رقم القطعة التجاري (مثل مكتبات SPICE في Proteus)
+    if '2N5060' in p or 'MCR100' in p or 'NTE5452' in p:
+        base.update({'vgt': 0.62, 'igt': 0.0002, 'ih': 0.003, 'vtm': 1.1})
+    elif '2N3669' in p:
+        base.update({'vgt': 0.65, 'igt': 0.020, 'ih': 0.015, 'vtm': 1.25})
+    elif 'BT151' in p or 'TYN612' in p:
+        base.update({'vgt': 0.68, 'igt': 0.015, 'ih': 0.012, 'vtm': 1.35})
+    elif '2N6509' in p:
+        base.update({'vgt': 0.75, 'igt': 0.030, 'ih': 0.025, 'vtm': 1.45})
+    elif 'BTA41' in p:
+        base.update({'vgt': 0.85, 'igt': 0.050, 'ih': 0.040, 'vtm': 1.50})
+    elif 'BT136' in p or 'BTA16' in p:
+        base.update({'vgt': 0.75, 'igt': 0.010, 'ih': 0.010, 'vtm': 1.30})
+    elif '1N5819' in p or '1N5822' in p:
+        base.update({'Is': 3.15e-5, 'n': 1.05, 'bv': 40})
+    elif '1N4148' in p:
+        base.update({'Is': 2.52e-9, 'n': 1.75, 'bv': 100})
+    elif '1N400' in p or '1N540' in p:
+        base.update({'Is': 7.02e-9, 'n': 1.77, 'bv': 1000})
+    elif 'TIP12' in p or 'TIP14' in p:
+        base.update({'bf': 1000.0})
+    elif '2N3055' in p or '2SC5200' in p:
+        base.update({'bf': 60.0})
+    elif 'BC547' in p or 'BC557' in p:
+        base.update({'bf': 300.0})
+    elif 'IRFZ44' in p or 'IRF3205' in p:
+        base.update({'vth': 2.5, 'kp': 4.5, 'rdson': 0.017})
+    elif 'IRF840' in p:
+        base.update({'vth': 3.2, 'kp': 0.85, 'rdson': 0.85})
+    elif '7805' in p:
+        base.update({'val': 5.0})
+    elif '7809' in p:
+        base.update({'val': 9.0})
+    elif '7812' in p:
+        base.update({'val': 12.0})
+    elif '7815' in p:
+        base.update({'val': 15.0})
+    elif '7824' in p:
+        base.update({'val': 24.0})
+    elif '1117-3.3' in p:
+        base.update({'val': 3.3})
+    return base
