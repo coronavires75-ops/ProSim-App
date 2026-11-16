@@ -1,4 +1,3 @@
-
 window.EXTRA_LECTURE_PRESETS = {
   "01. محول متغير (Variac Tap-Change Control)": [
     {
@@ -6,7 +5,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "AC-220V-50Hz",
       "x": 120,
-      "y": 220,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
@@ -16,24 +15,24 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "trf1",
       "type": "TRF",
       "part": "VARIAC-0-250V",
-      "x": 260,
-      "y": 220,
+      "x": 280,
+      "y": 240,
       "val": 0.45
     },
     {
       "id": "rload",
       "type": "R",
       "part": "LOAD-50R",
-      "x": 420,
-      "y": 220,
+      "x": 450,
+      "y": 240,
       "val": 50
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 260,
-      "y": 350
+      "x": 280,
+      "y": 380
     }
   ],
   "02. مقاومة متغيرة على التوالي (Series Rheostat Control)": [
@@ -42,7 +41,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "DC-24V",
       "x": 120,
-      "y": 220,
+      "y": 240,
       "dc": 24,
       "amp": 0,
       "freq": 0,
@@ -52,7 +51,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "rheo",
       "type": "POT",
       "part": "RHEOSTAT-100R",
-      "x": 260,
+      "x": 280,
       "y": 140,
       "val": "100",
       "pct": 50
@@ -61,16 +60,16 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "rload",
       "type": "R",
       "part": "LOAD-50R",
-      "x": 420,
-      "y": 220,
+      "x": 450,
+      "y": 240,
       "val": 50
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 260,
-      "y": 350
+      "x": 280,
+      "y": 380
     }
   ],
   "03. الدائرة الأساسية للـ SCR كمفتاح (Basic SCR Switch)": [
@@ -79,7 +78,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "AC-220V-50Hz",
       "x": 120,
-      "y": 220,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
@@ -89,7 +88,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "trig",
       "type": "GATE_FIRING",
       "part": "GATE-PULSE-60deg",
-      "x": 240,
+      "x": 280,
       "y": 280,
       "alpha": 60,
       "freq": 50
@@ -98,16 +97,16 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "scr1",
       "type": "SCR",
       "part": "BT151-500R",
-      "x": 340,
-      "y": 220,
+      "x": 480,
+      "y": 240,
       "vgt": 0.65
     },
     {
       "id": "rload",
       "type": "R",
       "part": "RLOAD-50R",
-      "x": 460,
-      "y": 220,
+      "x": 280,
+      "y": 120,
       "val": 50
     },
     {
@@ -115,7 +114,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "GND",
       "part": "GND",
       "x": 300,
-      "y": 360
+      "y": 400
     }
   ],
   "04. مقارنة: مقوم دايود نصف موجة (Half-Wave Diode)": [
@@ -124,7 +123,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "AC-220V-50Hz",
       "x": 120,
-      "y": 220,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
@@ -135,14 +134,14 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "D",
       "part": "1N4007",
       "x": 280,
-      "y": 180
+      "y": 160
     },
     {
       "id": "rload",
       "type": "R",
       "part": "RLOAD-50R",
-      "x": 440,
-      "y": 220,
+      "x": 450,
+      "y": 240,
       "val": 50
     },
     {
@@ -150,7 +149,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "GND",
       "part": "GND",
       "x": 280,
-      "y": 350
+      "y": 380
     }
   ],
   "05. تحكم SCR في نصف الموجة (Half-Wave Phase Control)": [
@@ -159,7 +158,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "AC-220V-50Hz",
       "x": 120,
-      "y": 220,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
@@ -169,7 +168,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "trig",
       "type": "GATE_FIRING",
       "part": "ALPHA-70deg",
-      "x": 240,
+      "x": 280,
       "y": 280,
       "alpha": 70,
       "freq": 50
@@ -178,16 +177,16 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "scr1",
       "type": "SCR",
       "part": "2N3669",
-      "x": 340,
-      "y": 220,
+      "x": 480,
+      "y": 240,
       "vgt": 0.65
     },
     {
       "id": "rload",
       "type": "R",
       "part": "RLOAD-50R",
-      "x": 460,
-      "y": 220,
+      "x": 280,
+      "y": 120,
       "val": 50
     },
     {
@@ -195,7 +194,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "GND",
       "part": "GND",
       "x": 300,
-      "y": 360
+      "y": 400
     }
   ],
   "06. اختبار جهد قدح البوابة (2N3669: 3.6V, 150R)": [
@@ -204,7 +203,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "VG-3.6V",
       "x": 120,
-      "y": 240,
+      "y": 260,
       "dc": 3.6,
       "amp": 0,
       "freq": 0,
@@ -214,26 +213,15 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "rg",
       "type": "R",
       "part": "RG-150R",
-      "x": 240,
-      "y": 240,
+      "x": 260,
+      "y": 260,
       "val": 150
-    },
-    {
-      "id": "va",
-      "type": "V",
-      "part": "VDC-48V",
-      "x": 460,
-      "y": 120,
-      "dc": 48,
-      "amp": 0,
-      "freq": 0,
-      "wave": "sine"
     },
     {
       "id": "rload",
       "type": "R",
       "part": "RLOAD-20R",
-      "x": 380,
+      "x": 280,
       "y": 120,
       "val": 20
     },
@@ -241,7 +229,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "scr1",
       "type": "SCR",
       "part": "2N3669",
-      "x": 380,
+      "x": 480,
       "y": 240,
       "vgt": 0.6
     },
@@ -250,7 +238,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "GND",
       "part": "GND",
       "x": 300,
-      "y": 350
+      "y": 400
     }
   ],
   "07. الدائرة المكافئة بترانزستورين (PNP + NPN Latch)": [
@@ -258,8 +246,8 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "DC-12V",
-      "x": 110,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 12,
       "amp": 0,
       "freq": 0,
@@ -269,50 +257,33 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "rload",
       "type": "R",
       "part": "RLOAD-100R",
-      "x": 220,
-      "y": 110,
+      "x": 280,
+      "y": 120,
       "val": 100
-    },
-    {
-      "id": "q_pnp",
-      "type": "Q",
-      "part": "BC557-PNP",
-      "x": 330,
-      "y": 160,
-      "pol": "PNP",
-      "bf": 150
     },
     {
       "id": "q_npn",
       "type": "Q",
       "part": "BC547-NPN",
-      "x": 330,
-      "y": 260,
+      "x": 480,
+      "y": 240,
       "pol": "NPN",
       "bf": 150
-    },
-    {
-      "id": "sw_g",
-      "type": "PUSH_BTN",
-      "part": "GATE-PULSE-BTN",
-      "x": 210,
-      "y": 280,
-      "closed": true
     },
     {
       "id": "rg",
       "type": "R",
       "part": "RG-1k",
-      "x": 150,
-      "y": 280,
+      "x": 260,
+      "y": 260,
       "val": 1000
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 260,
-      "y": 360
+      "x": 300,
+      "y": 400
     }
   ],
   "08. قدح مقاومة بسيطة (Resistive Gate Control 0°-90°)": [
@@ -321,7 +292,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "AC-115V-60Hz",
       "x": 120,
-      "y": 220,
+      "y": 240,
       "dc": 0,
       "amp": 162,
       "freq": 60,
@@ -331,7 +302,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "rload",
       "type": "R",
       "part": "RLOAD-40R",
-      "x": 240,
+      "x": 280,
       "y": 120,
       "val": 40
     },
@@ -339,33 +310,25 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "r1",
       "type": "R",
       "part": "R1-3k",
-      "x": 350,
-      "y": 160,
+      "x": 250,
+      "y": 240,
       "val": 3000
     },
     {
       "id": "r2",
       "type": "POT",
       "part": "POT-R2-10k",
-      "x": 350,
-      "y": 230,
+      "x": 360,
+      "y": 240,
       "val": "10k",
       "pct": 78
-    },
-    {
-      "id": "sw1",
-      "type": "SW",
-      "part": "SW-GATE",
-      "x": 420,
-      "y": 270,
-      "closed": true
     },
     {
       "id": "scr1",
       "type": "SCR",
       "part": "2N3669",
       "x": 490,
-      "y": 220,
+      "y": 240,
       "vgt": 0.65
     },
     {
@@ -373,7 +336,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "GND",
       "part": "GND",
       "x": 300,
-      "y": 360
+      "y": 400
     }
   ],
   "09. قدح مقاومة مع دايود حماية البوابة (Gate + D1)": [
@@ -382,7 +345,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "AC-220V-50Hz",
       "x": 120,
-      "y": 220,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
@@ -392,7 +355,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "rload",
       "type": "R",
       "part": "LAMP-100W",
-      "x": 240,
+      "x": 280,
       "y": 120,
       "val": 484
     },
@@ -400,16 +363,16 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "r1",
       "type": "R",
       "part": "R1-4.7k",
-      "x": 340,
-      "y": 160,
+      "x": 230,
+      "y": 240,
       "val": 4700
     },
     {
       "id": "r2",
       "type": "POT",
       "part": "POT-R2-22k",
-      "x": 340,
-      "y": 230,
+      "x": 320,
+      "y": 240,
       "val": "22k",
       "pct": 50
     },
@@ -417,15 +380,15 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "d1",
       "type": "D",
       "part": "1N4007-PROT",
-      "x": 415,
-      "y": 270
+      "x": 400,
+      "y": 240
     },
     {
       "id": "scr1",
       "type": "SCR",
       "part": "BT151-500R",
       "x": 495,
-      "y": 220,
+      "y": 240,
       "vgt": 0.65
     },
     {
@@ -433,7 +396,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "GND",
       "part": "GND",
       "x": 300,
-      "y": 360
+      "y": 400
     }
   ],
   "10. مسألة قدح عند 90° (115Vrms, R1=3k, R2=7.8k)": [
@@ -442,7 +405,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "AC-115V-60Hz",
       "x": 120,
-      "y": 220,
+      "y": 240,
       "dc": 0,
       "amp": 162,
       "freq": 60,
@@ -452,7 +415,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "rload",
       "type": "R",
       "part": "RLOAD-40R",
-      "x": 240,
+      "x": 280,
       "y": 120,
       "val": 40
     },
@@ -460,15 +423,15 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "r1",
       "type": "R",
       "part": "R1-3k",
-      "x": 350,
-      "y": 160,
+      "x": 250,
+      "y": 240,
       "val": 3000
     },
     {
       "id": "r2",
       "type": "R",
       "part": "R2-7.8k",
-      "x": 350,
+      "x": 360,
       "y": 240,
       "val": 7800
     },
@@ -476,8 +439,8 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "scr1",
       "type": "SCR",
       "part": "2N3669",
-      "x": 480,
-      "y": 220,
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
     },
     {
@@ -485,7 +448,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "GND",
       "part": "GND",
       "x": 300,
-      "y": 360
+      "y": 400
     }
   ],
   "11. تشغيل SCR مع مصدر مستمر (DC Latching Circuit)": [
@@ -494,7 +457,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "DC-24V",
       "x": 120,
-      "y": 220,
+      "y": 240,
       "dc": 24,
       "amp": 0,
       "freq": 0,
@@ -504,7 +467,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "rload",
       "type": "R",
       "part": "RLOAD-50R",
-      "x": 240,
+      "x": 280,
       "y": 120,
       "val": 50
     },
@@ -512,25 +475,16 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "r1",
       "type": "R",
       "part": "R1-1k",
-      "x": 340,
-      "y": 160,
+      "x": 250,
+      "y": 240,
       "val": 1000
-    },
-    {
-      "id": "r2",
-      "type": "POT",
-      "part": "POT-R2-10k",
-      "x": 340,
-      "y": 230,
-      "val": "10k",
-      "pct": 30
     },
     {
       "id": "sw1",
       "type": "PUSH_BTN",
       "part": "SW-FIRE",
-      "x": 410,
-      "y": 270,
+      "x": 360,
+      "y": 240,
       "closed": true
     },
     {
@@ -538,7 +492,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "SCR",
       "part": "BT151-500R",
       "x": 490,
-      "y": 220,
+      "y": 240,
       "vgt": 0.65
     },
     {
@@ -546,7 +500,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "GND",
       "part": "GND",
       "x": 300,
-      "y": 360
+      "y": 400
     }
   ],
   "12. دائرة إنذار السرقة والمصانع (Industrial Alarm SW1)": [
@@ -555,58 +509,50 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "DC-12V",
       "x": 120,
-      "y": 220,
+      "y": 240,
       "dc": 12,
       "amp": 0,
       "freq": 0,
       "wave": "sine"
     },
     {
+      "id": "siren",
+      "type": "R",
+      "part": "SIREN-12V-ALARM",
+      "x": 280,
+      "y": 120,
+      "val": 24
+    },
+    {
       "id": "sw_door",
       "type": "SW",
       "part": "LIMIT-SW1",
-      "x": 230,
-      "y": 180,
+      "x": 250,
+      "y": 240,
       "closed": true
     },
     {
       "id": "r1",
       "type": "R",
       "part": "R1-1k",
-      "x": 330,
-      "y": 180,
-      "val": 1000
-    },
-    {
-      "id": "r2",
-      "type": "R",
-      "part": "R2-1k",
-      "x": 330,
-      "y": 280,
+      "x": 360,
+      "y": 240,
       "val": 1000
     },
     {
       "id": "scr1",
       "type": "SCR",
       "part": "NTE5452",
-      "x": 450,
-      "y": 220,
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
-    },
-    {
-      "id": "siren",
-      "type": "R",
-      "part": "SIREN-12V-ALARM",
-      "x": 450,
-      "y": 120,
-      "val": 24
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
       "x": 300,
-      "y": 360
+      "y": 400
     }
   ],
   "13. إنذار حريق متعدد الحساسات (Fire Alarm + START/STOP)": [
@@ -614,67 +560,51 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "DC-12V",
-      "x": 110,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 12,
       "amp": 0,
       "freq": 0,
       "wave": "sine"
     },
     {
-      "id": "s2_nc",
-      "type": "SW",
-      "part": "S2-NC-STOP",
-      "x": 200,
+      "id": "siren",
+      "type": "R",
+      "part": "SIREN-12V",
+      "x": 280,
       "y": 120,
-      "closed": true
+      "val": 24
     },
     {
       "id": "t1",
       "type": "SW",
       "part": "THERMOSTAT-T1",
-      "x": 270,
-      "y": 180,
+      "x": 250,
+      "y": 240,
       "closed": true
     },
     {
       "id": "r1",
       "type": "R",
       "part": "R1-1k",
-      "x": 350,
-      "y": 180,
-      "val": 1000
-    },
-    {
-      "id": "r2",
-      "type": "R",
-      "part": "R2-1k",
-      "x": 350,
-      "y": 280,
+      "x": 360,
+      "y": 240,
       "val": 1000
     },
     {
       "id": "scr1",
       "type": "SCR",
       "part": "NTE5452",
-      "x": 460,
-      "y": 220,
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
-    },
-    {
-      "id": "siren",
-      "type": "R",
-      "part": "SIREN-12V",
-      "x": 460,
-      "y": 120,
-      "val": 24
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
       "x": 300,
-      "y": 360
+      "y": 400
     }
   ],
   "14. تحكم حراري في سخان بـ NTC ودايود تمرير (Heater Control)": [
@@ -682,8 +612,8 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "AC-220V-50Hz",
-      "x": 110,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
@@ -693,62 +623,40 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "heater",
       "type": "R",
       "part": "HEATER-220V-1kW",
-      "x": 220,
+      "x": 280,
       "y": 120,
       "val": 48.4
-    },
-    {
-      "id": "d2",
-      "type": "D",
-      "part": "1N4007-FREEWHEEL",
-      "x": 220,
-      "y": 220
-    },
-    {
-      "id": "d1",
-      "type": "D",
-      "part": "1N4007-RECT",
-      "x": 310,
-      "y": 160
-    },
-    {
-      "id": "c1",
-      "type": "C",
-      "part": "C1-10uF",
-      "x": 310,
-      "y": 260,
-      "val": 1e-05
     },
     {
       "id": "r1",
       "type": "R",
       "part": "R1-10k",
-      "x": 390,
-      "y": 160,
+      "x": 250,
+      "y": 240,
       "val": 10000
     },
     {
       "id": "ntc",
       "type": "NTC",
       "part": "NTC-10K",
-      "x": 390,
-      "y": 260,
+      "x": 360,
+      "y": 310,
       "val": "10k"
     },
     {
       "id": "scr1",
       "type": "SCR",
       "part": "BTA16-600B",
-      "x": 500,
-      "y": 220,
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 310,
-      "y": 360
+      "x": 300,
+      "y": 400
     }
   ],
   "15. تحكم حراري بقنطرة ومكثف 0.1uF (Full-Bridge Heater)": [
@@ -756,8 +664,8 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "AC-120V-60Hz",
-      "x": 110,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 0,
       "amp": 170,
       "freq": 60,
@@ -767,55 +675,40 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "heater",
       "type": "R",
       "part": "HEATER-100W",
-      "x": 210,
+      "x": 280,
       "y": 120,
       "val": 144
-    },
-    {
-      "id": "br1",
-      "type": "BRIDGE",
-      "part": "KBP206-BRIDGE",
-      "x": 310,
-      "y": 220
     },
     {
       "id": "r1",
       "type": "R",
       "part": "R1-510k",
-      "x": 410,
-      "y": 150,
+      "x": 250,
+      "y": 240,
       "val": 510000
     },
     {
       "id": "c1",
       "type": "C",
       "part": "C1-0.1uF",
-      "x": 410,
-      "y": 280,
+      "x": 360,
+      "y": 310,
       "val": 1e-07
-    },
-    {
-      "id": "therm",
-      "type": "SW",
-      "part": "THERMOSTAT-NC",
-      "x": 470,
-      "y": 280,
-      "closed": false
     },
     {
       "id": "scr1",
       "type": "SCR",
       "part": "2N6509",
-      "x": 540,
-      "y": 220,
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 310,
-      "y": 370
+      "x": 300,
+      "y": 400
     }
   ],
   "16. شاحن بطاريات أوتوماتيكي (SCR + Zener Charger)": [
@@ -823,61 +716,51 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "AC-220V-50Hz",
-      "x": 110,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
       "wave": "sine"
     },
     {
-      "id": "trf1",
-      "type": "TRF",
-      "part": "TRAN-220V-18V",
-      "x": 200,
-      "y": 220,
-      "val": 0.082
+      "id": "rload",
+      "type": "R",
+      "part": "BAT-LOAD-12V",
+      "x": 280,
+      "y": 120,
+      "val": 15
     },
     {
-      "id": "br1",
-      "type": "BRIDGE",
-      "part": "KBP206-BRIDGE",
-      "x": 290,
-      "y": 220
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "TYN612-CHG",
-      "x": 390,
-      "y": 150,
-      "vgt": 0.65
+      "id": "r1",
+      "type": "R",
+      "part": "R1-1k",
+      "x": 250,
+      "y": 240,
+      "val": 1000
     },
     {
       "id": "z1",
       "type": "Z",
       "part": "1N4742A-12V",
-      "x": 450,
-      "y": 240,
+      "x": 360,
+      "y": 310,
       "val": 12.0
     },
     {
-      "id": "bat",
-      "type": "V",
-      "part": "BATTERY-12V",
-      "x": 530,
-      "y": 220,
-      "dc": 11.5,
-      "amp": 0,
-      "freq": 0,
-      "wave": "sine"
+      "id": "scr1",
+      "type": "SCR",
+      "part": "TYN612-CHG",
+      "x": 490,
+      "y": 240,
+      "vgt": 0.65
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 320,
-      "y": 360
+      "x": 300,
+      "y": 400
     }
   ],
   "17. إنذار المطر البسيط (Simple Rain Alarm Circuit)": [
@@ -886,50 +769,50 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "DC-9V",
       "x": 120,
-      "y": 220,
+      "y": 240,
       "dc": 9,
       "amp": 0,
       "freq": 0,
       "wave": "sine"
     },
     {
+      "id": "buzz",
+      "type": "R",
+      "part": "BUZZER-9V",
+      "x": 280,
+      "y": 120,
+      "val": 120
+    },
+    {
       "id": "rain_pad",
       "type": "R",
-      "part": "RAIN-WATER-SENSOR",
-      "x": 240,
-      "y": 180,
+      "part": "RAIN-SENSOR-2k",
+      "x": 250,
+      "y": 240,
       "val": 2000
     },
     {
       "id": "rg",
       "type": "R",
       "part": "RG-1k",
-      "x": 340,
-      "y": 220,
+      "x": 360,
+      "y": 240,
       "val": 1000
     },
     {
       "id": "scr1",
       "type": "SCR",
       "part": "2N5060",
-      "x": 450,
-      "y": 220,
+      "x": 490,
+      "y": 240,
       "vgt": 0.6
-    },
-    {
-      "id": "buzz",
-      "type": "R",
-      "part": "BUZZER-9V",
-      "x": 450,
-      "y": 120,
-      "val": 120
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
       "x": 300,
-      "y": 350
+      "y": 400
     }
   ],
   "18. إنذار الإمالة والانقلاب (Tilt & Tip-Over Alarm)": [
@@ -938,50 +821,50 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "DC-12V",
       "x": 120,
-      "y": 220,
+      "y": 240,
       "dc": 12,
       "amp": 0,
       "freq": 0,
       "wave": "sine"
     },
     {
+      "id": "siren",
+      "type": "R",
+      "part": "SIREN-12V",
+      "x": 280,
+      "y": 120,
+      "val": 24
+    },
+    {
       "id": "r1",
       "type": "R",
       "part": "R1-4.7k",
-      "x": 240,
-      "y": 160,
+      "x": 250,
+      "y": 240,
       "val": 4700
     },
     {
       "id": "tilt",
       "type": "SW",
-      "part": "TILT-SWITCH-OPEN",
-      "x": 240,
-      "y": 270,
-      "closed": false
+      "part": "TILT-SWITCH",
+      "x": 360,
+      "y": 240,
+      "closed": true
     },
     {
       "id": "scr1",
       "type": "SCR",
       "part": "NTE5452",
-      "x": 390,
-      "y": 220,
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
-    },
-    {
-      "id": "siren",
-      "type": "R",
-      "part": "SIREN-12V",
-      "x": 390,
-      "y": 120,
-      "val": 24
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 280,
-      "y": 360
+      "x": 300,
+      "y": 400
     }
   ],
   "19. إنذار قطع سلك الأرضي (Ground-Break Anti-Theft Alarm)": [
@@ -990,51 +873,43 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "DC-12V",
       "x": 120,
-      "y": 220,
+      "y": 240,
       "dc": 12,
       "amp": 0,
       "freq": 0,
       "wave": "sine"
     },
     {
+      "id": "buzz",
+      "type": "R",
+      "part": "BUZZER-12V",
+      "x": 280,
+      "y": 120,
+      "val": 120
+    },
+    {
       "id": "r1",
       "type": "R",
       "part": "R1-1k",
-      "x": 240,
-      "y": 160,
+      "x": 250,
+      "y": 240,
       "val": 1000
-    },
-    {
-      "id": "wire_gnd",
-      "type": "SW",
-      "part": "ANTI-THEFT-WIRE",
-      "x": 240,
-      "y": 280,
-      "closed": false
     },
     {
       "id": "q1",
       "type": "Q",
       "part": "BC547-NPN",
-      "x": 360,
-      "y": 220,
+      "x": 490,
+      "y": 240,
       "pol": "NPN",
       "bf": 200
-    },
-    {
-      "id": "buzz",
-      "type": "R",
-      "part": "BUZZER-12V",
-      "x": 360,
-      "y": 120,
-      "val": 120
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 280,
-      "y": 360
+      "x": 300,
+      "y": 400
     }
   ],
   "20. إنذار الخزينة بالضوء (Light-Activated LDR Alarm)": [
@@ -1043,26 +918,34 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "DC-12V",
       "x": 120,
-      "y": 220,
+      "y": 240,
       "dc": 12,
       "amp": 0,
       "freq": 0,
       "wave": "sine"
     },
     {
+      "id": "buzz",
+      "type": "R",
+      "part": "BUZZER-12V",
+      "x": 280,
+      "y": 120,
+      "val": 120
+    },
+    {
       "id": "ldr",
       "type": "LDR",
-      "part": "LDR-LIGHT-EXPOSED",
-      "x": 240,
-      "y": 160,
+      "part": "LDR-LIGHT-1k",
+      "x": 250,
+      "y": 240,
       "val": "1k"
     },
     {
       "id": "r2",
       "type": "POT",
       "part": "POT-SENS-10k",
-      "x": 240,
-      "y": 270,
+      "x": 360,
+      "y": 310,
       "val": "10k",
       "pct": 50
     },
@@ -1070,24 +953,16 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "scr1",
       "type": "SCR",
       "part": "NTE5452",
-      "x": 390,
-      "y": 220,
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
-    },
-    {
-      "id": "buzz",
-      "type": "R",
-      "part": "BUZZER-12V",
-      "x": 390,
-      "y": 120,
-      "val": 120
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 280,
-      "y": 360
+      "x": 300,
+      "y": 400
     }
   ],
   "21. قدح بمكثف لتخطي 90 درجة (RC Phase Delay > 90°)": [
@@ -1096,7 +971,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "AC-220V-50Hz",
       "x": 120,
-      "y": 220,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
@@ -1106,7 +981,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "rload",
       "type": "R",
       "part": "HEATER-100R",
-      "x": 240,
+      "x": 280,
       "y": 120,
       "val": 100
     },
@@ -1114,16 +989,16 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "r1",
       "type": "R",
       "part": "R1-2.2k",
-      "x": 340,
-      "y": 150,
+      "x": 250,
+      "y": 240,
       "val": 2200
     },
     {
       "id": "r2",
       "type": "POT",
       "part": "POT-R2-100k",
-      "x": 340,
-      "y": 220,
+      "x": 360,
+      "y": 240,
       "val": "100k",
       "pct": 65
     },
@@ -1131,8 +1006,8 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "c1",
       "type": "C",
       "part": "C1-100nF",
-      "x": 340,
-      "y": 300,
+      "x": 360,
+      "y": 320,
       "val": 1e-07
     },
     {
@@ -1140,7 +1015,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "SCR",
       "part": "TYN612",
       "x": 490,
-      "y": 220,
+      "y": 240,
       "vgt": 0.65
     },
     {
@@ -1148,7 +1023,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "GND",
       "part": "GND",
       "x": 300,
-      "y": 370
+      "y": 400
     }
   ],
   "22. قدح بمكثف ومقاومة بوابة (Extended Capacitor Firing)": [
@@ -1156,8 +1031,8 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "AC-220V-50Hz",
-      "x": 110,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
@@ -1167,24 +1042,16 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "rload",
       "type": "R",
       "part": "RLOAD-60R",
-      "x": 220,
+      "x": 280,
       "y": 120,
       "val": 60
-    },
-    {
-      "id": "r1",
-      "type": "R",
-      "part": "R1-4.7k",
-      "x": 320,
-      "y": 150,
-      "val": 4700
     },
     {
       "id": "r2",
       "type": "POT",
       "part": "POT-R2-100k",
-      "x": 320,
-      "y": 220,
+      "x": 240,
+      "y": 240,
       "val": "100k",
       "pct": 55
     },
@@ -1193,31 +1060,31 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "C",
       "part": "C1-100nF",
       "x": 320,
-      "y": 300,
+      "y": 320,
       "val": 1e-07
     },
     {
       "id": "rg",
       "type": "R",
       "part": "RG-10k",
-      "x": 410,
-      "y": 220,
+      "x": 390,
+      "y": 240,
       "val": 10000
     },
     {
       "id": "scr1",
       "type": "SCR",
       "part": "TYN612",
-      "x": 510,
-      "y": 220,
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 310,
-      "y": 370
+      "x": 300,
+      "y": 400
     }
   ],
   "23. قدح بشبكة Double RC (C1=68nF, C2=33nF, R1=27k, R2=250k)": [
@@ -1225,8 +1092,8 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "AC-220V-50Hz",
-      "x": 110,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
@@ -1236,24 +1103,24 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "rload",
       "type": "R",
       "part": "RLOAD-50R",
-      "x": 220,
-      "y": 110,
+      "x": 280,
+      "y": 120,
       "val": 50
     },
     {
       "id": "r1",
       "type": "R",
       "part": "R1-27k",
-      "x": 310,
-      "y": 150,
+      "x": 220,
+      "y": 240,
       "val": 27000
     },
     {
       "id": "r2",
       "type": "POT",
       "part": "POT-R2-250k",
-      "x": 310,
-      "y": 220,
+      "x": 300,
+      "y": 240,
       "val": "250k",
       "pct": 40
     },
@@ -1261,40 +1128,40 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "c1",
       "type": "C",
       "part": "C1-68nF",
-      "x": 310,
-      "y": 300,
+      "x": 300,
+      "y": 320,
       "val": 6.8e-08
     },
     {
       "id": "r3",
       "type": "R",
       "part": "R3-150k",
-      "x": 400,
-      "y": 220,
+      "x": 380,
+      "y": 240,
       "val": 150000
     },
     {
       "id": "c2",
       "type": "C",
       "part": "C2-33nF",
-      "x": 400,
-      "y": 300,
+      "x": 380,
+      "y": 320,
       "val": 3.3e-08
     },
     {
       "id": "scr1",
       "type": "SCR",
       "part": "TYN612",
-      "x": 510,
-      "y": 220,
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 310,
-      "y": 380
+      "x": 300,
+      "y": 400
     }
   ],
   "24. قدح نبضي بترانزستور UJT (2N2646 Pulse Triggering)": [
@@ -1302,34 +1169,27 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "AC-220V-50Hz",
-      "x": 110,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
       "wave": "sine"
     },
     {
-      "id": "br1",
-      "type": "BRIDGE",
-      "part": "KBP206-BRIDGE",
-      "x": 210,
-      "y": 220
-    },
-    {
-      "id": "z1",
-      "type": "Z",
-      "part": "1N4744A-15V",
-      "x": 290,
-      "y": 260,
-      "val": 15.0
+      "id": "rload",
+      "type": "R",
+      "part": "RLOAD-40R",
+      "x": 280,
+      "y": 120,
+      "val": 40
     },
     {
       "id": "re",
       "type": "POT",
       "part": "POT-RE-22k",
-      "x": 360,
-      "y": 170,
+      "x": 250,
+      "y": 240,
       "val": "22k",
       "pct": 45
     },
@@ -1337,40 +1197,24 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "ce",
       "type": "C",
       "part": "CE-100nF",
-      "x": 360,
-      "y": 280,
+      "x": 350,
+      "y": 320,
       "val": 1e-07
-    },
-    {
-      "id": "ujt1",
-      "type": "UJT",
-      "part": "2N2646-UJT",
-      "x": 440,
-      "y": 220,
-      "eta": 0.65
     },
     {
       "id": "scr1",
       "type": "SCR",
       "part": "TYN612",
-      "x": 540,
-      "y": 220,
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-40R",
-      "x": 540,
-      "y": 120,
-      "val": 40
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 320,
-      "y": 370
+      "x": 300,
+      "y": 400
     }
   ],
   "25. قدح نبضي بمفتاح SBS (MBS4991 Temp-Independent)": [
@@ -1378,8 +1222,8 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "AC-220V-50Hz",
-      "x": 110,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
@@ -1389,7 +1233,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "rload",
       "type": "R",
       "part": "RLOAD-50R",
-      "x": 220,
+      "x": 280,
       "y": 120,
       "val": 50
     },
@@ -1397,8 +1241,8 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "r1",
       "type": "POT",
       "part": "POT-47k",
-      "x": 320,
-      "y": 170,
+      "x": 240,
+      "y": 240,
       "val": "47k",
       "pct": 50
     },
@@ -1406,32 +1250,32 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "c1",
       "type": "C",
       "part": "C1-100nF",
-      "x": 320,
-      "y": 280,
+      "x": 310,
+      "y": 320,
       "val": 1e-07
     },
     {
       "id": "sbs1",
       "type": "DIAC",
       "part": "MBS4991-SBS",
-      "x": 410,
-      "y": 220,
+      "x": 390,
+      "y": 240,
       "val": 8.0
     },
     {
       "id": "scr1",
       "type": "SCR",
       "part": "TYN612",
-      "x": 510,
-      "y": 220,
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 310,
-      "y": 370
+      "x": 300,
+      "y": 400
     }
   ],
   "26. تحكم موجة كاملة أحادي الاتجاه + Trigger مشترك": [
@@ -1439,60 +1283,44 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "AC-220V-50Hz",
-      "x": 100,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
       "wave": "sine"
     },
     {
-      "id": "trf1",
-      "type": "TRF",
-      "part": "TRAN-CENTER-TAP",
-      "x": 200,
-      "y": 220,
-      "val": 0.15
+      "id": "rload",
+      "type": "R",
+      "part": "RLOAD-25R",
+      "x": 280,
+      "y": 120,
+      "val": 25
     },
     {
       "id": "trig",
       "type": "GATE_FIRING",
       "part": "COMMON-TRIGGER-45deg",
       "x": 320,
-      "y": 220,
+      "y": 240,
       "alpha": 45,
       "freq": 50
     },
     {
       "id": "scr1",
       "type": "SCR",
-      "part": "TYN612-TOP",
-      "x": 420,
-      "y": 140,
+      "part": "TYN612",
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
-    },
-    {
-      "id": "scr2",
-      "type": "SCR",
-      "part": "TYN612-BOT",
-      "x": 420,
-      "y": 300,
-      "vgt": 0.65
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-25R",
-      "x": 540,
-      "y": 220,
-      "val": 25
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 320,
-      "y": 380
+      "x": 300,
+      "y": 400
     }
   ],
   "27. تحكم سرعة محرك DC بموجة كاملة (DC Motor Speed Control)": [
@@ -1500,60 +1328,44 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "AC-220V-50Hz",
-      "x": 100,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
       "wave": "sine"
     },
     {
-      "id": "trf1",
-      "type": "TRF",
-      "part": "TRAN-CENTER-TAP",
-      "x": 200,
-      "y": 220,
-      "val": 0.15
+      "id": "motor",
+      "type": "MOTOR",
+      "part": "MOTOR-DC-24V",
+      "x": 280,
+      "y": 120,
+      "load": 0
     },
     {
       "id": "trig",
       "type": "GATE_FIRING",
       "part": "SPEED-TRIGGER-60deg",
       "x": 320,
-      "y": 220,
+      "y": 240,
       "alpha": 60,
       "freq": 50
     },
     {
       "id": "scr1",
       "type": "SCR",
-      "part": "TYN612-TOP",
-      "x": 420,
-      "y": 140,
+      "part": "TYN612",
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
-    },
-    {
-      "id": "scr2",
-      "type": "SCR",
-      "part": "TYN612-BOT",
-      "x": 420,
-      "y": 300,
-      "vgt": 0.65
-    },
-    {
-      "id": "motor",
-      "type": "MOTOR",
-      "part": "MOTOR-DC-24V",
-      "x": 540,
-      "y": 220,
-      "load": 0
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 320,
-      "y": 380
+      "x": 300,
+      "y": 400
     }
   ],
   "28. تحكم موجة كاملة ثنائي الاتجاه + Trigger (2 SCR Anti-Parallel)": [
@@ -1561,52 +1373,44 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "AC-220V-50Hz",
-      "x": 110,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
       "wave": "sine"
     },
     {
+      "id": "rload",
+      "type": "R",
+      "part": "UNIVERSAL-MOTOR",
+      "x": 280,
+      "y": 120,
+      "val": 35
+    },
+    {
       "id": "trig1",
       "type": "GATE_FIRING",
-      "part": "ISOLATED-DUAL-TRIGGER",
-      "x": 250,
-      "y": 130,
+      "part": "DUAL-TRIGGER-120deg",
+      "x": 320,
+      "y": 240,
       "alpha": 120,
       "freq": 50
     },
     {
       "id": "scr1",
-      "type": "SCR",
-      "part": "TYN612-POS",
-      "x": 360,
-      "y": 180,
+      "type": "TRIAC",
+      "part": "DUAL-SCR-EQUIV",
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
-    },
-    {
-      "id": "scr2",
-      "type": "SCR",
-      "part": "TYN612-NEG",
-      "x": 360,
-      "y": 270,
-      "vgt": 0.65
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "UNIVERSAL-MOTOR",
-      "x": 500,
-      "y": 220,
-      "val": 35
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
       "x": 300,
-      "y": 360
+      "y": 400
     }
   ],
   "29. البديل بترياك واحد + Trigger (Single TRIAC Dimmer)": [
@@ -1614,19 +1418,27 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "AC-220V-50Hz",
-      "x": 110,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
       "wave": "sine"
     },
     {
+      "id": "rload",
+      "type": "R",
+      "part": "UNIVERSAL-MOTOR",
+      "x": 280,
+      "y": 120,
+      "val": 35
+    },
+    {
       "id": "r1",
       "type": "POT",
       "part": "POT-DIMMER-100k",
       "x": 240,
-      "y": 150,
+      "y": 240,
       "val": "100k",
       "pct": 50
     },
@@ -1634,40 +1446,32 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "c1",
       "type": "C",
       "part": "C1-100nF",
-      "x": 240,
-      "y": 280,
+      "x": 310,
+      "y": 320,
       "val": 1e-07
     },
     {
       "id": "diac",
       "type": "DIAC",
       "part": "DB3-DIAC",
-      "x": 330,
-      "y": 220,
+      "x": 390,
+      "y": 240,
       "val": 32
     },
     {
       "id": "triac",
       "type": "TRIAC",
       "part": "BTA16-600B",
-      "x": 430,
-      "y": 220,
+      "x": 490,
+      "y": 240,
       "vgt": 0.8
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "UNIVERSAL-MOTOR",
-      "x": 540,
-      "y": 220,
-      "val": 35
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 320,
-      "y": 360
+      "x": 300,
+      "y": 400
     }
   ],
   "30. قنطرة توحيد مع SCR واحد + Trigger (AC Load Control)": [
@@ -1675,8 +1479,8 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "AC-220V-50Hz",
-      "x": 110,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
@@ -1686,23 +1490,16 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "rload",
       "type": "R",
       "part": "AC-LOAD-50R",
-      "x": 220,
+      "x": 280,
       "y": 120,
       "val": 50
-    },
-    {
-      "id": "br1",
-      "type": "BRIDGE",
-      "part": "KBP206-BRIDGE",
-      "x": 330,
-      "y": 220
     },
     {
       "id": "rtrig",
       "type": "POT",
       "part": "POT-TRIGGER-47k",
-      "x": 440,
-      "y": 150,
+      "x": 260,
+      "y": 240,
       "val": "47k",
       "pct": 50
     },
@@ -1710,24 +1507,24 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "ctrig",
       "type": "C",
       "part": "CTRIG-100nF",
-      "x": 440,
-      "y": 290,
+      "x": 360,
+      "y": 320,
       "val": 1e-07
     },
     {
       "id": "scr1",
       "type": "SCR",
       "part": "TYN612",
-      "x": 540,
-      "y": 220,
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 330,
-      "y": 370
+      "x": 300,
+      "y": 400
     }
   ],
   "31. قنطرة توحيد مع SCR داخل مسار DC (Unidirectional Load)": [
@@ -1735,26 +1532,27 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "AC-220V-50Hz",
-      "x": 110,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 0,
       "amp": 311,
       "freq": 50,
       "wave": "sine"
     },
     {
-      "id": "br1",
-      "type": "BRIDGE",
-      "part": "KBP206-BRIDGE",
-      "x": 230,
-      "y": 220
+      "id": "rload",
+      "type": "R",
+      "part": "DC-LOAD-50R",
+      "x": 280,
+      "y": 120,
+      "val": 50
     },
     {
       "id": "trig",
       "type": "GATE_FIRING",
       "part": "DC-SIDE-TRIGGER",
-      "x": 340,
-      "y": 280,
+      "x": 320,
+      "y": 240,
       "alpha": 60,
       "freq": 50
     },
@@ -1762,24 +1560,16 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "scr1",
       "type": "SCR",
       "part": "TYN612",
-      "x": 420,
-      "y": 180,
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "DC-LOAD-50R",
-      "x": 530,
-      "y": 220,
-      "val": 50
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 320,
-      "y": 370
+      "x": 300,
+      "y": 400
     }
   ],
   "32. إطفاء قسري DC بقصر الترانزستور (Transistor Shunt Turn-Off)": [
@@ -1788,7 +1578,7 @@ window.EXTRA_LECTURE_PRESETS = {
       "type": "V",
       "part": "DC-48V",
       "x": 120,
-      "y": 220,
+      "y": 240,
       "dc": 48,
       "amp": 0,
       "freq": 0,
@@ -1798,44 +1588,35 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "rload",
       "type": "R",
       "part": "RLOAD-12R",
-      "x": 240,
+      "x": 280,
       "y": 120,
       "val": 12
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "2N6509",
-      "x": 360,
-      "y": 220,
-      "vgt": 0.65
-    },
-    {
-      "id": "q_off",
-      "type": "Q",
-      "part": "2N3055-SHUNT",
-      "x": 470,
-      "y": 220,
-      "pol": "NPN",
-      "bf": 80
     },
     {
       "id": "p_on",
       "type": "V",
       "part": "PULSE-ON-SCR",
       "x": 280,
-      "y": 280,
+      "y": 240,
       "dc": 0,
       "amp": 5,
       "freq": 125,
       "wave": "square"
     },
     {
+      "id": "scr1",
+      "type": "SCR",
+      "part": "2N6509",
+      "x": 490,
+      "y": 240,
+      "vgt": 0.65
+    },
+    {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 320,
-      "y": 360
+      "x": 300,
+      "y": 400
     }
   ],
   "33. إطفاء قسري DC بالمكثف العكسي (Reverse-Bias Capacitor)": [
@@ -1843,8 +1624,8 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "DC-48V",
-      "x": 110,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 48,
       "amp": 0,
       "freq": 0,
@@ -1854,49 +1635,32 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "rload",
       "type": "R",
       "part": "RLOAD-12R",
-      "x": 220,
+      "x": 280,
       "y": 120,
       "val": 12
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "2N6509",
-      "x": 320,
-      "y": 220,
-      "vgt": 0.65
     },
     {
       "id": "c_rev",
       "type": "C",
       "part": "C-COMM-22uF",
-      "x": 410,
-      "y": 150,
+      "x": 320,
+      "y": 320,
       "val": 2.2e-05
     },
     {
-      "id": "r_chg",
-      "type": "R",
-      "part": "R-CHG-100R",
-      "x": 490,
-      "y": 120,
-      "val": 100
-    },
-    {
-      "id": "q_off",
-      "type": "Q",
-      "part": "2N3055-COMM",
+      "id": "scr1",
+      "type": "SCR",
+      "part": "2N6509",
       "x": 490,
       "y": 240,
-      "pol": "NPN",
-      "bf": 80
+      "vgt": 0.65
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
-      "x": 320,
-      "y": 360
+      "x": 300,
+      "y": 400
     }
   ],
   "34. قاطع تيار مستمر صناعي (DC Circuit Breaker SCR1 & SCR2)": [
@@ -1904,65 +1668,48 @@ window.EXTRA_LECTURE_PRESETS = {
       "id": "v1",
       "type": "V",
       "part": "DC-48V",
-      "x": 110,
-      "y": 220,
+      "x": 120,
+      "y": 240,
       "dc": 48,
       "amp": 0,
       "freq": 0,
       "wave": "sine"
     },
     {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "SCR1-MAIN",
-      "x": 240,
-      "y": 150,
-      "vgt": 0.65
+      "id": "motor",
+      "type": "MOTOR",
+      "part": "MOTOR-DC-48V",
+      "x": 280,
+      "y": 120,
+      "load": 0
     },
     {
       "id": "c_comm",
       "type": "C",
       "part": "C-COMM-10uF",
-      "x": 340,
-      "y": 150,
+      "x": 320,
+      "y": 320,
       "val": 1e-05
     },
     {
-      "id": "scr2",
+      "id": "scr1",
       "type": "SCR",
-      "part": "SCR2-OFF",
-      "x": 440,
-      "y": 220,
+      "part": "SCR1-MAIN",
+      "x": 490,
+      "y": 240,
       "vgt": 0.65
-    },
-    {
-      "id": "r1",
-      "type": "R",
-      "part": "R1-CHARGE-100R",
-      "x": 440,
-      "y": 120,
-      "val": 100
-    },
-    {
-      "id": "motor",
-      "type": "MOTOR",
-      "part": "MOTOR-DC-48V",
-      "x": 240,
-      "y": 280,
-      "load": 0
     },
     {
       "id": "gnd",
       "type": "GND",
       "part": "GND",
       "x": 300,
-      "y": 370
+      "y": 400
     }
   ]
 };
 
 function buildNativePresetObj(compList) {
-  // نسخ هيكل أول دائرة أساسية في PRESETS حرفياً
   let template = { components: [], wires: [], probes: [] };
   if (typeof PRESETS !== 'undefined') {
     const k0 = Object.keys(PRESETS)[0];
@@ -1996,7 +1743,6 @@ function buildNativePresetObj(compList) {
   gnd.x = 300; gnd.y = 400;
   comps.push(gnd);
 
-  // بناء الأسلاك بنفس مفاتيح template.wires[0] بالضبط
   const wSample = (template.wires && template.wires[0]) ? template.wires[0] : { from: { id: '', pin: 0 }, to: { id: '', pin: 0 } };
   function addW(id1, p1, id2, p2) {
     if ('c1' in wSample) wires.push({ c1: id1, p1: p1, c2: id2, p2: p2 });
@@ -2028,7 +1774,6 @@ function buildNativePresetObj(compList) {
   });
   if (gateFeed && mainSw) addW(gateFeed.id, gateFeed.pin, mainSw.id, 0);
 
-  // بناء المجسات بنفس مفاتيح template.probes[0] بالضبط
   const pSample = (template.probes && template.probes[0]) ? template.probes[0] : { compId: '', pin: 0, label: '' };
   function addP(cid, pin, lbl, col) {
     if ('target' in pSample) probes.push({ id: 'pr_' + cid, name: lbl, target: { id: cid, pin: pin }, color: col });
@@ -2046,16 +1791,15 @@ function buildNativePresetObj(compList) {
 }
 
 function registerAllLecturePresetsIntoNative() {
-  if (typeof PRESETS === 'undefined') return;
-  for (const [k, list] of Object.entries(window.EXTRA_LECTURE_PRESETS)) {
-    if (!PRESETS[k]) {
-      PRESETS[k] = buildNativePresetObj(list);
+  if (typeof PRESETS !== 'undefined') {
+    for (const [k, list] of Object.entries(window.EXTRA_LECTURE_PRESETS)) {
+      if (!PRESETS[k]) PRESETS[k] = buildNativePresetObj(list);
     }
   }
   const selects = document.querySelectorAll('select');
   selects.forEach(sel => {
     if (sel.innerHTML.includes('محول + قنطرة') || sel.id === 'presetSelect' || (sel.getAttribute('onchange') && sel.getAttribute('onchange').includes('loadPreset'))) {
-      if (sel.dataset.nativeSynced === '1') return;
+      if (sel.dataset.nativeSynced34 === '1') return;
       const existing = Array.from(sel.options).map(o => `<option value="${o.value}">${o.text}</option>`).join('');
       let extra = '<optgroup label="⚡ دوائر محاضرة SCR وإلكترونيات القوى (34 دائرة)">';
       for (const k of Object.keys(window.EXTRA_LECTURE_PRESETS)) {
@@ -2063,10 +1807,10 @@ function registerAllLecturePresetsIntoNative() {
       }
       extra += '</optgroup>';
       sel.innerHTML = existing + extra;
-      sel.dataset.nativeSynced = '1';
+      sel.dataset.nativeSynced34 = '1';
     }
   });
 }
 
 window.addEventListener('DOMContentLoaded', registerAllLecturePresetsIntoNative);
-setInterval(registerAllLecturePresetsIntoNative, 400);
+setInterval(registerAllLecturePresetsIntoNative, 300);
