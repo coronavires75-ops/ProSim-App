@@ -1708,123 +1708,159 @@ window.EXTRA_LECTURE_PRESETS = {
     }
   ]
 };
+function launchExactDemoCircuit(key) {
+  if (!window.EXTRA_LECTURE_PRESETS || !window.EXTRA_LECTURE_PRESETS[key]) return;
+  const rawList = JSON.parse(JSON.stringify(window.EXTRA_LECTURE_PRESETS[key]));
 
-function buildNativePresetObj(compList) {
-  let template = { components: [], wires: [], probes: [] };
-  if (typeof PRESETS !== 'undefined') {
-    const k0 = Object.keys(PRESETS)[0];
-    if (k0 && PRESETS[k0]) template = JSON.parse(JSON.stringify(PRESETS[k0]));
+  // تصفير اللوحة بنفس أسلوب loadDemo(name) الأصلي
+  if (typeof components !== 'undefined') components.length = 0;
+  if (typeof wires !== 'undefined') wires.length = 0;
+  if (typeof probes !== 'undefined') probes.length = 0;
+  if (typeof deselectAll === 'function') deselectAll();
+  if (typeof tStopVal !== 'undefined') tStopVal = 0.04;
+
+  const builtComps = [];
+  const builtWires = [];
+  const builtProbes = [];
+
+  let gnd = rawList.find(c => c.type === 'GND') || { type: 'GND', part: 'GND' };
+  const src = rawList.find(c => c.type === 'V' || c.type === 'VCC');
+  const load = rawList.find(c => ['rload', 'heater', 'siren', 'buzz'].includes(c.id) || c.type === 'MOTOR');
+  const mainSw = rawList.find(c => ['SCR', 'TRIAC', 'Q', 'M'].includes(c.type));
+  const ctrlChain = rawList.filter(c => c !== gnd && c !== src && c !== load && c !== mainSw);
+
+  let idCounter = 1;
+  let srcId = null, loadId = null, swId = null, gndId = null;
+
+  if (src) {
+    srcId = idCounter++;
+    builtComps.push({
+      id: srcId, type: src.type, part: src.part || 'AC-220V',
+      x: 100, y: 200, rot: 0,
+      dc: src.dc || 0, amp: src.amp || 0, freq: src.freq || 0, wave: src.wave || 'sine'
+    });
   }
-  const compsKey = ('comps' in template) ? 'comps' : 'components';
-  const rawComps = JSON.parse(JSON.stringify(compList));
-  const comps = [];
-  const wires = [];
-  const probes = [];
 
-  let gnd = rawComps.find(c => c.type === 'GND') || { id: 'gnd_main', type: 'GND', part: 'GND' };
-  const src = rawComps.find(c => c.type === 'V' || c.type === 'VCC');
-  const load = rawComps.find(c => ['rload', 'heater', 'siren', 'buzz'].includes(c.id) || c.type === 'MOTOR');
-  const mainSw = rawComps.find(c => ['SCR', 'TRIAC', 'Q', 'M'].includes(c.type));
-  const ctrlChain = rawComps.filter(c => c !== gnd && c !== src && c !== load && c !== mainSw);
+  if (load) {
+    loadId = idCounter++;
+    builtComps.push({
+      id: loadId, type: load.type, part: load.part || 'LOAD',
+      x: 280, y: 110, rot: 0,
+      val: load.val || 50, load: load.load || 0
+    });
+  }
 
-  if (src) { src.x = 120; src.y = 240; comps.push(src); }
-  if (load) { load.x = 280; load.y = 120; comps.push(load); }
   if (mainSw) {
-    mainSw.x = 480; mainSw.y = 240;
-    if (mainSw.type === 'SCR') mainSw.type = 'TRIAC';
-    comps.push(mainSw);
+    swId = idCounter++;
+    const visualType = (mainSw.type === 'SCR') ? 'TRIAC' : mainSw.type;
+    builtComps.push({
+      id: swId, type: visualType, part: mainSw.part || 'BT151-500R',
+      x: 480, y: 200, rot: 0,
+      vgt: mainSw.vgt || 0.65, bf: mainSw.bf || 150, pol: mainSw.pol || 'NPN'
+    });
   }
+
+  const ctrlIds = [];
   ctrlChain.forEach((c, idx) => {
-    c.x = 250 + (idx % 2) * 110;
-    c.y = 220 + Math.floor(idx / 2) * 85;
-    if (c.type === 'UJT') c.type = 'Q';
-    comps.push(c);
+    const cid = idCounter++;
+    const isShunt = ['C', 'CELEC', 'Z', 'NTC'].includes(c.type);
+    const visualT = (c.type === 'UJT') ? 'Q' : c.type;
+    builtComps.push({
+      id: cid, type: visualT, part: c.part || c.type,
+      x: 240 + (idx % 2) * 110,
+      y: isShunt ? 285 : 200,
+      rot: isShunt ? 90 : 0,
+      val: c.val || 1000,
+      pct: c.pct || 50,
+      closed: c.closed !== undefined ? c.closed : true,
+      alpha: c.alpha || 60,
+      freq: c.freq || 50
+    });
+    ctrlIds.push({ id: cid, isShunt: isShunt });
   });
-  gnd.x = 300; gnd.y = 400;
-  comps.push(gnd);
 
-  const wSample = (template.wires && template.wires[0]) ? template.wires[0] : { from: { id: '', pin: 0 }, to: { id: '', pin: 0 } };
-  function addW(id1, p1, id2, p2) {
-    if ('c1' in wSample) wires.push({ c1: id1, p1: p1, c2: id2, p2: p2 });
-    else if ('fromComp' in wSample) wires.push({ fromComp: id1, fromPin: p1, toComp: id2, toPin: p2 });
-    else if (typeof wSample.from === 'number') wires.push({ from: comps.findIndex(x=>x.id===id1), to: comps.findIndex(x=>x.id===id2), fromPin: p1, toPin: p2 });
-    else wires.push({ from: { id: id1, pin: p1 }, to: { id: id2, pin: p2 } });
+  gndId = idCounter++;
+  builtComps.push({ id: gndId, type: 'GND', part: 'GND', x: 100, y: 340, rot: 0 });
+
+  function addWire(c1, p1, c2, p2) {
+    builtWires.push({ from: { compId: c1, pinIdx: p1 }, to: { compId: c2, pinIdx: p2 } });
   }
 
-  if (src && load) {
-    addW(src.id, 0, load.id, 0);
-    addW(src.id, 1, gnd.id, 0);
-    if (mainSw) { addW(load.id, 1, mainSw.id, 2); addW(mainSw.id, 1, gnd.id, 0); }
-    else { addW(load.id, 1, gnd.id, 0); }
-  } else if (src && mainSw) {
-    addW(src.id, 0, mainSw.id, 2);
-    addW(src.id, 1, gnd.id, 0);
-    addW(mainSw.id, 1, gnd.id, 0);
-  }
-
-  let gateFeed = load ? { id: load.id, pin: 1 } : (src ? { id: src.id, pin: 0 } : null);
-  ctrlChain.forEach(c => {
-    if (['C', 'CELEC', 'Z', 'NTC'].includes(c.type)) {
-      if (gateFeed) addW(gateFeed.id, gateFeed.pin, c.id, 0);
-      addW(c.id, 1, gnd.id, 0);
+  // توصيل المسار الرئيسي بالصيغة الحرفية للمحاكي: { from: { compId, pinIdx }, to: { compId, pinIdx } }
+  if (srcId && loadId) {
+    addWire(srcId, 0, loadId, 0);
+    addWire(srcId, 1, gndId, 0);
+    if (swId) {
+      addWire(loadId, 1, swId, 2);
+      addWire(swId, 1, gndId, 0);
     } else {
-      if (gateFeed) addW(gateFeed.id, gateFeed.pin, c.id, 0);
-      gateFeed = { id: c.id, pin: 1 };
+      addWire(loadId, 1, gndId, 0);
+    }
+  } else if (srcId && swId) {
+    addWire(srcId, 0, swId, 2);
+    addWire(srcId, 1, gndId, 0);
+    addWire(swId, 1, gndId, 0);
+  }
+
+  // توصيل دائرة القدح المتسلسلة والتوازي إلى البوابة (pinIdx: 0)
+  let feedComp = loadId || srcId;
+  let feedPin = loadId ? 1 : 0;
+  ctrlIds.forEach(item => {
+    if (item.isShunt) {
+      if (feedComp) addWire(feedComp, feedPin, item.id, 0);
+      addWire(item.id, 1, gndId, 0);
+    } else {
+      if (feedComp) addWire(feedComp, feedPin, item.id, 0);
+      feedComp = item.id;
+      feedPin = 1;
     }
   });
-  if (gateFeed && mainSw) addW(gateFeed.id, gateFeed.pin, mainSw.id, 0);
-
-  const pSample = (template.probes && template.probes[0]) ? template.probes[0] : { compId: '', pin: 0, label: '' };
-  function addP(cid, pin, lbl, col) {
-    if ('target' in pSample) probes.push({ id: 'pr_' + cid, name: lbl, target: { id: cid, pin: pin }, color: col });
-    else probes.push({ id: 'pr_' + cid, compId: cid, pin: pin, label: lbl, color: col });
+  if (feedComp && feedComp !== srcId && swId) {
+    addWire(feedComp, feedPin, swId, 0);
   }
-  if (load) addP(load.id, 1, 'CH1 (Load)', '#38bdf8');
-  if (mainSw) addP(mainSw.id, 0, 'CH2 (Gate)', '#facc15');
-  else if (src) addP(src.id, 0, 'CH2 (Source)', '#facc15');
 
-  const out = {};
-  out[compsKey] = comps;
-  out.wires = wires;
-  out.probes = probes;
-  return out;
+  // إضافة مجسات الأوسليسكوب CH1 و CH2 بالصيغة الحقيقية
+  if (loadId) {
+    builtProbes.push({ id: idCounter++, compId: loadId, pinIdx: 1, label: 'CH1 (Load)', color: '#38bdf8' });
+  }
+  if (swId) {
+    builtProbes.push({ id: idCounter++, compId: swId, pinIdx: 0, label: 'CH2 (Gate)', color: '#facc15' });
+  } else if (srcId) {
+    builtProbes.push({ id: idCounter++, compId: srcId, pinIdx: 0, label: 'CH2 (Source)', color: '#facc15' });
+  }
+
+  if (typeof components !== 'undefined') builtComps.forEach(c => components.push(c));
+  if (typeof wires !== 'undefined') builtWires.forEach(w => wires.push(w));
+  if (typeof probes !== 'undefined') builtProbes.forEach(p => probes.push(p));
+  if (typeof nextId !== 'undefined') nextId = idCounter + 1;
+
+  if (typeof draw === 'function') draw();
+  if (typeof render === 'function') render();
 }
 
-function registerAllLecturePresetsIntoNative() {
-  if (typeof window.PRESETS !== 'undefined' && window.EXTRA_LECTURE_PRESETS) {
-    for (const [k, list] of Object.entries(window.EXTRA_LECTURE_PRESETS)) {
-      if (!window.PRESETS[k]) {
-        window.PRESETS[k] = buildNativePresetObj(list);
-      }
-    }
-  }
-  const selects = document.querySelectorAll('select');
-  selects.forEach(sel => {
-    if (sel.innerHTML.includes('محول + قنطرة') || sel.id === 'presetSelect' || (sel.getAttribute('onchange') && sel.getAttribute('onchange').includes('loadPreset'))) {
-      if (sel.dataset.nativeSynced51 === '1') return;
-      const existing = Array.from(sel.options).map(o => `<option value="${o.value}">${o.text}</option>`).join('');
-      let extra = '<optgroup label="⚡ دوائر محاضرة SCR وإلكترونيات القوى (34 دائرة)">';
-      for (const k of Object.keys(window.EXTRA_LECTURE_PRESETS)) {
-        extra += `<option value="${k.replace(/"/g, '&quot;')}">${k}</option>`;
-      }
-      extra += '</optgroup>';
-      sel.innerHTML = existing + extra;
-      sel.dataset.nativeSynced51 = '1';
+function attachLectureCircuitsToLoadDemo() {
+  const sel = document.querySelector('select[onchange*="loadDemo"]');
+  if (!sel || !window.EXTRA_LECTURE_PRESETS) return;
+  if (sel.dataset.demo34Bound === '1') return;
 
-      sel.addEventListener('change', function() {
-        const k = this.value;
-        if (window.EXTRA_LECTURE_PRESETS && window.EXTRA_LECTURE_PRESETS[k]) {
-          if (window.PRESETS && !window.PRESETS[k]) {
-            window.PRESETS[k] = buildNativePresetObj(window.EXTRA_LECTURE_PRESETS[k]);
-          }
-          if (typeof window.nativeLoadPreset === 'function') {
-            window.nativeLoadPreset(k);
-          }
-        }
-      });
+  const existing = Array.from(sel.options).map(o => `<option value="${o.value}">${o.text}</option>`).join('');
+  let extra = '<optgroup label="⚡ دوائر محاضرة SCR وإلكترونيات القوى (34 دائرة)">';
+  for (const k of Object.keys(window.EXTRA_LECTURE_PRESETS)) {
+    extra += `<option value="${k.replace(/"/g, '&quot;')}">${k}</option>`;
+  }
+  extra += '</optgroup>';
+  sel.innerHTML = existing + extra;
+  sel.dataset.demo34Bound = '1';
+
+  // اعتراض حدث الاختيار لتشغيل الدائرة فوراً ورسمها على البوردة
+  sel.addEventListener('change', function(e) {
+    const val = this.value;
+    if (window.EXTRA_LECTURE_PRESETS && window.EXTRA_LECTURE_PRESETS[val]) {
+      e.stopImmediatePropagation();
+      launchExactDemoCircuit(val);
     }
-  });
+  }, true);
 }
 
-window.addEventListener('DOMContentLoaded', registerAllLecturePresetsIntoNative);
-setInterval(registerAllLecturePresetsIntoNative, 300);
+window.addEventListener('DOMContentLoaded', attachLectureCircuitsToLoadDemo);
+setInterval(attachLectureCircuitsToLoadDemo, 300);

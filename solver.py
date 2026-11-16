@@ -100,7 +100,9 @@ class ProSpiceBDF2Solver:
             return dc + (amp if math.sin(phase) >= 0 else 0.0)
         return dc + amp * math.sin(phase)
 
-    def solve_transient(self, t_stop=0.04, num_steps=500):
+def solve_transient(self, t_stop=0.04, num_steps=500, dt_base=None, **kwargs):
+        if dt_base and dt_base > 0:
+            num_steps = max(50, min(2000, int(round(float(t_stop) / float(dt_base)))))
         n = self.num_nodes
         dt = float(t_stop) / float(num_steps)
         times = np.linspace(0.0, float(t_stop), num_steps + 1)
@@ -151,7 +153,6 @@ class ProSpiceBDF2Solver:
                 G = np.zeros((dim, dim))
                 I_vec = np.zeros(dim)
 
-                # Floating node stabilization (1e-12 S = 1 T-Ohm leakage to reference)
                 for k in range(n):
                     G[k, k] += 1e-12
 
@@ -372,7 +373,6 @@ class ProSpiceBDF2Solver:
                             v_val = self._eval_source(el, t)
                             if p0 > 0: G[p0 - 1, b] += 1.0; G[b, p0 - 1] += 1.0
                             if p1 > 0: G[p1 - 1, b] -= 1.0; G[b, p1 - 1] -= 1.0
-                            # Prevent parallel voltage source singularities with 1e-4 Ohm internal resistance
                             G[b, b] -= 1e-4
                             I_vec[b] = v_val
                         elif etype == 'AMMETER':
@@ -400,15 +400,7 @@ class ProSpiceBDF2Solver:
                             if out_p > 0: G[out_p - 1, b] += 1.0; G[b, out_p - 1] += 1.0
                             G[b, b] -= 1.0
                             I_vec[b] = v_pulse
-                        elif etype in ('OP', 'PID') and len(pins) >= 3:
-                            err = node_v(pins[0]) - node_v(pins[1])
-                            gain = float(el.get('kp', 100.0)) if etype == 'PID' else 1000.0
-                            vout = max(-15.0, min(15.0, gain * err))
-                            if pins[2] > 0: G[pins[2] - 1, b] += 1.0; G[b, pins[2] - 1] += 1.0
-                            G[b, b] -= 1e-2
-                            I_vec[b] = vout
                         elif etype == 'NE555':
-                            # True 555 Timer Astable/Monostable Physics (1/3 Vcc & 2/3 Vcc + Discharge Switch)
                             v_trig = node_v(p0)
                             v_out_pin = p1 if p1 > 0 else p0
                             vcc_555 = 5.0
@@ -424,9 +416,15 @@ class ProSpiceBDF2Solver:
                                 G[b, v_out_pin - 1] += 1.0
                             G[b, b] -= 50.0
                             I_vec[b] = vout
-                            # Internal discharge path when output is LOW so RC capacitor discharges down to 1/3 Vcc
                             if not state_555 and p0 > 0:
                                 stamp_g(G, p0, 0, 1.0 / 4700.0)
+                        elif etype in ('OP', 'PID') and len(pins) >= 3:
+                            err = node_v(pins[0]) - node_v(pins[1])
+                            gain = float(el.get('kp', 100.0)) if etype == 'PID' else 1000.0
+                            vout = max(-15.0, min(15.0, gain * err))
+                            if pins[2] > 0: G[pins[2] - 1, b] += 1.0; G[b, pins[2] - 1] += 1.0
+                            G[b, b] -= 1e-2
+                            I_vec[b] = vout
                         elif etype in ('LM35', 'HCSR04', 'LOGIC_TOGGLE', 'MCU'):
                             out_pin = pins[-1] if pins else 0
                             vout = float(el.get('val', 35.0)) * 0.01 if etype == 'LM35' else (5.0 if el.get('closed', True) else 0.0)
@@ -456,7 +454,6 @@ class ProSpiceBDF2Solver:
                 if diff < 1e-6:
                     x_guess = x_new
                     break
-                # Adaptive damping for fast nonlinear convergence
                 alpha_damp = 0.75 if diff > 1.0 else 0.9
                 x_guess = alpha_damp * x_new + (1.0 - alpha_damp) * x_guess
 
@@ -526,7 +523,10 @@ class ProSpiceBDF2Solver:
                 elif etype == 'LED':
                     leds[el.get('id', idx)] = max(0.0, (v_diff - 1.7) / 100.0)
 
-        voltages = [v_hist[:, k].tolist() for k in range(n)]
+        # node_voltages as dict {1: [...], 2: [...], ..., n: [...]} matching app.py
+        node_voltages = {0: [0.0] * len(times)}
+        for k in range(n):
+            node_voltages[k + 1] = v_hist[:, k].tolist()
 
         fft_freqs, fft_mags = [], []
         if n > 0 and len(times) > 4:
@@ -537,22 +537,31 @@ class ProSpiceBDF2Solver:
                 mag = (2.0 / len(times)) * np.abs(np.fft.rfft(sig))
                 fft_mags.append(mag[:60].tolist())
 
-        return {
-            'status': 'ok',
-            'times': times.tolist(),
-            'voltages': voltages,
-            'fft_freqs': fft_freqs,
-            'fft_mags': fft_mags,
-            'leds': leds,
-            'ammeters': ammeters,
-            'motors': motor_states,
-            'powers': powers,
-            'explanations': ['✅ تم الحل بدقة SPICE الفيزيائية والرياضية الكاملة (BDF2 + Auto-Stabilized MNA).']
-        }
+        explanations = ['✅ تم الحل بدقة SPICE الفيزيائية والرياضية الكاملة (BDF2 + Auto-Stabilized MNA).']
+        # Exact 14-tuple matching app.py:
+        # (times, node_voltages, led_states, power_stats, ammeter_stats,
+        #  motor_stats, bcd_stats, lcd_stats, mcu_logs, bus_frames,
+        #  fft_freqs, fft_mags, explanations, converged)
+        return (
+            times.tolist(),
+            node_voltages,
+            leds,
+            powers,
+            ammeters,
+            motor_states,
+            {},
+            "",
+            [],
+            [],
+            fft_freqs,
+            fft_mags,
+            explanations,
+            True
+        )
 
 class ProCircuitSolver(ProSpiceBDF2Solver):
-    def run_transient(self, t_stop=0.04, num_steps=500, **kwargs):
-        return self.solve_transient(t_stop=t_stop, num_steps=num_steps)
+    def run_transient(self, t_stop=0.04, num_steps=500, dt_base=None, **kwargs):
+        return self.solve_transient(t_stop=t_stop, num_steps=num_steps, dt_base=dt_base, **kwargs)
 
     def simulate(self, t_stop=0.04, num_steps=500, **kwargs):
         return self.solve_transient(t_stop=t_stop, num_steps=num_steps)
