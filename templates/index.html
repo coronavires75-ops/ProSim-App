@@ -806,7 +806,7 @@ function drawComponent(c) {
   ctx.restore();
 
   if (!['GND', 'VCC', 'LCD16', 'BCD7'].includes(c.type)) {
-    ctx.fillStyle = '#cbd5e1'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#cbd5e1'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
     let sub = c.part;
     if (['R', 'C', 'CELEC', 'L'].includes(c.type)) sub = `${c.val}`;
     if (c.type === 'V') sub = c.freq > 0 ? `${c.amp}V ${c.freq}Hz` : `${c.dc}V DC`;
@@ -1307,6 +1307,6 @@ function ensureAllPresetsLoaded() {
 }
 setInterval(ensureAllPresetsLoaded, 1000);
 </script>
-<script src="/static/presets_all.js?v=41"></script>
+<script src="/static/presets_all.js?v=42"></script>
 </body>
 </html>

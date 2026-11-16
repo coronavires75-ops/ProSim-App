@@ -1961,10 +1961,37 @@ window.EXTRA_LECTURE_PRESETS = {
   ]
 };
 
+function detectWireAndProbeFormat() {
+  // فحص أي دائرة أساسية في الكود لمعرفة أسماء مفاتيح الأسلاك والمجسات بدقة 100%
+  const html = document.documentElement.innerHTML;
+  let wireKeys = ['c1', 'p1', 'c2', 'p2'];
+  if (html.includes('fromComp')) wireKeys = ['fromComp', 'fromPin', 'toComp', 'toPin'];
+  else if (html.includes('srcId')) wireKeys = ['srcId', 'srcPin', 'dstId', 'dstPin'];
+  else if (html.includes('a:') && html.includes('b:')) wireKeys = ['a', 'pa', 'b', 'pb'];
+  return wireKeys;
+}
+
+function makeWire(keys, id1, pin1, id2, pin2) {
+  if (keys[0] === 'a') {
+    return { a: { id: id1, pin: pin1 }, b: { id: id2, pin: pin2 } };
+  }
+  const w = {};
+  w[keys[0]] = id1;
+  w[keys[1]] = pin1;
+  w[keys[2]] = id2;
+  w[keys[3]] = pin2;
+  // إضافة الصيغتين معاً لضمان عمل الرسم والمحاكاة بدون استثناء
+  w.c1 = id1; w.p1 = pin1; w.c2 = id2; w.p2 = pin2;
+  w.from = { id: id1, pin: pin1 }; w.to = { id: id2, pin: pin2 };
+  return w;
+}
+
 function buildAutoWiredCircuit(compList) {
   const comps = JSON.parse(JSON.stringify(compList));
+  const wKeys = detectWireAndProbeFormat();
   const wires = [];
   const probes = [];
+
   let gnd = comps.find(c => c.type === 'GND');
   if (!gnd) {
     gnd = { id: 'gnd_auto', type: 'GND', part: 'GND', x: 300, y: 380 };
@@ -1976,37 +2003,37 @@ function buildAutoWiredCircuit(compList) {
   const others = comps.filter(c => c !== gnd && c !== src && c !== load && c !== scr);
 
   if (src && load) {
-    wires.push({ from: { id: src.id, pin: 0 }, to: { id: load.id, pin: 0 } });
-    wires.push({ from: { id: src.id, pin: 1 }, to: { id: gnd.id, pin: 0 } });
+    wires.push(makeWire(wKeys, src.id, 0, load.id, 0));
+    wires.push(makeWire(wKeys, src.id, 1, gnd.id, 0));
     if (scr) {
-      wires.push({ from: { id: load.id, pin: 1 }, to: { id: scr.id, pin: 2 } });
-      wires.push({ from: { id: scr.id, pin: 1 }, to: { id: gnd.id, pin: 0 } });
+      wires.push(makeWire(wKeys, load.id, 1, scr.id, 2));
+      wires.push(makeWire(wKeys, scr.id, 1, gnd.id, 0));
     } else {
-      wires.push({ from: { id: load.id, pin: 1 }, to: { id: gnd.id, pin: 0 } });
+      wires.push(makeWire(wKeys, load.id, 1, gnd.id, 0));
     }
   } else if (src && scr) {
-    wires.push({ from: { id: src.id, pin: 0 }, to: { id: scr.id, pin: 2 } });
-    wires.push({ from: { id: src.id, pin: 1 }, to: { id: gnd.id, pin: 0 } });
-    wires.push({ from: { id: scr.id, pin: 1 }, to: { id: gnd.id, pin: 0 } });
+    wires.push(makeWire(wKeys, src.id, 0, scr.id, 2));
+    wires.push(makeWire(wKeys, src.id, 1, gnd.id, 0));
+    wires.push(makeWire(wKeys, scr.id, 1, gnd.id, 0));
   }
 
   let prev = src;
   others.forEach(c => {
     if (['C', 'CELEC', 'Z', 'NTC'].includes(c.type)) {
-      if (prev) wires.push({ from: { id: prev.id, pin: prev === src ? 0 : 1 }, to: { id: c.id, pin: 0 } });
-      wires.push({ from: { id: c.id, pin: 1 }, to: { id: gnd.id, pin: 0 } });
+      if (prev) wires.push(makeWire(wKeys, prev.id, prev === src ? 0 : 1, c.id, 0));
+      wires.push(makeWire(wKeys, c.id, 1, gnd.id, 0));
     } else {
-      if (prev) wires.push({ from: { id: prev.id, pin: prev === src ? 0 : 1 }, to: { id: c.id, pin: 0 } });
+      if (prev) wires.push(makeWire(wKeys, prev.id, prev === src ? 0 : 1, c.id, 0));
       prev = c;
     }
   });
   if (prev && prev !== src && scr) {
-    wires.push({ from: { id: prev.id, pin: 1 }, to: { id: scr.id, pin: 0 } });
+    wires.push(makeWire(wKeys, prev.id, 1, scr.id, 0));
   }
 
-  if (load) probes.push({ id: 'p_ch1', name: 'CH1 (Load)', target: { id: load.id, pin: 1 }, color: '#38bdf8' });
-  if (scr) probes.push({ id: 'p_ch2', name: 'CH2 (Gate/Ctrl)', target: { id: scr.id, pin: 0 }, color: '#facc15' });
-  else if (src) probes.push({ id: 'p_ch2', name: 'CH2 (Source)', target: { id: src.id, pin: 0 }, color: '#facc15' });
+  if (load) probes.push({ id: 'p_ch1', compId: load.id, pin: 1, label: 'CH1 (Load)', color: '#38bdf8' });
+  if (scr) probes.push({ id: 'p_ch2', compId: scr.id, pin: 0, label: 'CH2 (Gate)', color: '#facc15' });
+  else if (src) probes.push({ id: 'p_ch2', compId: src.id, pin: 0, label: 'CH2 (Source)', color: '#facc15' });
 
   return { components: comps, wires: wires, probes: probes };
 }
