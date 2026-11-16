@@ -1317,6 +1317,17 @@ function ensureAllPresetsLoaded() {
 }
 setInterval(ensureAllPresetsLoaded, 1000);
 </script>
-<script src="/static/presets_all.js?v=50"></script>
+<script src="/static/presets_all.js?v=51">
+    try {
+      if (typeof PRESETS !== 'undefined') window.PRESETS = PRESETS;
+      if (typeof components !== 'undefined') window.components = components;
+      if (typeof wires !== 'undefined') window.wires = wires;
+      if (typeof probes !== 'undefined') window.probes = probes;
+      if (typeof draw === 'function') window.draw = draw;
+      if (typeof render === 'function') window.render = render;
+      if (typeof loadPreset === 'function') window.nativeLoadPreset = loadPreset;
+    } catch(e) {}
+
+</script>
 </body>
 </html>

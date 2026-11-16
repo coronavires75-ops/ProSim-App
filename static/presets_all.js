@@ -1791,15 +1791,17 @@ function buildNativePresetObj(compList) {
 }
 
 function registerAllLecturePresetsIntoNative() {
-  if (typeof PRESETS !== 'undefined') {
+  if (typeof window.PRESETS !== 'undefined' && window.EXTRA_LECTURE_PRESETS) {
     for (const [k, list] of Object.entries(window.EXTRA_LECTURE_PRESETS)) {
-      if (!PRESETS[k]) PRESETS[k] = buildNativePresetObj(list);
+      if (!window.PRESETS[k]) {
+        window.PRESETS[k] = buildNativePresetObj(list);
+      }
     }
   }
   const selects = document.querySelectorAll('select');
   selects.forEach(sel => {
     if (sel.innerHTML.includes('محول + قنطرة') || sel.id === 'presetSelect' || (sel.getAttribute('onchange') && sel.getAttribute('onchange').includes('loadPreset'))) {
-      if (sel.dataset.nativeSynced34 === '1') return;
+      if (sel.dataset.nativeSynced51 === '1') return;
       const existing = Array.from(sel.options).map(o => `<option value="${o.value}">${o.text}</option>`).join('');
       let extra = '<optgroup label="⚡ دوائر محاضرة SCR وإلكترونيات القوى (34 دائرة)">';
       for (const k of Object.keys(window.EXTRA_LECTURE_PRESETS)) {
@@ -1807,7 +1809,19 @@ function registerAllLecturePresetsIntoNative() {
       }
       extra += '</optgroup>';
       sel.innerHTML = existing + extra;
-      sel.dataset.nativeSynced34 = '1';
+      sel.dataset.nativeSynced51 = '1';
+
+      sel.addEventListener('change', function() {
+        const k = this.value;
+        if (window.EXTRA_LECTURE_PRESETS && window.EXTRA_LECTURE_PRESETS[k]) {
+          if (window.PRESETS && !window.PRESETS[k]) {
+            window.PRESETS[k] = buildNativePresetObj(window.EXTRA_LECTURE_PRESETS[k]);
+          }
+          if (typeof window.nativeLoadPreset === 'function') {
+            window.nativeLoadPreset(k);
+          }
+        }
+      });
     }
   });
 }
