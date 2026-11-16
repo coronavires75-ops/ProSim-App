@@ -101,6 +101,7 @@ class ProSpiceBDF2Solver:
         return dc + amp * math.sin(phase)
 
 def solve_transient(self, t_stop=0.04, num_steps=500, dt_base=None, **kwargs):
+    def solve_transient(self, t_stop=0.04, num_steps=500, dt_base=None, **kwargs):
         if dt_base and dt_base > 0:
             num_steps = max(50, min(2000, int(round(float(t_stop) / float(dt_base)))))
         n = self.num_nodes

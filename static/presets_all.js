@@ -1834,6 +1834,11 @@ function launchExactDemoCircuit(key) {
   if (typeof probes !== 'undefined') builtProbes.forEach(p => probes.push(p));
   if (typeof nextId !== 'undefined') nextId = idCounter + 1;
 
+if (typeof resetView === 'function') resetView();
+  if (typeof centerView === 'function') centerView();
+  if (typeof panX !== 'undefined') panX = 20;
+  if (typeof panY !== 'undefined') panY = 40;
+  if (typeof zoom !== 'undefined') zoom = 0.72;
   if (typeof draw === 'function') draw();
   if (typeof render === 'function') render();
 }
