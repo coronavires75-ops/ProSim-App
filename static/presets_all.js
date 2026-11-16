@@ -2027,3 +2027,61 @@ function updateUnifiedDashboardData(data) {
 
 setInterval(initUnifiedScopeDashboard, 600);
 
+
+
+function makeScopeFullScreenAndLive() {
+  const scopeCanvas = Array.from(document.querySelectorAll('canvas')).find(c =>
+    c.id !== 'uniMotorMiniCanvas' && c.width >= 200 && c.parentElement &&
+    c.parentElement.parentElement && c.parentElement.parentElement.textContent.includes('Proteus Virtual Oscilloscope')
+  );
+  if (!scopeCanvas) return;
+
+  // 1. توسيع نافذة الأوسليسكوب لتملأ الشاشة بالكامل (100% Full-Screen)
+  let modal = scopeCanvas.parentElement.parentElement;
+  if (modal && modal.dataset.fullScreenApplied !== '1') {
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100vw';
+    modal.style.height = '100vh';
+    modal.style.maxWidth = '100vw';
+    modal.style.maxHeight = '100vh';
+    modal.style.margin = '0';
+    modal.style.borderRadius = '0';
+    modal.style.overflowY = 'auto';
+    modal.style.zIndex = '9999';
+    modal.dataset.fullScreenApplied = '1';
+
+    // تكبير شاشة الموجات نفسها لتكون واضحة وعريضة
+    scopeCanvas.style.width = '100%';
+    scopeCanvas.style.height = '240px';
+  }
+
+  // 2. ربط منزلق Live Source / Angle α الأصلي ليغير زاوية الإشعال في كل دوائر SCR الـ 34
+  const alphaSlider = Array.from(modal.querySelectorAll('input[type="range"]')).find(inp => {
+    const pText = inp.parentElement ? inp.parentElement.textContent : '';
+    return pText.includes('Angle') || pText.includes('Live Source');
+  });
+  if (alphaSlider && alphaSlider.dataset.alphaBound34 !== '1') {
+    alphaSlider.dataset.alphaBound34 = '1';
+    alphaSlider.min = '5';
+    alphaSlider.max = '175';
+    alphaSlider.addEventListener('input', function() {
+      const deg = Number(this.value);
+      if (typeof components !== 'undefined') {
+        components.forEach(c => {
+          if (c.type === 'GATE_FIRING' || c.type === 'TRIAC' || c.type === 'SCR') {
+            c.alpha = deg;
+          }
+          // في دوائر القدح بالمقاومة المتغيرة (POT)، تغيير الزاوية يغير نسبة المقاومة تلقائياً
+          if (c.type === 'POT') {
+            c.pct = Math.min(95, Math.max(5, Math.round((deg / 180) * 100)));
+          }
+        });
+      }
+      if (typeof runSim === 'function') runSim();
+    });
+  }
+}
+
+setInterval(makeScopeFullScreenAndLive, 350);
