@@ -1287,5 +1287,25 @@ window.addEventListener('DOMContentLoaded', populatePresetDropdown);
 setTimeout(populatePresetDropdown, 300);
 
 </script>
+<script>
+function ensureAllPresetsLoaded() {
+  const selects = document.querySelectorAll('select');
+  selects.forEach(sel => {
+    if (sel.id === 'presetSelect' || (sel.getAttribute('onchange') && sel.getAttribute('onchange').includes('loadPreset'))) {
+      if (typeof PRESETS !== 'undefined') {
+        const keys = Object.keys(PRESETS);
+        if (sel.options.length < keys.length) {
+          let opts = `<option value="">📂 أنظمة جاهزة (${keys.length} دائرة)...</option>`;
+          keys.forEach(k => {
+            opts += `<option value="${k.replace(/"/g, '&quot;')}">${k}</option>`;
+          });
+          sel.innerHTML = opts;
+        }
+      }
+    }
+  });
+}
+setInterval(ensureAllPresetsLoaded, 1000);
+</script>
 </body>
 </html>
