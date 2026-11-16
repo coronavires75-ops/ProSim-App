@@ -1889,3 +1889,126 @@ function attachLectureCircuitsToLoadDemo() {
 
 window.addEventListener('DOMContentLoaded', attachLectureCircuitsToLoadDemo);
 setInterval(attachLectureCircuitsToLoadDemo, 300);
+
+
+function initUnifiedScopeDashboard() {
+  const modal = Array.from(document.querySelectorAll('div')).find(el =>
+    el.textContent && el.textContent.includes('Proteus Virtual Oscilloscope') && el.querySelector('canvas')
+  );
+  if (!modal || document.getElementById('unifiedMotorPowerBar')) return;
+
+  const bar = document.createElement('div');
+  bar.id = 'unifiedMotorPowerBar';
+  bar.style.cssText = 'margin-top:8px;padding:10px;background:#0f172a;border:1px solid #334155;border-radius:10px;color:#f8fafc;font-size:12px;';
+  bar.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;border-bottom:1px solid #1e293b;padding-bottom:4px;">
+      <span style="color:#38bdf8;font-weight:bold;">⚡ لوحة القدرة والمحركات الموحدة (Live Telemetry)</span>
+      <span style="background:#065f46;color:#6ee7b7;padding:2px 6px;border-radius:4px;font-size:10px;">BDF2 1200-Step</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;margin-bottom:8px;">
+      <div style="background:#1e293b;padding:5px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">القدرة (W)</div><div id="uniPowerVal" style="color:#4ade80;font-weight:bold;font-size:13px;">0.00 W</div></div>
+      <div style="background:#1e293b;padding:5px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">السرعة (RPM)</div><div id="uniRpmVal" style="color:#38bdf8;font-weight:bold;font-size:13px;">0 RPM</div></div>
+      <div style="background:#1e293b;padding:5px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">العزم (N.m)</div><div id="uniTorqueVal" style="color:#facc15;font-weight:bold;font-size:13px;">0.00</div></div>
+      <div style="background:#1e293b;padding:5px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">التيار (A)</div><div id="uniCurrVal" style="color:#f472b6;font-weight:bold;font-size:13px;">0.00 A</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <label style="color:#e2e8f0;font-weight:bold;white-space:nowrap;">زاوية الإشعال α: <span id="uniAlphaText" style="color:#facc15;">60°</span></label>
+      <input id="uniAlphaSlider" type="range" min="5" max="175" value="60" style="flex:1;accent-color:#facc15;cursor:pointer;">
+    </div>
+    <canvas id="uniMotorMiniCanvas" width="320" height="65" style="width:100%;height:65px;background:#020617;border:1px solid #1e293b;border-radius:6px;display:block;"></canvas>
+  `;
+
+  const canvasEl = modal.querySelector('canvas');
+  if (canvasEl && canvasEl.parentNode) {
+    canvasEl.parentNode.insertBefore(bar, canvasEl.nextSibling);
+  } else {
+    modal.appendChild(bar);
+  }
+
+  const slider = document.getElementById('uniAlphaSlider');
+  const alphaTxt = document.getElementById('uniAlphaText');
+  slider.addEventListener('input', function() {
+    const deg = Number(this.value);
+    alphaTxt.textContent = deg + '°';
+    if (typeof components !== 'undefined') {
+      components.forEach(c => {
+        if (c.type === 'GATE_FIRING' || c.type === 'TRIAC' || c.type === 'SCR') {
+          c.alpha = deg;
+        }
+      });
+    }
+    if (typeof runSim === 'function') runSim();
+  });
+}
+
+(function hookFetchForUnifiedWindow() {
+  const origFetch = window.fetch;
+  window.fetch = async function(...args) {
+    const resp = await origFetch.apply(this, args);
+    try {
+      const url = typeof args[0] === 'string' ? args[0] : (args[0] && args[0].url) || '';
+      if (url.includes('sim') || url.includes('run')) {
+        const clone = resp.clone();
+        const data = await clone.json();
+        setTimeout(() => updateUnifiedDashboardData(data), 80);
+      }
+    } catch (e) {}
+    return resp;
+  };
+})();
+
+function updateUnifiedDashboardData(data) {
+  initUnifiedScopeDashboard();
+  if (!data) return;
+
+  let totalW = 0;
+  const pStats = data.power_stats || data.powers || {};
+  Object.values(pStats).forEach(v => {
+    if (typeof v === 'number') totalW += v;
+    else if (v && typeof v === 'object') totalW += Number(v.watts || v.power || v.p || 0);
+  });
+  const pEl = document.getElementById('uniPowerVal');
+  if (pEl) pEl.textContent = totalW.toFixed(2) + ' W';
+
+  const mStats = data.motor_stats || data.motors || {};
+  const mKeys = Object.keys(mStats);
+  const rpmEl = document.getElementById('uniRpmVal');
+  const trqEl = document.getElementById('uniTorqueVal');
+  const curEl = document.getElementById('uniCurrVal');
+  const miniCvs = document.getElementById('uniMotorMiniCanvas');
+
+  if (mKeys.length > 0) {
+    const m = mStats[mKeys[0]];
+    if (rpmEl) rpmEl.textContent = Math.round(m.rpm || 0) + ' RPM';
+    if (trqEl) trqEl.textContent = Number(m.torque || 0).toFixed(2) + ' N.m';
+    if (curEl) curEl.textContent = Number(m.current || 0).toFixed(2) + ' A';
+
+    if (miniCvs && m.history && Array.isArray(m.history.rpm) && m.history.rpm.length > 1) {
+      const ctx = miniCvs.getContext('2d');
+      const W = miniCvs.width, H = miniCvs.height;
+      ctx.clearRect(0, 0, W, H);
+      const rpms = m.history.rpm;
+      const maxRpm = Math.max(100, ...rpms);
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      rpms.forEach((val, i) => {
+        const x = (i / (rpms.length - 1)) * W;
+        const y = H - 8 - ((val / maxRpm) * (H - 18));
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillText('منحنى تسارع المحرك (RPM vs Time)', 8, 12);
+    }
+  } else if (miniCvs) {
+    const ctx = miniCvs.getContext('2d');
+    ctx.clearRect(0, 0, miniCvs.width, miniCvs.height);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '11px sans-serif';
+    ctx.fillText('القدرة الفعالة محسوبة مباشرة • اختر دائرة محرك (27 أو 34) لعرض منحنى RPM', 10, 36);
+  }
+}
+
+setInterval(initUnifiedScopeDashboard, 600);

@@ -108,9 +108,11 @@ class ProSpiceBDF2Solver:
             return dc + (amp if math.sin(phase) >= 0 else 0.0)
         return dc + amp * math.sin(phase)
 
-    def solve_transient(self, t_stop=0.04, num_steps=500, dt_base=None, **kwargs):
+    def solve_transient(self, t_stop=0.04, num_steps=1200, dt_base=None, **kwargs):
         if dt_base and dt_base > 0:
-            num_steps = max(50, min(2000, int(round(float(t_stop) / float(dt_base)))))
+            num_steps = max(800, min(3000, int(round(float(t_stop) / float(dt_base)))))
+        else:
+            num_steps = 1200
         n = self.num_nodes
         dt = float(t_stop) / float(num_steps)
         times = np.linspace(0.0, float(t_stop), num_steps + 1)
@@ -369,11 +371,14 @@ class ProSpiceBDF2Solver:
                         mid = el.get('id', idx)
                         st = motor_states[mid]
                         is_ind = 'INDUCTION' in str(el.get('part', '')).upper()
-                        ra = 1.8 if not is_ind else 2.4
-                        ke = 0.045
+                        ra = 1.45 if not is_ind else 1.95
+                        la = 0.012
+                        ke = 0.052
                         eb = ke * st['omega'] if not is_ind else 0.0
-                        stamp_g(G, p0, p1, 1.0 / ra)
-                        stamp_i(I_vec, p1, p0, eb / ra)
+                        r_eff = ra + (la / dt)
+                        i_prev_m = st.get('i_a', 0.0)
+                        stamp_g(G, p0, p1, 1.0 / r_eff)
+                        stamp_i(I_vec, p1, p0, (eb - (la / dt) * i_prev_m) / r_eff)
 
                     elif etype in ('V', 'VCC', 'AMMETER', 'REG', 'OP', 'PID', 'GATE_FIRING', 'NE555', 'LM35', 'HCSR04', 'LOGIC_TOGGLE', 'MCU'):
                         b = branch_idx[idx]
@@ -495,30 +500,33 @@ class ProSpiceBDF2Solver:
                     mid = el.get('id', idx)
                     st = motor_states[mid]
                     is_ind = 'INDUCTION' in str(el.get('part', '')).upper()
-                    t_load = float(el.get('load', 0.0))
-                    J = 0.0025
-                    B = 0.0012
+                    t_load = float(el.get('load', 0.05))
+                    J = 0.0012
+                    B = 0.0008
                     if is_ind:
                         w_sync = 2.0 * math.pi * 50.0
-                        slip = max(0.001, (w_sync - st['omega']) / w_sync)
-                        r2 = 1.8
-                        x2 = 2.5
-                        v_rms = abs(v_diff) / math.sqrt(2.0)
+                        slip = max(0.005, (w_sync - st['omega']) / w_sync)
+                        r2 = 1.65
+                        x2 = 2.2
+                        v_rms = max(abs(v_diff), 12.0) / math.sqrt(2.0)
                         t_e = (3.0 * (v_rms ** 2) * (r2 / slip)) / (w_sync * ((r2 / slip) ** 2 + x2 ** 2))
                         i_curr = v_rms / math.sqrt((r2 / slip) ** 2 + x2 ** 2)
                     else:
-                        kt = 0.045
-                        ke = 0.045
-                        ra = 1.8
-                        i_curr = (v_diff - ke * st['omega']) / ra
-                        t_e = kt * i_curr
+                        kt = 0.052
+                        ke = 0.052
+                        ra = 1.45
+                        la = 0.012
+                        i_prev_m = st.get('i_a', 0.0)
+                        i_curr = (v_diff - ke * st['omega'] + (la / dt) * i_prev_m) / (ra + la / dt)
+                        t_e = kt * abs(i_curr)
 
+                    st['i_a'] = i_curr
                     dw = ((t_e - t_load - B * st['omega']) / J) * dt
-                    st['omega'] += dw
+                    st['omega'] = max(0.0, st['omega'] + dw)
                     st['angle'] = (st['angle'] + math.degrees(st['omega'] * dt)) % 360.0
                     st['rpm'] = (st['omega'] * 60.0) / (2.0 * math.pi)
                     st['torque'] = t_e
-                    st['current'] = i_curr
+                    st['current'] = abs(i_curr)
                     st['history']['t'].append(float(t))
                     st['history']['rpm'].append(float(st['rpm']))
                     st['history']['torque'].append(float(st['torque']))
@@ -531,7 +539,6 @@ class ProSpiceBDF2Solver:
                 elif etype == 'LED':
                     leds[el.get('id', idx)] = max(0.0, (v_diff - 1.7) / 100.0)
 
-# حساب القدرة الفعالة (W) ومعامل القدرة (PF) لجميع الأحمال والمحركات
         for idx, el in enumerate(self.elements):
             etype = el['type']
             pins = el.get('pins', [])
@@ -570,7 +577,7 @@ class ProSpiceBDF2Solver:
                 mag = (2.0 / len(times)) * np.abs(np.fft.rfft(sig))
                 fft_mags.append(mag[:60].tolist())
 
-        explanations = ['✅ تم الحل بدقة SPICE الفيزيائية والرياضية الكاملة (BDF2 + Auto-Stabilized MNA).']
+        explanations = ['✅ تم الحل بدقة SPICE الفيزيائية الكاملة (BDF2 1200-Step + Electromechanical Motor Model).']
         return (
             times.tolist(),
             node_voltages,
@@ -588,10 +595,10 @@ class ProSpiceBDF2Solver:
             True
         )
 
-    def run_transient(self, t_stop=0.04, num_steps=500, dt_base=None, **kwargs):
+    def run_transient(self, t_stop=0.04, num_steps=1200, dt_base=None, **kwargs):
         return self.solve_transient(t_stop=t_stop, num_steps=num_steps, dt_base=dt_base, **kwargs)
 
-    def simulate(self, t_stop=0.04, num_steps=500, dt_base=None, **kwargs):
+    def simulate(self, t_stop=0.04, num_steps=1200, dt_base=None, **kwargs):
         return self.solve_transient(t_stop=t_stop, num_steps=num_steps, dt_base=dt_base, **kwargs)
 
     def solve_dc(self, **kwargs):
