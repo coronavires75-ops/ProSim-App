@@ -700,6 +700,16 @@ function draw() {
   }
 
   ctx.save();
+
+    if (c.type === 'SCR' || c.visualType === 'SCR') {
+      ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(-25, 0); ctx.lineTo(-8, 0); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-8, -14); ctx.lineTo(-8, 14); ctx.lineTo(12, 0); ctx.closePath(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(12, -14); ctx.lineTo(12, 14); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(12, 0); ctx.lineTo(25, 0); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(12, 7); ctx.lineTo(20, 20); ctx.lineTo(0, 20); ctx.stroke();
+    }
+
   ctx.translate(view.x, view.y);
   ctx.scale(view.scale, view.scale);
 
@@ -1307,6 +1317,6 @@ function ensureAllPresetsLoaded() {
 }
 setInterval(ensureAllPresetsLoaded, 1000);
 </script>
-<script src="/static/presets_all.js?v=45"></script>
+<script src="/static/presets_all.js?v=46"></script>
 </body>
 </html>

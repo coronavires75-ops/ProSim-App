@@ -1976,11 +1976,16 @@ function inspectActualWireSchema() {
   return 'from_to_obj';
 }
 
-function buildWireObj(schema, id1, pin1, id2, pin2) {
-  if (schema === 'c1_c2_flat') return { c1: id1, p1: pin1, c2: id2, p2: pin2 };
-  if (schema === 'fromComp_flat') return { fromComp: id1, fromPin: pin1, toComp: id2, toPin: pin2 };
-  if (schema === 'a_b_obj') return { a: { id: id1, pin: pin1 }, b: { id: id2, pin: pin2 } };
-  return { from: { id: id1, pin: pin1 }, to: { id: id2, pin: pin2 } };
+function buildWireObj(schema, id1, pin1, id2, pin2, compsArr) {
+  const idx1 = compsArr ? compsArr.findIndex(c => c.id === id1) : 0;
+  const idx2 = compsArr ? compsArr.findIndex(c => c.id === id2) : 0;
+  // دعم كافة صيغ الأسلاك في المحاكي (الفهرس الرقمي، المعرفات النصية، والإحداثيات)
+  return {
+    from: idx1, to: idx2,
+    fromPin: pin1, toPin: pin2,
+    c1: id1, p1: pin1, c2: id2, p2: pin2,
+    a: { id: id1, pin: pin1 }, b: { id: id2, pin: pin2 }
+  };
 }
 
 function buildAutoWiredCircuit(compList) {
@@ -2023,33 +2028,33 @@ function buildAutoWiredCircuit(compList) {
   comps.push(gnd);
 
   if (src && load) {
-    wires.push(buildWireObj(schema, src.id, 0, load.id, 0));
-    wires.push(buildWireObj(schema, src.id, 1, gnd.id, 0));
+    wires.push(buildWireObj(schema, src.id, 0, load.id, 0, comps));
+    wires.push(buildWireObj(schema, src.id, 1, gnd.id, 0, comps));
     if (mainSw) {
-      wires.push(buildWireObj(schema, load.id, 1, mainSw.id, 2));
-      wires.push(buildWireObj(schema, mainSw.id, 1, gnd.id, 0));
+      wires.push(buildWireObj(schema, load.id, 1, mainSw.id, 2, comps));
+      wires.push(buildWireObj(schema, mainSw.id, 1, gnd.id, 0, comps));
     } else {
-      wires.push(buildWireObj(schema, load.id, 1, gnd.id, 0));
+      wires.push(buildWireObj(schema, load.id, 1, gnd.id, 0, comps));
     }
   } else if (src && mainSw) {
-    wires.push(buildWireObj(schema, src.id, 0, mainSw.id, 2));
-    wires.push(buildWireObj(schema, src.id, 1, gnd.id, 0));
-    wires.push(buildWireObj(schema, mainSw.id, 1, gnd.id, 0));
+    wires.push(buildWireObj(schema, src.id, 0, mainSw.id, 2, comps));
+    wires.push(buildWireObj(schema, src.id, 1, gnd.id, 0, comps));
+    wires.push(buildWireObj(schema, mainSw.id, 1, gnd.id, 0, comps));
   }
 
   let gateFeed = load ? { id: load.id, pin: 1 } : (src ? { id: src.id, pin: 0 } : null);
   ctrlChain.forEach(c => {
     if (['C', 'CELEC', 'Z', 'NTC'].includes(c.type)) {
-      if (gateFeed) wires.push(buildWireObj(schema, gateFeed.id, gateFeed.pin, c.id, 0));
-      wires.push(buildWireObj(schema, c.id, 1, gnd.id, 0));
+      if (gateFeed) wires.push(buildWireObj(schema, gateFeed.id, gateFeed.pin, c.id, 0, comps));
+      wires.push(buildWireObj(schema, c.id, 1, gnd.id, 0, comps));
     } else {
-      if (gateFeed) wires.push(buildWireObj(schema, gateFeed.id, gateFeed.pin, c.id, 0));
+      if (gateFeed) wires.push(buildWireObj(schema, gateFeed.id, gateFeed.pin, c.id, 0, comps));
       gateFeed = { id: c.id, pin: 1 };
     }
   });
 
   if (gateFeed && mainSw) {
-    wires.push(buildWireObj(schema, gateFeed.id, gateFeed.pin, mainSw.id, 0));
+    wires.push(buildWireObj(schema, gateFeed.id, gateFeed.pin, mainSw.id, 0, comps));
   }
 
   if (load) probes.push({ id: 'p_ch1', compId: load.id, pin: 1, target: { id: load.id, pin: 1 }, label: 'CH1 (Load)', name: 'CH1 (Load)', color: '#38bdf8' });
