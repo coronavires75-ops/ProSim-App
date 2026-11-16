@@ -1897,33 +1897,33 @@ function initUnifiedScopeDashboard() {
   );
   if (!modal || document.getElementById('unifiedMotorPowerBar')) return;
 
+  // إخفاء صف القياسات القديم المكرر (POWER / V_PP) لعدم التكرار
+  modal.querySelectorAll('div').forEach(d => {
+    if (d.textContent && d.textContent.includes('POWER /') && d.textContent.includes('V_RMS') && d.children.length >= 3) {
+      d.style.display = 'none';
+    }
+  });
+
   const bar = document.createElement('div');
   bar.id = 'unifiedMotorPowerBar';
-  bar.style.cssText = 'margin-top:8px;padding:10px;background:#0f172a;border:1px solid #334155;border-radius:10px;color:#f8fafc;font-size:12px;';
+  bar.dir = 'rtl';
+  bar.style.cssText = 'margin-top:8px;padding:8px 10px;background:#0f172a;border:1px solid #334155;border-radius:10px;color:#f8fafc;font-size:12px;';
   bar.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;border-bottom:1px solid #1e293b;padding-bottom:4px;">
-      <span style="color:#38bdf8;font-weight:bold;">⚡ لوحة القدرة والمحركات الموحدة (Live Telemetry)</span>
-      <span style="background:#065f46;color:#6ee7b7;padding:2px 6px;border-radius:4px;font-size:10px;">BDF2 1200-Step</span>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;margin-bottom:8px;">
-      <div style="background:#1e293b;padding:5px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">القدرة (W)</div><div id="uniPowerVal" style="color:#4ade80;font-weight:bold;font-size:13px;">0.00 W</div></div>
-      <div style="background:#1e293b;padding:5px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">السرعة (RPM)</div><div id="uniRpmVal" style="color:#38bdf8;font-weight:bold;font-size:13px;">0 RPM</div></div>
-      <div style="background:#1e293b;padding:5px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">العزم (N.m)</div><div id="uniTorqueVal" style="color:#facc15;font-weight:bold;font-size:13px;">0.00</div></div>
-      <div style="background:#1e293b;padding:5px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">التيار (A)</div><div id="uniCurrVal" style="color:#f472b6;font-weight:bold;font-size:13px;">0.00 A</div></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;text-align:center;margin-bottom:6px;">
+      <div style="background:#1e293b;padding:4px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">القدرة (W)</div><div id="uniPowerVal" style="color:#4ade80;font-weight:bold;font-size:12px;">0.00 W</div></div>
+      <div style="background:#1e293b;padding:4px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">السرعة</div><div id="uniRpmVal" style="color:#38bdf8;font-weight:bold;font-size:12px;">0 RPM</div></div>
+      <div style="background:#1e293b;padding:4px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">العزم</div><div id="uniTorqueVal" style="color:#facc15;font-weight:bold;font-size:12px;">0.00 Nm</div></div>
+      <div style="background:#1e293b;padding:4px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">التيار</div><div id="uniCurrVal" style="color:#f472b6;font-weight:bold;font-size:12px;">0.00 A</div></div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-      <label style="color:#e2e8f0;font-weight:bold;white-space:nowrap;">زاوية الإشعال α: <span id="uniAlphaText" style="color:#facc15;">60°</span></label>
+      <span style="color:#e2e8f0;font-weight:bold;white-space:nowrap;">زاوية الإشعال α: <strong id="uniAlphaText" style="color:#facc15;">60°</strong></span>
       <input id="uniAlphaSlider" type="range" min="5" max="175" value="60" style="flex:1;accent-color:#facc15;cursor:pointer;">
     </div>
-    <canvas id="uniMotorMiniCanvas" width="320" height="65" style="width:100%;height:65px;background:#020617;border:1px solid #1e293b;border-radius:6px;display:block;"></canvas>
+    <canvas id="uniMotorMiniCanvas" width="320" height="55" style="width:100%;height:55px;background:#020617;border:1px solid #1e293b;border-radius:6px;display:block;"></canvas>
   `;
 
-  const canvasEl = modal.querySelector('canvas');
-  if (canvasEl && canvasEl.parentNode) {
-    canvasEl.parentNode.insertBefore(bar, canvasEl.nextSibling);
-  } else {
-    modal.appendChild(bar);
-  }
+  // وضع اللوحة في أسفل النافذة حتى تبقى شاشة الموجات كاملة وواضحة
+  modal.appendChild(bar);
 
   const slider = document.getElementById('uniAlphaSlider');
   const alphaTxt = document.getElementById('uniAlphaText');
@@ -1980,7 +1980,7 @@ function updateUnifiedDashboardData(data) {
   if (mKeys.length > 0) {
     const m = mStats[mKeys[0]];
     if (rpmEl) rpmEl.textContent = Math.round(m.rpm || 0) + ' RPM';
-    if (trqEl) trqEl.textContent = Number(m.torque || 0).toFixed(2) + ' N.m';
+    if (trqEl) trqEl.textContent = Number(m.torque || 0).toFixed(2) + ' Nm';
     if (curEl) curEl.textContent = Number(m.current || 0).toFixed(2) + ' A';
 
     if (miniCvs && m.history && Array.isArray(m.history.rpm) && m.history.rpm.length > 1) {
@@ -1994,21 +1994,24 @@ function updateUnifiedDashboardData(data) {
       ctx.beginPath();
       rpms.forEach((val, i) => {
         const x = (i / (rpms.length - 1)) * W;
-        const y = H - 8 - ((val / maxRpm) * (H - 18));
+        const y = H - 6 - ((val / maxRpm) * (H - 16));
         if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       });
       ctx.stroke();
-      ctx.fillStyle = '#94a3b8';
+      ctx.fillStyle = '#e2e8f0';
       ctx.font = 'bold 10px sans-serif';
-      ctx.fillText('منحنى تسارع المحرك (RPM vs Time)', 8, 12);
+      ctx.textAlign = 'right';
+      ctx.fillText('منحنى تسارع المحرك (RPM)', W - 8, 12);
     }
   } else if (miniCvs) {
     const ctx = miniCvs.getContext('2d');
     ctx.clearRect(0, 0, miniCvs.width, miniCvs.height);
-    ctx.fillStyle = '#64748b';
+    ctx.fillStyle = '#94a3b8';
     ctx.font = '11px sans-serif';
-    ctx.fillText('القدرة الفعالة محسوبة مباشرة • اختر دائرة محرك (27 أو 34) لعرض منحنى RPM', 10, 36);
+    ctx.textAlign = 'center';
+    ctx.fillText('لا يوجد عنصر محرك في هذه الدائرة (اختر 27 أو 34 لعرض منحنى RPM)', miniCvs.width / 2, 32);
   }
 }
 
 setInterval(initUnifiedScopeDashboard, 600);
+

@@ -319,11 +319,11 @@ class ProSpiceBDF2Solver:
                         ng, mt1, mt2 = pins[0], pins[1], pins[2]
                         vgk = node_v(ng) - node_v(mt1)
                         vak = node_v(mt2) - node_v(mt1)
-                        vgt = float(el.get('vgt', 0.65))
-                        igt = float(el.get('igt', 0.010))
-                        ih = float(el.get('ih', 0.010))
+                        vgt = float(el.get('vgt', 0.55))
+                        igt = float(el.get('igt', 0.0002))
+                        ih = float(el.get('ih', 0.002))
                         vtm = float(el.get('vtm', 1.2))
-                        rg_int = max(10.0, vgt / max(1e-5, igt))
+                        rg_int = 1500.0
                         ig_curr = max(0.0, (vgk - 0.55) / rg_int) if etype == 'SCR' else max(0.0, (abs(vgk) - 0.55) / rg_int)
                         latched = getattr(self, f'_latched_{idx}', False)
                         ron = max(0.05, float(el.get('ron', 0.2)))
