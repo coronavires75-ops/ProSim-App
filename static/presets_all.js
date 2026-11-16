@@ -1,4 +1,4 @@
-// Standalone ProSim Power Electronics & Proteus Presets Bundle
+
 window.EXTRA_LECTURE_PRESETS = {
   "01. محول متغير (Variac Tap-Change Control)": [
     {
@@ -1961,22 +1961,14 @@ window.EXTRA_LECTURE_PRESETS = {
   ]
 };
 
-function makeWireAllFormats(id1, pin1, id2, pin2, compsArr) {
-  const idx1 = compsArr.findIndex(c => c.id === id1);
-  const idx2 = compsArr.findIndex(c => c.id === id2);
-  return {
-    from: idx1 >= 0 ? idx1 : 0,
-    to: idx2 >= 0 ? idx2 : 0,
-    fromPin: pin1,
-    toPin: pin2,
-    c1: id1, p1: pin1,
-    c2: id2, p2: pin2,
-    a: { id: id1, pin: pin1 },
-    b: { id: id2, pin: pin2 }
-  };
-}
-
-function buildAutoWiredCircuit(compList) {
+function buildNativePresetObj(compList) {
+  // نسخ هيكل أول دائرة أساسية في PRESETS حرفياً
+  let template = { components: [], wires: [], probes: [] };
+  if (typeof PRESETS !== 'undefined') {
+    const k0 = Object.keys(PRESETS)[0];
+    if (k0 && PRESETS[k0]) template = JSON.parse(JSON.stringify(PRESETS[k0]));
+  }
+  const compsKey = ('comps' in template) ? 'comps' : 'components';
   const rawComps = JSON.parse(JSON.stringify(compList));
   const comps = [];
   const wires = [];
@@ -1995,95 +1987,86 @@ function buildAutoWiredCircuit(compList) {
     if (mainSw.type === 'SCR') mainSw.type = 'TRIAC';
     comps.push(mainSw);
   }
-
   ctrlChain.forEach((c, idx) => {
-    const col = idx % 2;
-    const row = Math.floor(idx / 2);
-    c.x = 250 + col * 110;
-    c.y = 220 + row * 85;
+    c.x = 250 + (idx % 2) * 110;
+    c.y = 220 + Math.floor(idx / 2) * 85;
     if (c.type === 'UJT') c.type = 'Q';
     comps.push(c);
   });
-
   gnd.x = 300; gnd.y = 400;
   comps.push(gnd);
 
+  // بناء الأسلاك بنفس مفاتيح template.wires[0] بالضبط
+  const wSample = (template.wires && template.wires[0]) ? template.wires[0] : { from: { id: '', pin: 0 }, to: { id: '', pin: 0 } };
+  function addW(id1, p1, id2, p2) {
+    if ('c1' in wSample) wires.push({ c1: id1, p1: p1, c2: id2, p2: p2 });
+    else if ('fromComp' in wSample) wires.push({ fromComp: id1, fromPin: p1, toComp: id2, toPin: p2 });
+    else if (typeof wSample.from === 'number') wires.push({ from: comps.findIndex(x=>x.id===id1), to: comps.findIndex(x=>x.id===id2), fromPin: p1, toPin: p2 });
+    else wires.push({ from: { id: id1, pin: p1 }, to: { id: id2, pin: p2 } });
+  }
+
   if (src && load) {
-    wires.push(makeWireAllFormats(src.id, 0, load.id, 0, comps));
-    wires.push(makeWireAllFormats(src.id, 1, gnd.id, 0, comps));
-    if (mainSw) {
-      wires.push(makeWireAllFormats(load.id, 1, mainSw.id, 2, comps));
-      wires.push(makeWireAllFormats(mainSw.id, 1, gnd.id, 0, comps));
-    } else {
-      wires.push(makeWireAllFormats(load.id, 1, gnd.id, 0, comps));
-    }
+    addW(src.id, 0, load.id, 0);
+    addW(src.id, 1, gnd.id, 0);
+    if (mainSw) { addW(load.id, 1, mainSw.id, 2); addW(mainSw.id, 1, gnd.id, 0); }
+    else { addW(load.id, 1, gnd.id, 0); }
   } else if (src && mainSw) {
-    wires.push(makeWireAllFormats(src.id, 0, mainSw.id, 2, comps));
-    wires.push(makeWireAllFormats(src.id, 1, gnd.id, 0, comps));
-    wires.push(makeWireAllFormats(mainSw.id, 1, gnd.id, 0, comps));
+    addW(src.id, 0, mainSw.id, 2);
+    addW(src.id, 1, gnd.id, 0);
+    addW(mainSw.id, 1, gnd.id, 0);
   }
 
   let gateFeed = load ? { id: load.id, pin: 1 } : (src ? { id: src.id, pin: 0 } : null);
   ctrlChain.forEach(c => {
     if (['C', 'CELEC', 'Z', 'NTC'].includes(c.type)) {
-      if (gateFeed) wires.push(makeWireAllFormats(gateFeed.id, gateFeed.pin, c.id, 0, comps));
-      wires.push(makeWireAllFormats(c.id, 1, gnd.id, 0, comps));
+      if (gateFeed) addW(gateFeed.id, gateFeed.pin, c.id, 0);
+      addW(c.id, 1, gnd.id, 0);
     } else {
-      if (gateFeed) wires.push(makeWireAllFormats(gateFeed.id, gateFeed.pin, c.id, 0, comps));
+      if (gateFeed) addW(gateFeed.id, gateFeed.pin, c.id, 0);
       gateFeed = { id: c.id, pin: 1 };
     }
   });
+  if (gateFeed && mainSw) addW(gateFeed.id, gateFeed.pin, mainSw.id, 0);
 
-  if (gateFeed && mainSw) {
-    wires.push(makeWireAllFormats(gateFeed.id, gateFeed.pin, mainSw.id, 0, comps));
+  // بناء المجسات بنفس مفاتيح template.probes[0] بالضبط
+  const pSample = (template.probes && template.probes[0]) ? template.probes[0] : { compId: '', pin: 0, label: '' };
+  function addP(cid, pin, lbl, col) {
+    if ('target' in pSample) probes.push({ id: 'pr_' + cid, name: lbl, target: { id: cid, pin: pin }, color: col });
+    else probes.push({ id: 'pr_' + cid, compId: cid, pin: pin, label: lbl, color: col });
   }
+  if (load) addP(load.id, 1, 'CH1 (Load)', '#38bdf8');
+  if (mainSw) addP(mainSw.id, 0, 'CH2 (Gate)', '#facc15');
+  else if (src) addP(src.id, 0, 'CH2 (Source)', '#facc15');
 
-  if (load) probes.push({ id: 'p_ch1', compId: load.id, pin: 1, target: { id: load.id, pin: 1 }, label: 'CH1 (Load)', name: 'CH1 (Load)', color: '#38bdf8' });
-  if (mainSw) probes.push({ id: 'p_ch2', compId: mainSw.id, pin: 0, target: { id: mainSw.id, pin: 0 }, label: 'CH2 (Gate)', name: 'CH2 (Gate)', color: '#facc15' });
-  else if (src) probes.push({ id: 'p_ch2', compId: src.id, pin: 0, target: { id: src.id, pin: 0 }, label: 'CH2 (Source)', name: 'CH2 (Source)', color: '#facc15' });
-
-  return { components: comps, wires: wires, probes: probes };
+  const out = {};
+  out[compsKey] = comps;
+  out.wires = wires;
+  out.probes = probes;
+  return out;
 }
 
-function syncAllPresetsIntoMenu() {
+function registerAllLecturePresetsIntoNative() {
+  if (typeof PRESETS === 'undefined') return;
+  for (const [k, list] of Object.entries(window.EXTRA_LECTURE_PRESETS)) {
+    if (!PRESETS[k]) {
+      PRESETS[k] = buildNativePresetObj(list);
+    }
+  }
   const selects = document.querySelectorAll('select');
   selects.forEach(sel => {
     if (sel.innerHTML.includes('محول + قنطرة') || sel.id === 'presetSelect' || (sel.getAttribute('onchange') && sel.getAttribute('onchange').includes('loadPreset'))) {
-      if (sel.dataset.synced47 === '1') return;
-      const existingOpts = Array.from(sel.options).map(o => `<option value="${o.value}">${o.text}</option>`).join('');
-      let extraOpts = '<optgroup label="⚡ دوائر محاضرة SCR وإلكترونيات القوى (34 دائرة)">';
+      if (sel.dataset.nativeSynced === '1') return;
+      const existing = Array.from(sel.options).map(o => `<option value="${o.value}">${o.text}</option>`).join('');
+      let extra = '<optgroup label="⚡ دوائر محاضرة SCR وإلكترونيات القوى (34 دائرة)">';
       for (const k of Object.keys(window.EXTRA_LECTURE_PRESETS)) {
-        extraOpts += `<option value="${k.replace(/"/g, '&quot;')}">${k}</option>`;
+        extra += `<option value="${k.replace(/"/g, '&quot;')}">${k}</option>`;
       }
-      extraOpts += '</optgroup>';
-      sel.innerHTML = existingOpts + extraOpts;
-      sel.dataset.synced47 = '1';
-
-      sel.addEventListener('change', function(e) {
-        const key = this.value;
-        if (window.EXTRA_LECTURE_PRESETS && window.EXTRA_LECTURE_PRESETS[key]) {
-          e.stopImmediatePropagation();
-          const circuit = buildAutoWiredCircuit(window.EXTRA_LECTURE_PRESETS[key]);
-          if (typeof components !== 'undefined') {
-            components.length = 0;
-            circuit.components.forEach(c => components.push(c));
-          }
-          if (typeof wires !== 'undefined') {
-            wires.length = 0;
-            circuit.wires.forEach(w => wires.push(w));
-          }
-          if (typeof probes !== 'undefined') {
-            probes.length = 0;
-            circuit.probes.forEach(p => probes.push(p));
-          }
-          if (typeof draw === 'function') draw();
-          if (typeof render === 'function') render();
-          if (typeof updateStatus === 'function') updateStatus('✅ تم تحميل: ' + key);
-        }
-      }, true);
+      extra += '</optgroup>';
+      sel.innerHTML = existing + extra;
+      sel.dataset.nativeSynced = '1';
     }
   });
 }
 
-window.addEventListener('DOMContentLoaded', syncAllPresetsIntoMenu);
-setInterval(syncAllPresetsIntoMenu, 500);
+window.addEventListener('DOMContentLoaded', registerAllLecturePresetsIntoNative);
+setInterval(registerAllLecturePresetsIntoNative, 400);
