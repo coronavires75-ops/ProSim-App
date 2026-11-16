@@ -234,6 +234,14 @@ def build_circuit(data, override_pid=None):
             ckt.add_mcu(pins[0], pins[1], code=comp.get('code', ''), pwm_freq=val if val > 0 else 250.0, threshold=parse_eng_val(comp.get('th', 2.5)))
     return ckt
 
+@app.route('/api/parts', methods=['GET'])
+def api_parts():
+    q = request.args.get('q', '')
+    cat = request.args.get('cat', 'الكل')
+    offset = int(request.args.get('offset', 0))
+    res = search_catalog(query=q, category=cat, limit=100, offset=offset)
+    return jsonify({'total': len(CATALOG), 'matched': res['total_matched'], 'items': res['items']})
+
 @app.route('/')
 def index():
     return render_template('index.html')
