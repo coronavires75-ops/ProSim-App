@@ -100,18 +100,62 @@ def build_50k_catalog():
             ctype = 'OP' if ic_fam in ('LM', 'TL', 'NE', 'MC', 'AD', 'OPA', 'MCP') else 'AND'
             add_part('6. المتكاملات والشرائح الرقمية', p, ctype, f"شريحة متكاملة قياسية {p}")
 
+
+    # إثراء المكتبة بقطع Proteus VSM الحقيقية (متحكمات، درايفرات، حساسات، شاشات، شرائح PWM)
+    proteus_vsm_parts = [
+        ('7. الدوائر الرقمية', 'ARDUINO-UNO-R3', 'MCU', 'لوحة Arduino Uno (ATmega328P)', {'code': 'void setup() {\n  pinMode(9, OUTPUT);\n}\nvoid loop() {\n  digitalWrite(9, HIGH);\n}'}),
+        ('7. الدوائر الرقمية', 'ARDUINO-NANO', 'MCU', 'لوحة Arduino Nano V3', {'code': 'void setup() {}\nvoid loop() {}'}),
+        ('7. الدوائر الرقمية', 'ARDUINO-MEGA-2560', 'MCU', 'لوحة Arduino Mega 2560', {'code': 'void setup() {}\nvoid loop() {}'}),
+        ('7. الدوائر الرقمية', 'PIC16F877A', 'MCU', 'متحكم Microchip PIC16F877A', {'code': 'void setup() {}\nvoid loop() {}'}),
+        ('7. الدوائر الرقمية', 'PIC18F4550', 'MCU', 'متحكم Microchip PIC18F4550 USB', {'code': 'void setup() {}\nvoid loop() {}'}),
+        ('7. الدوائر الرقمية', 'STM32F103C8', 'MCU', 'متحكم ARM Cortex-M3 BluePill', {'code': 'void setup() {}\nvoid loop() {}'}),
+        ('7. الدوائر الرقمية', 'ESP32-DEVKIT', 'MCU', 'متحكم WiFi/BT ESP32', {'code': 'void setup() {}\nvoid loop() {}'}),
+        ('7. الدوائر الرقمية', 'ATTINY85', 'MCU', 'متحكم مصغر ATtiny85 8-Pin', {'code': 'void setup() {}\nvoid loop() {}'}),
+        ('7. الدوائر الرقمية', '74HC595', 'COUNTER4', 'مسجل إزاحة 8-Bit Shift Register', {}),
+        ('7. الدوائر الرقمية', 'CD4017', 'COUNTER4', 'عداد عشري Decade Counter 10-Out', {}),
+        ('7. الدوائر الرقمية', 'LCD-20x4', 'LCD16', 'شاشة كريستال سائل 20x4', {}),
+        ('7. الدوائر الرقمية', '7SEG-COM-CATHODE', 'BCD7', 'شاشة سباعية كاثود مشترك', {}),
+        ('6. المتكاملات والشرائح الرقمية', 'L293D', 'OP', 'شريحة قيادة محركات H-Bridge L293D', {}),
+        ('6. المتكاملات والشرائح الرقمية', 'L298N', 'OP', 'مديول قيادة محركات Dual H-Bridge L298N', {}),
+        ('6. المتكاملات والشرائح الرقمية', 'ULN2003A', 'OP', 'مصفوفة دارلنجتون 7 قنوات ULN2003', {}),
+        ('6. المتكاملات والشرائح الرقمية', 'TL494', 'NE555', 'متحكم نبضات PWM للباور سبلاي TL494', {'val': 5.0}),
+        ('6. المتكاملات والشرائح الرقمية', 'SG3525', 'NE555', 'متحكم نبضات PWM إنفرتر SG3525', {'val': 5.0}),
+        ('6. المتكاملات والشرائح الرقمية', 'IR2110', 'OP', 'درايفر قيادة موسفت High/Low Side IR2110', {}),
+        ('6. المتكاملات والشرائح الرقمية', 'MAX232', 'OP', 'محول مستويات اتصال RS232/TTL', {}),
+        ('6. المتكاملات والشرائح الرقمية', 'LM317T', 'REG', 'منظم جهد قابل للضبط 1.25V-37V', {'val': 5.0}),
+        ('6. المتكاملات والشرائح الرقمية', 'XL6009', 'REG', 'رافع جهد DC-DC Boost Converter', {'val': 12.0}),
+        ('6. المتكاملات والشرائح الرقمية', 'LM2596', 'REG', 'خافض جهد DC-DC Buck Converter', {'val': 5.0}),
+        ('8. المحركات والحساسات', 'DHT11-SENSOR', 'LM35', 'حساس حرارة ورطوبة رقمي DHT11', {'val': 28}),
+        ('8. المحركات والحساسات', 'DHT22-SENSOR', 'LM35', 'حساس حرارة ورطوبة دقيق DHT22', {'val': 25}),
+        ('8. المحركات والحساسات', 'ACS712-30A', 'AMMETER', 'حساس قياس التيار Hall-Effect 30A', {}),
+        ('8. المحركات والحساسات', 'PIR-MOTION', 'LOGIC_TOGGLE', 'حساس حركة بالأشعة تحت الحمراء PIR', {'closed': False}),
+        ('8. المحركات والحساسات', 'SERVO-SG90', 'MOTOR', 'محرك سيرفو Servo Motor 0-180°', {'load': 0}),
+        ('9. أجهزة القياس', 'DC-VOLTMETER', 'WATTMETER', 'فولتميتر رقمي DC Voltmeter', {}),
+        ('9. أجهزة القياس', 'AC-VOLTMETER', 'WATTMETER', 'فولتميتر تيار متردد AC RMS', {}),
+        ('9. أجهزة القياس', 'DC-AMMETER', 'AMMETER', 'أميتر تيار مستمر DC Ammeter', {}),
+    ]
+    for item in proteus_vsm_parts:
+        add_part(*item)
+
     return catalog, models
 
 CATALOG, MODELS_MAP = build_50k_catalog()
 
-def search_catalog(query='', category='الكل', limit=80):
+def search_catalog(query='', category='الكل', limit=100, offset=0):
     q = query.strip().lower()
-    res = []
+    exact, starts, contains = [], [], []
     for item in CATALOG:
         if category != 'الكل' and item['cat'] != category:
             continue
-        if not q or q in item['part'].lower() or q in item['name'].lower():
-            res.append(item)
-            if len(res) >= limit:
-                break
-    return res
+        p_low = item['part'].lower()
+        n_low = item['name'].lower()
+        if not q:
+            contains.append(item)
+        elif p_low == q:
+            exact.append(item)
+        elif p_low.startswith(q):
+            starts.append(item)
+        elif q in p_low or q in n_low:
+            contains.append(item)
+    merged = exact + starts + contains
+    return {'total_matched': len(merged), 'items': merged[offset:offset + limit]}
