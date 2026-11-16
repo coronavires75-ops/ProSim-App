@@ -1892,38 +1892,50 @@ setInterval(attachLectureCircuitsToLoadDemo, 300);
 
 
 function initUnifiedScopeDashboard() {
-  const modal = Array.from(document.querySelectorAll('div')).find(el =>
-    el.textContent && el.textContent.includes('Proteus Virtual Oscilloscope') && el.querySelector('canvas')
+  // إيجاد عنصر الـ canvas الخاص بالأوسليسكوب نفسه
+  const scopeCanvas = Array.from(document.querySelectorAll('canvas')).find(c =>
+    c.id !== 'uniMotorMiniCanvas' && c.width >= 200 && c.closest('div') &&
+    c.closest('div').parentElement && c.closest('div').parentElement.textContent.includes('Proteus Virtual Oscilloscope')
   );
-  if (!modal || document.getElementById('unifiedMotorPowerBar')) return;
+  if (!scopeCanvas || document.getElementById('unifiedMotorPowerBar')) return;
 
-  // إخفاء صف القياسات القديم المكرر (POWER / V_PP) لعدم التكرار
-  modal.querySelectorAll('div').forEach(d => {
-    if (d.textContent && d.textContent.includes('POWER /') && d.textContent.includes('V_RMS') && d.children.length >= 3) {
-      d.style.display = 'none';
-    }
-  });
+  // الصعود لأقرب حاوية عمودية (Card/Modal body) وتأمين عرضها الكامل
+  let modalBody = scopeCanvas.parentElement;
+  while (modalBody && getComputedStyle(modalBody).display === 'flex' && getComputedStyle(modalBody).flexDirection === 'row') {
+    modalBody = modalBody.parentElement;
+  }
+  if (!modalBody) return;
+
+  modalBody.style.width = '95vw';
+  modalBody.style.maxWidth = '540px';
+  modalBody.style.boxSizing = 'border-box';
+  modalBody.style.overflowX = 'hidden';
 
   const bar = document.createElement('div');
   bar.id = 'unifiedMotorPowerBar';
   bar.dir = 'rtl';
-  bar.style.cssText = 'margin-top:8px;padding:8px 10px;background:#0f172a;border:1px solid #334155;border-radius:10px;color:#f8fafc;font-size:12px;';
+  bar.style.cssText = 'width:100%;box-sizing:border-box;margin-top:8px;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:10px;color:#f8fafc;font-size:12px;display:block;clear:both;';
   bar.innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;text-align:center;margin-bottom:6px;">
-      <div style="background:#1e293b;padding:4px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">القدرة (W)</div><div id="uniPowerVal" style="color:#4ade80;font-weight:bold;font-size:12px;">0.00 W</div></div>
-      <div style="background:#1e293b;padding:4px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">السرعة</div><div id="uniRpmVal" style="color:#38bdf8;font-weight:bold;font-size:12px;">0 RPM</div></div>
-      <div style="background:#1e293b;padding:4px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">العزم</div><div id="uniTorqueVal" style="color:#facc15;font-weight:bold;font-size:12px;">0.00 Nm</div></div>
-      <div style="background:#1e293b;padding:4px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">التيار</div><div id="uniCurrVal" style="color:#f472b6;font-weight:bold;font-size:12px;">0.00 A</div></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;text-align:center;margin-bottom:6px;">
+      <div style="background:#1e293b;padding:4px 2px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">القدرة</div><div id="uniPowerVal" style="color:#4ade80;font-weight:bold;font-size:11px;">0.00 W</div></div>
+      <div style="background:#1e293b;padding:4px 2px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">السرعة</div><div id="uniRpmVal" style="color:#38bdf8;font-weight:bold;font-size:11px;">0 RPM</div></div>
+      <div style="background:#1e293b;padding:4px 2px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">العزم</div><div id="uniTorqueVal" style="color:#facc15;font-weight:bold;font-size:11px;">0.00 Nm</div></div>
+      <div style="background:#1e293b;padding:4px 2px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">التيار</div><div id="uniCurrVal" style="color:#f472b6;font-weight:bold;font-size:11px;">0.00 A</div></div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-      <span style="color:#e2e8f0;font-weight:bold;white-space:nowrap;">زاوية الإشعال α: <strong id="uniAlphaText" style="color:#facc15;">60°</strong></span>
-      <input id="uniAlphaSlider" type="range" min="5" max="175" value="60" style="flex:1;accent-color:#facc15;cursor:pointer;">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+      <span style="color:#e2e8f0;font-weight:bold;font-size:11px;white-space:nowrap;">زاوية الإشعال α: <strong id="uniAlphaText" style="color:#facc15;">60°</strong></span>
+      <input id="uniAlphaSlider" type="range" min="5" max="175" value="60" style="flex:1;min-width:0;accent-color:#facc15;cursor:pointer;">
     </div>
-    <canvas id="uniMotorMiniCanvas" width="320" height="55" style="width:100%;height:55px;background:#020617;border:1px solid #1e293b;border-radius:6px;display:block;"></canvas>
+    <canvas id="uniMotorMiniCanvas" width="320" height="50" style="width:100%;height:50px;background:#020617;border:1px solid #1e293b;border-radius:6px;display:block;"></canvas>
   `;
 
-  // وضع اللوحة في أسفل النافذة حتى تبقى شاشة الموجات كاملة وواضحة
-  modal.appendChild(bar);
+  // إدراج اللوحة أسفل حاوية الكانفاس مباشرة كصف رأسي مستقل
+  const canvasWrapper = scopeCanvas.parentElement;
+  if (canvasWrapper && canvasWrapper.parentNode) {
+    canvasWrapper.parentNode.insertBefore(bar, canvasWrapper.nextSibling);
+  } else {
+    modalBody.appendChild(bar);
+  }
 
   const slider = document.getElementById('uniAlphaSlider');
   const alphaTxt = document.getElementById('uniAlphaText');
