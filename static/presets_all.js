@@ -1961,42 +1961,26 @@ window.EXTRA_LECTURE_PRESETS = {
   ]
 };
 
-function inspectActualWireSchema() {
-  try {
-    const scripts = Array.from(document.scripts).map(s => s.textContent).join('\n');
-    const idx = scripts.indexOf('wires:');
-    if (idx !== -1) {
-      const sampleBody = scripts.slice(idx, idx + 150);
-      if (sampleBody.includes('from:') && sampleBody.includes('to:')) return 'from_to_obj';
-      if (sampleBody.includes('a:') && sampleBody.includes('b:')) return 'a_b_obj';
-      if (sampleBody.includes('c1:') && sampleBody.includes('c2:')) return 'c1_c2_flat';
-      if (sampleBody.includes('fromComp:')) return 'fromComp_flat';
-    }
-  } catch (e) {}
-  return 'from_to_obj';
-}
-
-function buildWireObj(schema, id1, pin1, id2, pin2, compsArr) {
-  const idx1 = compsArr ? compsArr.findIndex(c => c.id === id1) : 0;
-  const idx2 = compsArr ? compsArr.findIndex(c => c.id === id2) : 0;
-  // دعم كافة صيغ الأسلاك في المحاكي (الفهرس الرقمي، المعرفات النصية، والإحداثيات)
+function makeWireAllFormats(id1, pin1, id2, pin2, compsArr) {
+  const idx1 = compsArr.findIndex(c => c.id === id1);
+  const idx2 = compsArr.findIndex(c => c.id === id2);
   return {
-    from: idx1, to: idx2,
-    fromPin: pin1, toPin: pin2,
-    c1: id1, p1: pin1, c2: id2, p2: pin2,
-    a: { id: id1, pin: pin1 }, b: { id: id2, pin: pin2 }
+    from: idx1 >= 0 ? idx1 : 0,
+    to: idx2 >= 0 ? idx2 : 0,
+    fromPin: pin1,
+    toPin: pin2,
+    c1: id1, p1: pin1,
+    c2: id2, p2: pin2,
+    a: { id: id1, pin: pin1 },
+    b: { id: id2, pin: pin2 }
   };
 }
 
 function buildAutoWiredCircuit(compList) {
   const rawComps = JSON.parse(JSON.stringify(compList));
-  const schema = inspectActualWireSchema();
   const comps = [];
   const wires = [];
   const probes = [];
-
-  const scriptsText = Array.from(document.scripts).map(s => s.textContent).join('\n');
-  const hasScrShape = scriptsText.includes("'SCR'") || scriptsText.includes('"SCR"');
 
   let gnd = rawComps.find(c => c.type === 'GND') || { id: 'gnd_main', type: 'GND', part: 'GND' };
   const src = rawComps.find(c => c.type === 'V' || c.type === 'VCC');
@@ -2008,10 +1992,7 @@ function buildAutoWiredCircuit(compList) {
   if (load) { load.x = 280; load.y = 120; comps.push(load); }
   if (mainSw) {
     mainSw.x = 480; mainSw.y = 240;
-    if (mainSw.type === 'SCR' && !hasScrShape) {
-      mainSw.visualType = 'SCR';
-      mainSw.type = 'TRIAC';
-    }
+    if (mainSw.type === 'SCR') mainSw.type = 'TRIAC';
     comps.push(mainSw);
   }
 
@@ -2020,7 +2001,7 @@ function buildAutoWiredCircuit(compList) {
     const row = Math.floor(idx / 2);
     c.x = 250 + col * 110;
     c.y = 220 + row * 85;
-    if (c.type === 'UJT' && !scriptsText.includes("'UJT'")) c.type = 'Q';
+    if (c.type === 'UJT') c.type = 'Q';
     comps.push(c);
   });
 
@@ -2028,33 +2009,33 @@ function buildAutoWiredCircuit(compList) {
   comps.push(gnd);
 
   if (src && load) {
-    wires.push(buildWireObj(schema, src.id, 0, load.id, 0, comps));
-    wires.push(buildWireObj(schema, src.id, 1, gnd.id, 0, comps));
+    wires.push(makeWireAllFormats(src.id, 0, load.id, 0, comps));
+    wires.push(makeWireAllFormats(src.id, 1, gnd.id, 0, comps));
     if (mainSw) {
-      wires.push(buildWireObj(schema, load.id, 1, mainSw.id, 2, comps));
-      wires.push(buildWireObj(schema, mainSw.id, 1, gnd.id, 0, comps));
+      wires.push(makeWireAllFormats(load.id, 1, mainSw.id, 2, comps));
+      wires.push(makeWireAllFormats(mainSw.id, 1, gnd.id, 0, comps));
     } else {
-      wires.push(buildWireObj(schema, load.id, 1, gnd.id, 0, comps));
+      wires.push(makeWireAllFormats(load.id, 1, gnd.id, 0, comps));
     }
   } else if (src && mainSw) {
-    wires.push(buildWireObj(schema, src.id, 0, mainSw.id, 2, comps));
-    wires.push(buildWireObj(schema, src.id, 1, gnd.id, 0, comps));
-    wires.push(buildWireObj(schema, mainSw.id, 1, gnd.id, 0, comps));
+    wires.push(makeWireAllFormats(src.id, 0, mainSw.id, 2, comps));
+    wires.push(makeWireAllFormats(src.id, 1, gnd.id, 0, comps));
+    wires.push(makeWireAllFormats(mainSw.id, 1, gnd.id, 0, comps));
   }
 
   let gateFeed = load ? { id: load.id, pin: 1 } : (src ? { id: src.id, pin: 0 } : null);
   ctrlChain.forEach(c => {
     if (['C', 'CELEC', 'Z', 'NTC'].includes(c.type)) {
-      if (gateFeed) wires.push(buildWireObj(schema, gateFeed.id, gateFeed.pin, c.id, 0, comps));
-      wires.push(buildWireObj(schema, c.id, 1, gnd.id, 0, comps));
+      if (gateFeed) wires.push(makeWireAllFormats(gateFeed.id, gateFeed.pin, c.id, 0, comps));
+      wires.push(makeWireAllFormats(c.id, 1, gnd.id, 0, comps));
     } else {
-      if (gateFeed) wires.push(buildWireObj(schema, gateFeed.id, gateFeed.pin, c.id, 0, comps));
+      if (gateFeed) wires.push(makeWireAllFormats(gateFeed.id, gateFeed.pin, c.id, 0, comps));
       gateFeed = { id: c.id, pin: 1 };
     }
   });
 
   if (gateFeed && mainSw) {
-    wires.push(buildWireObj(schema, gateFeed.id, gateFeed.pin, mainSw.id, 0, comps));
+    wires.push(makeWireAllFormats(gateFeed.id, gateFeed.pin, mainSw.id, 0, comps));
   }
 
   if (load) probes.push({ id: 'p_ch1', compId: load.id, pin: 1, target: { id: load.id, pin: 1 }, label: 'CH1 (Load)', name: 'CH1 (Load)', color: '#38bdf8' });
@@ -2068,7 +2049,7 @@ function syncAllPresetsIntoMenu() {
   const selects = document.querySelectorAll('select');
   selects.forEach(sel => {
     if (sel.innerHTML.includes('محول + قنطرة') || sel.id === 'presetSelect' || (sel.getAttribute('onchange') && sel.getAttribute('onchange').includes('loadPreset'))) {
-      if (sel.dataset.synced41 === '1') return;
+      if (sel.dataset.synced47 === '1') return;
       const existingOpts = Array.from(sel.options).map(o => `<option value="${o.value}">${o.text}</option>`).join('');
       let extraOpts = '<optgroup label="⚡ دوائر محاضرة SCR وإلكترونيات القوى (34 دائرة)">';
       for (const k of Object.keys(window.EXTRA_LECTURE_PRESETS)) {
@@ -2076,9 +2057,8 @@ function syncAllPresetsIntoMenu() {
       }
       extraOpts += '</optgroup>';
       sel.innerHTML = existingOpts + extraOpts;
-      sel.dataset.synced41 = '1';
+      sel.dataset.synced47 = '1';
 
-      // Intercept change event to load any of the 34 circuits cleanly
       sel.addEventListener('change', function(e) {
         const key = this.value;
         if (window.EXTRA_LECTURE_PRESETS && window.EXTRA_LECTURE_PRESETS[key]) {
