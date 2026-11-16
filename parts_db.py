@@ -4,7 +4,9 @@ def build_40k_catalog():
     catalog = []
     models = {}
 
-    def add_part(cat, part, ctype, desc, **kwargs):
+    def add_part(cat, part, ctype, desc, props=None, **extra):
+        kwargs = dict(props) if isinstance(props, dict) else {}
+        kwargs.update(extra)
         catalog.append({
             'cat': cat,
             'name': f"{part} — {desc}",
