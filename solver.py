@@ -22,7 +22,7 @@ class ProSpiceBDF2Solver:
     def add_component(self, comp):
         self.add_element(comp)
 
-    def add_vsource(self, n1, n2, dc=0.0, amp=0.0, freq=0.0, wave='sine', phase=0.0, **kwargs):
+    def add_vsource(self, n1, n2, dc=0.0, amp=0.0, freq=0.0, wave='sine', phase=0.0, id_tag=None, **kwargs):
         self.add_element({
             'type': 'V',
             'pins': [n1, n2],
@@ -520,17 +520,25 @@ class ProSpiceBDF2Solver:
 
 class ProCircuitSolver(ProSpiceBDF2Solver):
     def solve_dc(self):
-        res = self.solve_transient(t_stop=1e-4, num_steps=5)
-        return res
+        return self.solve_transient(t_stop=1e-4, num_steps=5)
 
-    def add_resistor(self, n1, n2, val=1000.0):
-        self.add_element({'type': 'R', 'pins': [n1, n2], 'val': val})
+    def add_resistor(self, n1, n2, val=1000.0, id_tag=None, **kwargs):
+        el = {'type': 'R', 'pins': [n1, n2], 'val': val}
+        if id_tag is not None: el['id'] = id_tag
+        el.update(kwargs)
+        self.add_element(el)
 
-    def add_capacitor(self, n1, n2, val=1e-6):
-        self.add_element({'type': 'C', 'pins': [n1, n2], 'val': val})
+    def add_capacitor(self, n1, n2, val=1e-6, id_tag=None, **kwargs):
+        el = {'type': 'C', 'pins': [n1, n2], 'val': val}
+        if id_tag is not None: el['id'] = id_tag
+        el.update(kwargs)
+        self.add_element(el)
 
-    def add_inductor(self, n1, n2, val=1e-3):
-        self.add_element({'type': 'L', 'pins': [n1, n2], 'val': val})
+    def add_inductor(self, n1, n2, val=1e-3, id_tag=None, **kwargs):
+        el = {'type': 'L', 'pins': [n1, n2], 'val': val}
+        if id_tag is not None: el['id'] = id_tag
+        el.update(kwargs)
+        self.add_element(el)
 
     def solve_ac(self, f_start=10.0, f_stop=1e5, points=60):
         freqs = np.logspace(np.log10(max(1e-2, f_start)), np.log10(max(1.0, f_stop)), int(points))
