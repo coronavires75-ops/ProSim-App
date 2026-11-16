@@ -551,6 +551,18 @@ class ProSpiceBDF2Solver:
         }
 
 class ProCircuitSolver(ProSpiceBDF2Solver):
+    def run_transient(self, t_stop=0.04, num_steps=500, **kwargs):
+        return self.solve_transient(t_stop=t_stop, num_steps=num_steps)
+
+    def simulate(self, t_stop=0.04, num_steps=500, **kwargs):
+        return self.solve_transient(t_stop=t_stop, num_steps=num_steps)
+
+    def run_ac(self, f_start=10.0, f_stop=1e5, points=60, **kwargs):
+        return self.solve_ac(f_start=f_start, f_stop=f_stop, points=points)
+
+    def run_dc(self, **kwargs):
+        return self.solve_dc()
+
     def solve_dc(self):
         return self.solve_transient(t_stop=1e-4, num_steps=5)
 
