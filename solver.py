@@ -531,6 +531,32 @@ class ProSpiceBDF2Solver:
                 elif etype == 'LED':
                     leds[el.get('id', idx)] = max(0.0, (v_diff - 1.7) / 100.0)
 
+# حساب القدرة الفعالة (W) ومعامل القدرة (PF) لجميع الأحمال والمحركات
+        for idx, el in enumerate(self.elements):
+            etype = el['type']
+            pins = el.get('pins', [])
+            p0 = pins[0] if len(pins) > 0 else 0
+            p1 = pins[1] if len(pins) > 1 else 0
+            v0_arr = v_hist[:, p0 - 1] if p0 > 0 else np.zeros(len(times))
+            v1_arr = v_hist[:, p1 - 1] if p1 > 0 else np.zeros(len(times))
+            vd_arr = v0_arr - v1_arr
+
+            if etype in ('R', 'WATTMETER'):
+                r_val = max(1e-3, self._parse_val(el.get('val', 50.0), 50.0))
+                p_inst = (vd_arr ** 2) / r_val
+                p_avg = float(np.mean(p_inst))
+                v_rms = float(np.sqrt(np.mean(vd_arr ** 2)))
+                i_rms = v_rms / r_val
+                s_app = v_rms * i_rms
+                pf = min(1.0, p_avg / s_app) if s_app > 1e-6 else 1.0
+                powers[el.get('id', idx)] = {'watts': round(p_avg, 2), 'pf': round(pf, 3), 'v_rms': round(v_rms, 2), 'i_rms': round(i_rms, 3)}
+            elif etype == 'MOTOR':
+                mid = el.get('id', idx)
+                st = motor_states.get(mid, {})
+                i_hist = np.array(st.get('history', {}).get('current', [0.0]))
+                p_avg = float(np.mean(np.abs(vd_arr[:len(i_hist)] * i_hist))) if len(i_hist) > 0 else 0.0
+                powers[mid] = {'watts': round(p_avg, 2), 'rpm': round(st.get('rpm', 0.0), 1), 'torque': round(st.get('torque', 0.0), 3)}
+
         node_voltages = {0: [0.0] * len(times)}
         for k in range(n):
             node_voltages[k + 1] = v_hist[:, k].tolist()

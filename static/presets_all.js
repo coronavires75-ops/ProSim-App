@@ -1755,28 +1755,38 @@ function launchExactDemoCircuit(key) {
     builtComps.push({
       id: swId, type: visualType, part: mainSw.part || 'BT151-500R',
       x: 310, y: 170, rot: 0,
-      vgt: 0.65, bf: mainSw.bf || 150, pol: mainSw.pol || 'NPN'
+      vgt: 0.65, alpha: 60, bf: mainSw.bf || 150, pol: mainSw.pol || 'NPN'
     });
   }
 
+  // إذا كانت الدائرة لا تحتوي على مقاومة بوابة صريحة، نضيف وحدة قدح مضبوطة بزاوية 60° حتى يعمل الثايرستور والمحرك فوراً
   const ctrlIds = [];
-  ctrlChain.forEach((c, idx) => {
-    const cid = idCounter++;
-    const isShunt = ['C', 'CELEC', 'Z', 'NTC'].includes(c.type);
-    const visualT = (c.type === 'UJT') ? 'Q' : c.type;
+  if (ctrlChain.length === 0 && swId) {
+    const trigId = idCounter++;
     builtComps.push({
-      id: cid, type: visualT, part: c.part || c.type,
-      x: 165 + (idx % 2) * 75,
-      y: isShunt ? 245 : 170,
-      rot: isShunt ? 90 : 0,
-      val: c.val || 1000,
-      pct: c.pct || 50,
-      closed: true,
-      alpha: c.alpha || 60,
-      freq: c.freq || 50
+      id: trigId, type: 'GATE_FIRING', part: 'TRIG-60deg',
+      x: 190, y: 195, rot: 0, alpha: 60, freq: (src && src.freq) ? src.freq : 50
     });
-    ctrlIds.push({ id: cid, isShunt: isShunt });
-  });
+    ctrlIds.push({ id: trigId, isShunt: false });
+  } else {
+    ctrlChain.forEach((c, idx) => {
+      const cid = idCounter++;
+      const isShunt = ['C', 'CELEC', 'Z', 'NTC'].includes(c.type);
+      const visualT = (c.type === 'UJT') ? 'Q' : c.type;
+      builtComps.push({
+        id: cid, type: visualT, part: c.part || c.type,
+        x: 165 + (idx % 2) * 75,
+        y: isShunt ? 245 : 170,
+        rot: isShunt ? 90 : 0,
+        val: c.val || 1000,
+        pct: c.pct || 50,
+        closed: true,
+        alpha: c.alpha || 60,
+        freq: c.freq || 50
+      });
+      ctrlIds.push({ id: cid, isShunt: isShunt });
+    });
+  }
 
   gndId = idCounter++;
   builtComps.push({ id: gndId, type: 'GND', part: 'GND', x: 70, y: 290, rot: 0 });
@@ -1788,23 +1798,24 @@ function launchExactDemoCircuit(key) {
     });
   }
 
-  // توصيل دائرة القدرة الكاملة (Source + -> Load -> Anode(2), Cathode(1) -> GND)
-  if (srcId && loadId) {
-    addWire(srcId, 0, loadId, 0);
+  // توصيل القدرة: المصدر -> الثايرستور (MT2=2 -> MT1=1) -> الحمل/المحرك -> الأرضي
+  // هذا الترتيب يجعل طرف الحمل الموجب (pin 0) يعرض موجة الخرج المقطوعة بالثايرستور مباشرة بالنسبة للأرضي!
+  if (srcId && loadId && swId) {
+    addWire(srcId, 0, swId, 2);
+    addWire(swId, 1, loadId, 0);
+    addWire(loadId, 1, gndId, 0);
     addWire(srcId, 1, gndId, 0);
-    if (swId) {
-      addWire(loadId, 1, swId, 2);
-      addWire(swId, 1, gndId, 0);
-    } else {
-      addWire(loadId, 1, gndId, 0);
-    }
+  } else if (srcId && loadId) {
+    addWire(srcId, 0, loadId, 0);
+    addWire(loadId, 1, gndId, 0);
+    addWire(srcId, 1, gndId, 0);
   } else if (srcId && swId) {
     addWire(srcId, 0, swId, 2);
-    addWire(srcId, 1, gndId, 0);
     addWire(swId, 1, gndId, 0);
+    addWire(srcId, 1, gndId, 0);
   }
 
-  // توصيل دائرة القدح إلى البوابة (pinIdx: 0)
+  // توصيل دائرة القدح إلى بوابة الثايرستور (pinIdx: 0)
   let feedComp = srcId;
   let feedPin = 0;
   ctrlIds.forEach(item => {
@@ -1821,12 +1832,12 @@ function launchExactDemoCircuit(key) {
     addWire(feedComp, feedPin, swId, 0);
   }
 
-  // مجسات الأوسليسكوب: CH1 على المصدر/الخرج (pin 0) و CH2 على الحمل/الأنود (pin 1)
+  // CH1: جهد الدخل (Source +) | CH2: جهد الخرج على الحمل/المحرك (Load pin 0 بالنسبة للأرضي)
   if (srcId) {
-    builtProbes.push({ id: idCounter++, compId: srcId, pinIdx: 0, pin: 0, label: 'CH1 (Source)', color: '#facc15' });
+    builtProbes.push({ id: idCounter++, compId: srcId, pinIdx: 0, pin: 0, label: 'CH1 (Input)', color: '#facc15' });
   }
   if (loadId) {
-    builtProbes.push({ id: idCounter++, compId: loadId, pinIdx: 1, pin: 1, label: 'CH2 (Load)', color: '#38bdf8' });
+    builtProbes.push({ id: idCounter++, compId: loadId, pinIdx: 0, pin: 0, label: 'CH2 (Load Out)', color: '#38bdf8' });
   } else if (swId) {
     builtProbes.push({ id: idCounter++, compId: swId, pinIdx: 0, pin: 0, label: 'CH2 (Gate)', color: '#38bdf8' });
   }
@@ -1836,15 +1847,17 @@ function launchExactDemoCircuit(key) {
   if (typeof probes !== 'undefined') builtProbes.forEach(p => probes.push(p));
   if (typeof nextId !== 'undefined') nextId = idCounter + 1;
 
-  // ضبط مقياس الفولت والزمن للأوسليسكوب تلقائياً ليتناسب مع جهد الدائرة
-  const vAmp = src ? Math.max(Math.abs(src.amp || 0), Math.abs(src.dc || 0), 5) : 50;
-  const vDiv = Math.max(2, Math.ceil(vAmp / 3.5));
-  const ch1Slider = document.getElementById('ch1Scale') || document.querySelector('input[oninput*="ch1"]');
-  const ch2Slider = document.getElementById('ch2Scale') || document.querySelector('input[oninput*="ch2"]');
-  const timeSlider = document.getElementById('timeScale') || document.querySelector('input[oninput*="time"]');
-  if (ch1Slider) { ch1Slider.value = vDiv; ch1Slider.dispatchEvent(new Event('input')); }
-  if (ch2Slider) { ch2Slider.value = vDiv; ch2Slider.dispatchEvent(new Event('input')); }
-  if (timeSlider) { timeSlider.value = 0.04; timeSlider.dispatchEvent(new Event('input')); }
+  // ضبط تلقائي لمقياس الفولت (Volts/Div) بحيث تظهر موجة 48V أو 311V داخل الشاشة بوضوح تام
+  const vPeak = src ? Math.max(Math.abs(src.amp || 0), Math.abs(src.dc || 0), 10) : 50;
+  const idealDiv = Math.max(5, Math.ceil(vPeak / 2.2));
+  document.querySelectorAll('input[type="range"]').forEach(sl => {
+    const handler = (sl.getAttribute('oninput') || '') + (sl.id || '');
+    if (handler.toLowerCase().includes('ch1') || handler.toLowerCase().includes('ch2') || handler.toLowerCase().includes('scale')) {
+      sl.max = Math.max(Number(sl.max || 100), idealDiv * 2);
+      sl.value = idealDiv;
+      sl.dispatchEvent(new Event('input'));
+    }
+  });
 
   if (typeof draw === 'function') draw();
   if (typeof render === 'function') render();
