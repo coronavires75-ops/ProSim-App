@@ -1,3 +1,4 @@
+from solver import ProSpiceBDF2Solver
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from solver import ProCircuitSolver
 import numpy as np
