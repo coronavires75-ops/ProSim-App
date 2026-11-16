@@ -549,13 +549,13 @@ class ProSpiceBDF2Solver:
                 i_rms = v_rms / r_val
                 s_app = v_rms * i_rms
                 pf = min(1.0, p_avg / s_app) if s_app > 1e-6 else 1.0
-                powers[el.get('id', idx)] = {'watts': round(p_avg, 2), 'pf': round(pf, 3), 'v_rms': round(v_rms, 2), 'i_rms': round(i_rms, 3)}
+                powers[el.get('id', idx)] = {'watts': round(p_avg, 2), 'power': round(p_avg, 2), 'p': round(p_avg, 2), 'pf': round(pf, 3), 'v_rms': round(v_rms, 2), 'i_rms': round(i_rms, 3)}
             elif etype == 'MOTOR':
                 mid = el.get('id', idx)
                 st = motor_states.get(mid, {})
                 i_hist = np.array(st.get('history', {}).get('current', [0.0]))
                 p_avg = float(np.mean(np.abs(vd_arr[:len(i_hist)] * i_hist))) if len(i_hist) > 0 else 0.0
-                powers[mid] = {'watts': round(p_avg, 2), 'rpm': round(st.get('rpm', 0.0), 1), 'torque': round(st.get('torque', 0.0), 3)}
+                powers[mid] = {'watts': round(p_avg, 2), 'power': round(p_avg, 2), 'p': round(p_avg, 2), 'rpm': round(st.get('rpm', 0.0), 1), 'torque': round(st.get('torque', 0.0), 3)}
 
         node_voltages = {0: [0.0] * len(times)}
         for k in range(n):
