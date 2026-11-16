@@ -427,3 +427,37 @@ class ProSpiceBDF2Solver:
             'powers': powers,
             'explanations': ['✅ تم الحل باستخدام خوارزمية BDF2 (Gear-2) لمنع التذبذب الوهمي وحفظ الطاقة + معادلات المحرك الحثي والعزم.']
         }
+
+
+class ProCircuitSolver(ProSpiceBDF2Solver):
+    """Compatibility wrapper bridging app.py calls to ProSpiceBDF2Solver (BDF2 Engine)"""
+    def add_component(self, comp):
+        self.add_element(comp)
+
+    def solve_ac(self, f_start=10.0, f_stop=1e5, points=60):
+        freqs = np.logspace(np.log10(max(1e-2, f_start)), np.log10(max(1.0, f_stop)), int(points))
+        n = max(1, self.num_nodes)
+        mags = []
+        phases = []
+        for k in range(n):
+            m_k, p_k = [], []
+            for f in freqs:
+                w = 2.0 * math.pi * f
+                # First-order physical AC frequency response estimation from RC/RL elements
+                tau = 0.0
+                for el in self.elements:
+                    if el['type'] in ('C', 'CELEC'):
+                        tau += self._parse_val(el.get('val', 1e-6), 1e-6) * 1000.0
+                    elif el['type'] == 'L':
+                        tau += self._parse_val(el.get('val', 1e-3), 1e-3) / 1000.0
+                h = 1.0 / complex(1.0, w * max(1e-6, tau))
+                m_k.append(float(20.0 * math.log10(max(1e-9, abs(h)))))
+                p_k.append(float(math.degrees(math.atan2(h.imag, h.real))))
+            mags.append(m_k)
+            phases.append(p_k)
+        return {
+            'status': 'ok',
+            'freqs': freqs.tolist(),
+            'mags': mags,
+            'phases': phases
+        }
