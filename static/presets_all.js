@@ -1712,7 +1712,6 @@ function launchExactDemoCircuit(key) {
   if (!window.EXTRA_LECTURE_PRESETS || !window.EXTRA_LECTURE_PRESETS[key]) return;
   const rawList = JSON.parse(JSON.stringify(window.EXTRA_LECTURE_PRESETS[key]));
 
-  // تصفير اللوحة بنفس أسلوب loadDemo(name) الأصلي
   if (typeof components !== 'undefined') components.length = 0;
   if (typeof wires !== 'undefined') wires.length = 0;
   if (typeof probes !== 'undefined') probes.length = 0;
@@ -1756,7 +1755,7 @@ function launchExactDemoCircuit(key) {
     builtComps.push({
       id: swId, type: visualType, part: mainSw.part || 'BT151-500R',
       x: 310, y: 170, rot: 0,
-      vgt: mainSw.vgt || 0.65, bf: mainSw.bf || 150, pol: mainSw.pol || 'NPN'
+      vgt: 0.65, bf: mainSw.bf || 150, pol: mainSw.pol || 'NPN'
     });
   }
 
@@ -1772,7 +1771,7 @@ function launchExactDemoCircuit(key) {
       rot: isShunt ? 90 : 0,
       val: c.val || 1000,
       pct: c.pct || 50,
-      closed: c.closed !== undefined ? c.closed : true,
+      closed: true,
       alpha: c.alpha || 60,
       freq: c.freq || 50
     });
@@ -1783,10 +1782,13 @@ function launchExactDemoCircuit(key) {
   builtComps.push({ id: gndId, type: 'GND', part: 'GND', x: 70, y: 290, rot: 0 });
 
   function addWire(c1, p1, c2, p2) {
-    builtWires.push({ from: { compId: c1, pinIdx: p1 }, to: { compId: c2, pinIdx: p2 } });
+    builtWires.push({
+      from: { compId: c1, pinIdx: p1, pin: p1 },
+      to: { compId: c2, pinIdx: p2, pin: p2 }
+    });
   }
 
-  // توصيل المسار الرئيسي بالصيغة الحرفية للمحاكي: { from: { compId, pinIdx }, to: { compId, pinIdx } }
+  // توصيل دائرة القدرة الكاملة (Source + -> Load -> Anode(2), Cathode(1) -> GND)
   if (srcId && loadId) {
     addWire(srcId, 0, loadId, 0);
     addWire(srcId, 1, gndId, 0);
@@ -1802,9 +1804,9 @@ function launchExactDemoCircuit(key) {
     addWire(swId, 1, gndId, 0);
   }
 
-  // توصيل دائرة القدح المتسلسلة والتوازي إلى البوابة (pinIdx: 0)
-  let feedComp = loadId || srcId;
-  let feedPin = loadId ? 1 : 0;
+  // توصيل دائرة القدح إلى البوابة (pinIdx: 0)
+  let feedComp = srcId;
+  let feedPin = 0;
   ctrlIds.forEach(item => {
     if (item.isShunt) {
       if (feedComp) addWire(feedComp, feedPin, item.id, 0);
@@ -1815,18 +1817,18 @@ function launchExactDemoCircuit(key) {
       feedPin = 1;
     }
   });
-  if (feedComp && feedComp !== srcId && swId) {
+  if (feedComp && swId) {
     addWire(feedComp, feedPin, swId, 0);
   }
 
-  // إضافة مجسات الأوسليسكوب CH1 و CH2 بالصيغة الحقيقية
-  if (loadId) {
-    builtProbes.push({ id: idCounter++, compId: loadId, pinIdx: 1, label: 'CH1 (Load)', color: '#38bdf8' });
+  // مجسات الأوسليسكوب: CH1 على المصدر/الخرج (pin 0) و CH2 على الحمل/الأنود (pin 1)
+  if (srcId) {
+    builtProbes.push({ id: idCounter++, compId: srcId, pinIdx: 0, pin: 0, label: 'CH1 (Source)', color: '#facc15' });
   }
-  if (swId) {
-    builtProbes.push({ id: idCounter++, compId: swId, pinIdx: 0, label: 'CH2 (Gate)', color: '#facc15' });
-  } else if (srcId) {
-    builtProbes.push({ id: idCounter++, compId: srcId, pinIdx: 0, label: 'CH2 (Source)', color: '#facc15' });
+  if (loadId) {
+    builtProbes.push({ id: idCounter++, compId: loadId, pinIdx: 1, pin: 1, label: 'CH2 (Load)', color: '#38bdf8' });
+  } else if (swId) {
+    builtProbes.push({ id: idCounter++, compId: swId, pinIdx: 0, pin: 0, label: 'CH2 (Gate)', color: '#38bdf8' });
   }
 
   if (typeof components !== 'undefined') builtComps.forEach(c => components.push(c));
@@ -1834,11 +1836,16 @@ function launchExactDemoCircuit(key) {
   if (typeof probes !== 'undefined') builtProbes.forEach(p => probes.push(p));
   if (typeof nextId !== 'undefined') nextId = idCounter + 1;
 
-if (typeof resetView === 'function') resetView();
-  if (typeof centerView === 'function') centerView();
-  if (typeof panX !== 'undefined') panX = 0;
-  if (typeof panY !== 'undefined') panY = 0;
-  if (typeof zoom !== 'undefined') zoom = 1.0;
+  // ضبط مقياس الفولت والزمن للأوسليسكوب تلقائياً ليتناسب مع جهد الدائرة
+  const vAmp = src ? Math.max(Math.abs(src.amp || 0), Math.abs(src.dc || 0), 5) : 50;
+  const vDiv = Math.max(2, Math.ceil(vAmp / 3.5));
+  const ch1Slider = document.getElementById('ch1Scale') || document.querySelector('input[oninput*="ch1"]');
+  const ch2Slider = document.getElementById('ch2Scale') || document.querySelector('input[oninput*="ch2"]');
+  const timeSlider = document.getElementById('timeScale') || document.querySelector('input[oninput*="time"]');
+  if (ch1Slider) { ch1Slider.value = vDiv; ch1Slider.dispatchEvent(new Event('input')); }
+  if (ch2Slider) { ch2Slider.value = vDiv; ch2Slider.dispatchEvent(new Event('input')); }
+  if (timeSlider) { timeSlider.value = 0.04; timeSlider.dispatchEvent(new Event('input')); }
+
   if (typeof draw === 'function') draw();
   if (typeof render === 'function') render();
 }
