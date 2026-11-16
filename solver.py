@@ -246,18 +246,53 @@ class ProSpiceBDF2Solver:
                         else:
                             stamp_g(G, nd, ns, 1e-8)
 
-                    elif etype in ('TRIAC', 'SCR') and len(pins) >= 3:
+elif etype in ('TRIAC', 'SCR') and len(pins) >= 3:
                         ng, mt1, mt2 = pins[0], pins[1], pins[2]
-                        vg = abs(node_v(ng) - node_v(mt1))
-                        v_main = node_v(mt2) - node_v(mt1)
-                        fired = (vg > 0.65) or (abs(v_main) > 15.0 and getattr(self, f'_latched_{idx}', False))
-                        if fired and abs(v_main) > 0.05:
-                            setattr(self, f'_latched_{idx}', True)
-                            stamp_g(G, mt2, mt1, 1.0 / 0.15)
+                        # For SCR: pins=[G, K, A] or [G, MT1, MT2]
+                        vgk = node_v(ng) - node_v(mt1)
+                        vak = node_v(mt2) - node_v(mt1)
+                        vgt = float(el.get('vgt', 0.65))
+                        latched = getattr(self, f'_latched_{idx}', False)
+                        if etype == 'SCR':
+                            # SCR conducts only in forward bias (Vak > 0) and turns OFF if Vak <= 0 or Iak < Iho (Forced/Natural Commutation)
+                            if vak <= 0.05:
+                                latched = False
+                            elif vgk >= vgt or (latched and vak > 0.4):
+                                latched = True
+                            else:
+                                latched = False
                         else:
-                            setattr(self, f'_latched_{idx}', False)
+                            # TRIAC conducts in both quadrants
+                            if abs(vak) <= 0.05:
+                                latched = False
+                            elif abs(vgk) >= vgt or (latched and abs(vak) > 0.4):
+                                latched = True
+                            else:
+                                latched = False
+                        setattr(self, f'_latched_{idx}', latched)
+                        if latched:
+                            stamp_g(G, mt2, mt1, 1.0 / 0.25)
+                            # Forward voltage drop ~1.1V modeled via small offset
+                            stamp_i(I_vec, mt2, mt1, -1.1 / 0.25 if vak > 0 else 1.1 / 0.25)
+                        else:
                             stamp_g(G, mt2, mt1, 1e-7)
-                        stamp_g(G, ng, mt1, 1.0 / 50.0)
+                        stamp_g(G, ng, mt1, 1.0 / 45.0)
+
+                    elif etype == 'UJT' and len(pins) >= 3:
+                        # Unijunction Transistor Relaxation Oscillator (E=p0, B1=p1, B2=p2)
+                        ne, nb1, nb2 = pins[0], pins[1], pins[2]
+                        eta = float(el.get('eta', 0.65))
+                        vbb = max(0.0, node_v(nb2) - node_v(nb1))
+                        vp = eta * vbb + 0.6
+                        ve = node_v(ne) - node_v(nb1)
+                        ujt_on = getattr(self, f'_ujt_on_{idx}', False)
+                        if ve >= vp:
+                            ujt_on = True
+                        elif ve < 1.2:
+                            ujt_on = False
+                        setattr(self, f'_ujt_on_{idx}', ujt_on)
+                        stamp_g(G, nb2, nb1, 1.0 / 5000.0)
+                        stamp_g(G, ne, nb1, (1.0 / 5.0) if ujt_on else 1e-7)
 
                     elif etype == 'MOTOR':
                         # Electromechanical Induction / DC Coupled Motor Stamp
