@@ -1,8 +1,11 @@
-name: Build Windows ProSim.exe
+name: Build Public ProSim.exe Release
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build-exe:
@@ -20,8 +23,11 @@ jobs:
       - name: Build ProSim.exe
         run: |
           pyinstaller --onefile --noconsole --add-data "templates;templates" --add-data "static;static" --name "ProSim" run_local.py
-      - name: Upload ProSim.exe Artifact
-        uses: actions/upload-artifact@v4
+      - name: Publish Release with ProSim.exe
+        uses: softprops/action-gh-release@v2
         with:
-          name: ProSim-Windows-Executable
-          path: dist/ProSim.exe
+          tag_name: v1.0-desktop
+          name: ProSim Desktop v1.0 (Windows)
+          files: dist/ProSim.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
