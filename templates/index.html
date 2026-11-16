@@ -882,6 +882,7 @@ async function runSim(silent = false) {
 }
 
 
+
 let activeCat = 'الكل';
 let libOffset = 0;
 let libItemsCache = [];
@@ -899,35 +900,57 @@ const ALL_CATS = [
 ];
 
 function openLibrary() {
-  document.getElementById('libModal').style.display = 'flex';
-  document.getElementById('catTabs').innerHTML = ALL_CATS.map(c =>
-    `<button class="btn ${activeCat===c?'active':''}" onclick="activeCat='${c}'; libOffset=0; openLibrary();">${c}</button>`
-  ).join('');
+  const modal = document.getElementById('libModal');
+  if (modal) modal.style.display = 'flex';
+  const tabs = document.getElementById('catTabs');
+  if (tabs) {
+    tabs.innerHTML = ALL_CATS.map(c =>
+      `<button class="btn ${activeCat===c?'active':''}" onclick="activeCat='${c}'; libOffset=0; openLibrary();">${c}</button>`
+    ).join('');
+  }
   libOffset = 0;
   renderLib(false);
 }
 
 async function renderLib(append = false) {
-  if (!append) { libOffset = 0; libItemsCache = []; }
-  const q = document.getElementById('libSearch').value;
-  const res = await fetch(`/api/parts?q=${encodeURIComponent(q)}&cat=${encodeURIComponent(activeCat)}&offset=${libOffset}`);
-  const data = await res.json();
-  document.querySelector('#libModal .modal-head strong').innerText =
-    `📚 مكتبة Proteus (${data.matched.toLocaleString()} نتيجة من أصل ${data.total.toLocaleString()} قطعة)`;
-  libItemsCache = libItemsCache.concat(data.items);
-  let html = libItemsCache.map(i => {
-    const merged = Object.assign({ type: i.type, part: i.part }, i.props || {});
-    return `<div class="lib-item" onclick='addComponentFromLib(${JSON.stringify(merged)}); closeModal("libModal");'>
-      <div><strong>${i.name}</strong><div style="font-size:0.72rem; color:var(--muted);">Part: ${i.part} | ${i.cat}</div></div>
-      <span class="btn btn-run">+ إضافة</span>
-    </div>`;
-  }).join('');
-  if (libItemsCache.length < data.matched) {
-    html += `<div style="text-align:center; padding:12px;">
-      <button class="btn btn-run" onclick="libOffset += 100; renderLib(true);">⬇️ عرض المزيد (+100 من أصل ${data.matched.toLocaleString()})</button>
-    </div>`;
+  const listEl = document.getElementById('libList');
+  if (!listEl) return;
+  if (!append) {
+    libOffset = 0;
+    libItemsCache = [];
+    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:#38bdf8;">⏳ جاري تحميل القطع من قاعدة البيانات...</div>';
   }
-  document.getElementById('libList').innerHTML = html || '<div style="padding:20px; text-align:center; color:var(--muted);">لا توجد نتائج مطابقة</div>';
+  const qEl = document.getElementById('libSearch');
+  const q = qEl ? qEl.value : '';
+  try {
+    const res = await fetch(`/api/parts?q=${encodeURIComponent(q)}&cat=${encodeURIComponent(activeCat)}&offset=${libOffset}`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data.status === 'error') throw new Error(data.message);
+
+    const headEl = document.querySelector('#libModal .modal-head strong');
+    if (headEl) {
+      headEl.innerText = `📚 مكتبة Proteus (${Number(data.matched).toLocaleString()} نتيجة من أصل ${Number(data.total).toLocaleString()} قطعة)`;
+    }
+    libItemsCache = libItemsCache.concat(data.items || []);
+    let html = libItemsCache.map(i => {
+      const merged = Object.assign({ type: i.type, part: i.part }, i.props || {});
+      const safeJson = JSON.stringify(merged).replace(/'/g, "&#39;");
+      return `<div class="lib-item" onclick='addComponentFromLib(${safeJson}); closeModal("libModal");'>
+        <div><strong>${i.name}</strong><div style="font-size:0.72rem; color:var(--muted);">Part: ${i.part} | ${i.cat}</div></div>
+        <span class="btn btn-run">+ إضافة</span>
+      </div>`;
+    }).join('');
+
+    if (libItemsCache.length < data.matched) {
+      html += `<div style="text-align:center; padding:12px;">
+        <button class="btn btn-run" onclick="libOffset += 100; renderLib(true);">⬇️ عرض المزيد (+100 من أصل ${Number(data.matched).toLocaleString()})</button>
+      </div>`;
+    }
+    listEl.innerHTML = html || '<div style="padding:20px; text-align:center; color:var(--muted);">لا توجد نتائج مطابقة لبحثك</div>';
+  } catch (err) {
+    listEl.innerHTML = `<div style="padding:20px; text-align:center; color:#ef4444;">⚠️ تعذر الاتصال بالمكتبة (${err.message}). تأكد من تحديث الصفحة (Ctrl+F5).</div>`;
+  }
 }
 
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }

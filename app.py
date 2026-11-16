@@ -1,3 +1,4 @@
+from parts_db import CATALOG, MODELS_MAP, search_catalog
 from solver import ProSpiceBDF2Solver
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from solver import ProCircuitSolver
@@ -236,11 +237,19 @@ def build_circuit(data, override_pid=None):
 
 @app.route('/api/parts', methods=['GET'])
 def api_parts():
-    q = request.args.get('q', '')
-    cat = request.args.get('cat', 'الكل')
-    offset = int(request.args.get('offset', 0))
-    res = search_catalog(query=q, category=cat, limit=100, offset=offset)
-    return jsonify({'total': len(CATALOG), 'matched': res['total_matched'], 'items': res['items']})
+    try:
+        q = request.args.get('q', '')
+        cat = request.args.get('cat', 'الكل')
+        offset = int(request.args.get('offset', 0))
+        res = search_catalog(query=q, category=cat, limit=100, offset=offset)
+        return jsonify({
+            'status': 'ok',
+            'total': len(CATALOG),
+            'matched': res['total_matched'],
+            'items': res['items']
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e), 'total': 0, 'matched': 0, 'items': []}), 200
 
 @app.route('/')
 def index():
