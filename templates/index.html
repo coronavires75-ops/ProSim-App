@@ -1271,6 +1271,21 @@ function loadDemo(name) {
 }
 
 window.onload = () => { resize(); };
+
+function populatePresetDropdown() {
+  const sel = document.getElementById('presetSelect') || document.querySelector('select[onchange*="loadPreset"]');
+  if (!sel || typeof PRESETS === 'undefined') return;
+  const currentVal = sel.value;
+  let opts = '<option value="">📂 أنظمة جاهزة (' + Object.keys(PRESETS).length + ' دائرة)...</option>';
+  for (const key of Object.keys(PRESETS)) {
+    opts += `<option value="${key.replace(/"/g, '&quot;')}">${key}</option>`;
+  }
+  sel.innerHTML = opts;
+  if (currentVal && PRESETS[currentVal]) sel.value = currentVal;
+}
+window.addEventListener('DOMContentLoaded', populatePresetDropdown);
+setTimeout(populatePresetDropdown, 300);
+
 </script>
 </body>
 </html>
