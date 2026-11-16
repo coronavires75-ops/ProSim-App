@@ -22,6 +22,20 @@ class ProSpiceBDF2Solver:
     def add_component(self, comp):
         self.add_element(comp)
 
+    def add_vsource(self, n1, n2, dc=0.0, amp=0.0, freq=0.0, wave='sine', phase=0.0, **kwargs):
+        self.add_element({
+            'type': 'V',
+            'pins': [n1, n2],
+            'dc': float(dc),
+            'amp': float(amp),
+            'freq': float(freq),
+            'wave': wave,
+            'phase': float(phase)
+        })
+
+    def add_isource(self, n1, n2, val=0.01, **kwargs):
+        self.add_element({'type': 'I', 'pins': [n1, n2], 'val': val})
+
     def _parse_val(self, val, default=1.0):
         if isinstance(val, (int, float)):
             return float(val)
@@ -361,7 +375,24 @@ class ProSpiceBDF2Solver:
                             if pins[2] > 0: G[pins[2] - 1, b] += 1.0; G[b, pins[2] - 1] += 1.0
                             G[b, b] -= 1e-2
                             I_vec[b] = vout
-                        elif etype in ('LM35', 'HCSR04', 'LOGIC_TOGGLE', 'MCU', 'NE555'):
+                        elif etype == 'NE555':
+                            # Real 555 Timer Behavioral Physics (1/3 Vcc & 2/3 Vcc thresholds + Flip-Flop)
+                            v_trig = node_v(p0)
+                            v_out_pin = p1 if p1 > 0 else p0
+                            vcc_555 = 5.0
+                            state_555 = getattr(self, f'_555_q_{idx}', True)
+                            if v_trig >= (2.0 / 3.0) * vcc_555:
+                                state_555 = False
+                            elif v_trig <= (1.0 / 3.0) * vcc_555:
+                                state_555 = True
+                            setattr(self, f'_555_q_{idx}', state_555)
+                            vout = vcc_555 if state_555 else 0.0
+                            if v_out_pin > 0:
+                                G[v_out_pin - 1, b] += 1.0
+                                G[b, v_out_pin - 1] += 1.0
+                            G[b, b] -= 50.0
+                            I_vec[b] = vout
+                        elif etype in ('LM35', 'HCSR04', 'LOGIC_TOGGLE', 'MCU'):
                             out_pin = pins[-1] if pins else 0
                             vout = float(el.get('val', 35.0)) * 0.01 if etype == 'LM35' else (5.0 if el.get('closed', True) else 0.0)
                             if out_pin > 0: G[out_pin - 1, b] += 1.0; G[b, out_pin - 1] += 1.0
