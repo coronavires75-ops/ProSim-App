@@ -376,7 +376,7 @@ class ProSpiceBDF2Solver:
                             G[b, b] -= 1e-2
                             I_vec[b] = vout
                         elif etype == 'NE555':
-                            # Real 555 Timer Behavioral Physics (1/3 Vcc & 2/3 Vcc thresholds + Flip-Flop)
+                            # True 555 Timer Astable/Monostable Physics (1/3 Vcc & 2/3 Vcc + Discharge Switch)
                             v_trig = node_v(p0)
                             v_out_pin = p1 if p1 > 0 else p0
                             vcc_555 = 5.0
@@ -392,6 +392,9 @@ class ProSpiceBDF2Solver:
                                 G[b, v_out_pin - 1] += 1.0
                             G[b, b] -= 50.0
                             I_vec[b] = vout
+                            # Internal discharge path when output is LOW so RC capacitor discharges down to 1/3 Vcc
+                            if not state_555 and p0 > 0:
+                                stamp_g(G, p0, 0, 1.0 / 4700.0)
                         elif etype in ('LM35', 'HCSR04', 'LOGIC_TOGGLE', 'MCU'):
                             out_pin = pins[-1] if pins else 0
                             vout = float(el.get('val', 35.0)) * 0.01 if etype == 'LM35' else (5.0 if el.get('closed', True) else 0.0)
@@ -516,6 +519,19 @@ class ProSpiceBDF2Solver:
         }
 
 class ProCircuitSolver(ProSpiceBDF2Solver):
+    def solve_dc(self):
+        res = self.solve_transient(t_stop=1e-4, num_steps=5)
+        return res
+
+    def add_resistor(self, n1, n2, val=1000.0):
+        self.add_element({'type': 'R', 'pins': [n1, n2], 'val': val})
+
+    def add_capacitor(self, n1, n2, val=1e-6):
+        self.add_element({'type': 'C', 'pins': [n1, n2], 'val': val})
+
+    def add_inductor(self, n1, n2, val=1e-3):
+        self.add_element({'type': 'L', 'pins': [n1, n2], 'val': val})
+
     def solve_ac(self, f_start=10.0, f_stop=1e5, points=60):
         freqs = np.logspace(np.log10(max(1e-2, f_start)), np.log10(max(1.0, f_stop)), int(points))
         n = max(1, self.num_nodes)
