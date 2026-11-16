@@ -22,6 +22,38 @@ class ProSpiceBDF2Solver:
     def add_component(self, comp):
         self.add_element(comp)
 
+    def __getattr__(self, name):
+        if name.startswith('add_'):
+            raw_type = name[4:].upper()
+            type_map = {
+                'VSOURCE': 'V', 'ISOURCE': 'I', 'RESISTOR': 'R', 'CAPACITOR': 'C',
+                'INDUCTOR': 'L', 'DIODE': 'D', 'ZENER': 'Z', 'LED': 'LED',
+                'BJT': 'Q', 'TRANSISTOR': 'Q', 'MOSFET': 'M', 'IGBT': 'M',
+                'SCR': 'SCR', 'THYRISTOR': 'SCR', 'TRIAC': 'TRIAC', 'DIAC': 'DIAC',
+                'UJT': 'UJT', 'NE555': 'NE555', 'TIMER555': 'NE555',
+                'OPAMP': 'OP', 'OP': 'OP', 'REGULATOR': 'REG', 'REG': 'REG',
+                'TRANSFORMER': 'TRF', 'TRF': 'TRF', 'BRIDGE': 'BRIDGE',
+                'MOTOR': 'MOTOR', 'PID': 'PID', 'SWITCH': 'SW', 'SW': 'SW',
+                'RELAY': 'RELAY', 'POT': 'POT', 'POTENTIOMETER': 'POT',
+                'AMMETER': 'AMMETER', 'WATTMETER': 'WATTMETER',
+                'GATE_FIRING': 'GATE_FIRING', 'MCU': 'MCU', 'LOGIC': 'LOGIC_TOGGLE',
+                'AND': 'AND', 'OR': 'OR', 'NOT': 'NOT', 'NAND': 'NAND', 'XOR': 'XOR',
+                'DFF': 'DFF', 'JKFF': 'JKFF', 'COUNTER': 'COUNTER4', 'BCD7': 'BCD7', 'LCD16': 'LCD16'
+            }
+            mapped = type_map.get(raw_type, raw_type)
+            def _generic_adder(*args, **kwargs):
+                pins = [a for a in args if isinstance(a, int)]
+                el = {'type': mapped, 'pins': pins}
+                if len(args) > len(pins):
+                    el['val'] = args[len(pins)]
+                if 'id_tag' in kwargs:
+                    el['id'] = kwargs.pop('id_tag')
+                el.update(kwargs)
+                self.add_element(el)
+            return _generic_adder
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+
+
     def add_vsource(self, n1, n2, dc=0.0, amp=0.0, freq=0.0, wave='sine', phase=0.0, id_tag=None, **kwargs):
         self.add_element({
             'type': 'V',

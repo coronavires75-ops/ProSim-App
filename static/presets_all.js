@@ -1974,68 +1974,93 @@ function getSampleWireTemplate() {
 }
 
 function makeExactWire(sample, id1, pin1, id2, pin2) {
-  if (sample && sample.from && typeof sample.from === 'object') {
-    return { from: { id: id1, pin: pin1 }, to: { id: id2, pin: pin2 } };
-  }
-  if (sample && 'c1' in sample) {
-    return { c1: id1, p1: pin1, c2: id2, p2: pin2 };
-  }
-  if (sample && 'fromComp' in sample) {
-    return { fromComp: id1, fromPin: pin1, toComp: id2, toPin: pin2 };
-  }
-  if (sample && 'a' in sample && typeof sample.a === 'object') {
-    return { a: { id: id1, pin: pin1 }, b: { id: id2, pin: pin2 } };
-  }
-  return { from: { id: id1, pin: pin1 }, to: { id: id2, pin: pin2 }, c1: id1, p1: pin1, c2: id2, p2: pin2 };
+  const w = {
+    from: { id: id1, pin: pin1 },
+    to: { id: id2, pin: pin2 },
+    c1: id1, p1: pin1,
+    c2: id2, p2: pin2,
+    fromComp: id1, fromPin: pin1,
+    toComp: id2, toPin: pin2
+  };
+  return w;
 }
 
 function buildAutoWiredCircuit(compList) {
-  const comps = JSON.parse(JSON.stringify(compList));
+  const rawComps = JSON.parse(JSON.stringify(compList));
   const sample = getSampleWireTemplate();
+  const comps = [];
   const wires = [];
   const probes = [];
 
-  let gnd = comps.find(c => c.type === 'GND');
-  if (!gnd) {
-    gnd = { id: 'gnd_auto', type: 'GND', part: 'GND', x: 300, y: 380 };
-    comps.push(gnd);
-  }
-  const src = comps.find(c => c.type === 'V' || c.type === 'VCC');
-  const load = comps.find(c => ['rload', 'heater', 'siren', 'buzz'].includes(c.id) || c.type === 'MOTOR');
-  const scr = comps.find(c => ['SCR', 'TRIAC', 'Q', 'M'].includes(c.type));
-  const others = comps.filter(c => c !== gnd && c !== src && c !== load && c !== scr);
+  // ترتيب منطقي ونظيف على الشبكة (Grid-aligned layout) يمنع التداخل والأسلاك العشوائية
+  let gnd = rawComps.find(c => c.type === 'GND') || { id: 'gnd_main', type: 'GND', part: 'GND' };
+  const src = rawComps.find(c => c.type === 'V' || c.type === 'VCC');
+  const load = rawComps.find(c => ['rload', 'heater', 'siren', 'buzz'].includes(c.id) || c.type === 'MOTOR');
+  const mainSw = rawComps.find(c => ['SCR', 'TRIAC', 'Q', 'M'].includes(c.type));
+  const ctrlChain = rawComps.filter(c => c !== gnd && c !== src && c !== load && c !== mainSw);
 
+  // 1. وضع المصدر على اليسار، والحمل في الأعلى، والمفتاح/الثايرستور على اليمين، والأرضي في الأسفل
+  if (src) {
+    src.x = 120; src.y = 240;
+    comps.push(src);
+  }
+  if (load) {
+    load.x = 280; load.y = 120;
+    comps.push(load);
+  }
+  if (mainSw) {
+    mainSw.x = 500; mainSw.y = 240;
+    comps.push(mainSw);
+  }
+
+  // 2. توزيع عناصر التحكم والقدح (R1, R2, C1, DIAC, UJT) بانتظام في المنتصف
+  ctrlChain.forEach((c, idx) => {
+    const col = idx % 2;
+    const row = Math.floor(idx / 2);
+    c.x = 260 + col * 110;
+    c.y = 220 + row * 85;
+    comps.push(c);
+  });
+
+  gnd.x = 300; gnd.y = 400;
+  comps.push(gnd);
+
+  // 3. توصيل المسار الرئيسي للقدرة (Source + -> Load -> SCR Anode, SCR Cathode -> GND, Source - -> GND)
   if (src && load) {
     wires.push(makeExactWire(sample, src.id, 0, load.id, 0));
     wires.push(makeExactWire(sample, src.id, 1, gnd.id, 0));
-    if (scr) {
-      wires.push(makeExactWire(sample, load.id, 1, scr.id, 2));
-      wires.push(makeExactWire(sample, scr.id, 1, gnd.id, 0));
+    if (mainSw) {
+      // في المحاكي: pin 2 = Anode/Collector/Drain, pin 1 = Cathode/Emitter/Source, pin 0 = Gate/Base
+      wires.push(makeExactWire(sample, load.id, 1, mainSw.id, 2));
+      wires.push(makeExactWire(sample, mainSw.id, 1, gnd.id, 0));
     } else {
       wires.push(makeExactWire(sample, load.id, 1, gnd.id, 0));
     }
-  } else if (src && scr) {
-    wires.push(makeExactWire(sample, src.id, 0, scr.id, 2));
+  } else if (src && mainSw) {
+    wires.push(makeExactWire(sample, src.id, 0, mainSw.id, 2));
     wires.push(makeExactWire(sample, src.id, 1, gnd.id, 0));
-    wires.push(makeExactWire(sample, scr.id, 1, gnd.id, 0));
+    wires.push(makeExactWire(sample, mainSw.id, 1, gnd.id, 0));
   }
 
-  let prev = src;
-  others.forEach(c => {
+  // 4. توصيل دائرة القدح (Trigger Network) بشكل منطقي متسلسل إلى البوابة (Pin 0)
+  let gateFeedNode = load ? { id: load.id, pin: 1 } : (src ? { id: src.id, pin: 0 } : null);
+  ctrlChain.forEach(c => {
     if (['C', 'CELEC', 'Z', 'NTC'].includes(c.type)) {
-      if (prev) wires.push(makeExactWire(sample, prev.id, prev === src ? 0 : 1, c.id, 0));
+      if (gateFeedNode) wires.push(makeExactWire(sample, gateFeedNode.id, gateFeedNode.pin, c.id, 0));
       wires.push(makeExactWire(sample, c.id, 1, gnd.id, 0));
     } else {
-      if (prev) wires.push(makeExactWire(sample, prev.id, prev === src ? 0 : 1, c.id, 0));
-      prev = c;
+      if (gateFeedNode) wires.push(makeExactWire(sample, gateFeedNode.id, gateFeedNode.pin, c.id, 0));
+      gateFeedNode = { id: c.id, pin: 1 };
     }
   });
-  if (prev && prev !== src && scr) {
-    wires.push(makeExactWire(sample, prev.id, 1, scr.id, 0));
+
+  if (gateFeedNode && mainSw) {
+    wires.push(makeExactWire(sample, gateFeedNode.id, gateFeedNode.pin, mainSw.id, 0));
   }
 
+  // 5. مجسات الأوسليسكوب على الخرج والبوابة بوضوح
   if (load) probes.push({ id: 'p_ch1', compId: load.id, pin: 1, target: { id: load.id, pin: 1 }, label: 'CH1 (Load)', name: 'CH1 (Load)', color: '#38bdf8' });
-  if (scr) probes.push({ id: 'p_ch2', compId: scr.id, pin: 0, target: { id: scr.id, pin: 0 }, label: 'CH2 (Gate)', name: 'CH2 (Gate)', color: '#facc15' });
+  if (mainSw) probes.push({ id: 'p_ch2', compId: mainSw.id, pin: 0, target: { id: mainSw.id, pin: 0 }, label: 'CH2 (Gate)', name: 'CH2 (Gate)', color: '#facc15' });
   else if (src) probes.push({ id: 'p_ch2', compId: src.id, pin: 0, target: { id: src.id, pin: 0 }, label: 'CH2 (Source)', name: 'CH2 (Source)', color: '#facc15' });
 
   return { components: comps, wires: wires, probes: probes };
