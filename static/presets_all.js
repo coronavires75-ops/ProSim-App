@@ -1,1858 +1,5708 @@
 window.EXTRA_LECTURE_PRESETS = {
-  "01. محول متغير (Variac Tap-Change Control)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "trf1",
-      "type": "TRF",
-      "part": "VARIAC-0-250V",
-      "x": 280,
-      "y": 240,
-      "val": 0.45
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "LOAD-50R",
-      "x": 450,
-      "y": 240,
-      "val": 50
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 280,
-      "y": 380
-    }
-  ],
-  "02. مقاومة متغيرة على التوالي (Series Rheostat Control)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "DC-24V",
-      "x": 120,
-      "y": 240,
-      "dc": 24,
-      "amp": 0,
-      "freq": 0,
-      "wave": "sine"
-    },
-    {
-      "id": "rheo",
-      "type": "POT",
-      "part": "RHEOSTAT-100R",
-      "x": 280,
-      "y": 140,
-      "val": "100",
-      "pct": 50
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "LOAD-50R",
-      "x": 450,
-      "y": 240,
-      "val": 50
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 280,
-      "y": 380
-    }
-  ],
-  "03. الدائرة الأساسية للـ SCR كمفتاح (Basic SCR Switch)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "trig",
-      "type": "GATE_FIRING",
-      "part": "GATE-PULSE-60deg",
-      "x": 280,
-      "y": 280,
-      "alpha": 60,
-      "freq": 50
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "BT151-500R",
-      "x": 480,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-50R",
-      "x": 280,
-      "y": 120,
-      "val": 50
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "04. مقارنة: مقوم دايود نصف موجة (Half-Wave Diode)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "d1",
-      "type": "D",
-      "part": "1N4007",
-      "x": 280,
-      "y": 160
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-50R",
-      "x": 450,
-      "y": 240,
-      "val": 50
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 280,
-      "y": 380
-    }
-  ],
-  "05. تحكم SCR في نصف الموجة (Half-Wave Phase Control)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "trig",
-      "type": "GATE_FIRING",
-      "part": "ALPHA-70deg",
-      "x": 280,
-      "y": 280,
-      "alpha": 70,
-      "freq": 50
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "2N3669",
-      "x": 480,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-50R",
-      "x": 280,
-      "y": 120,
-      "val": 50
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "06. اختبار جهد قدح البوابة (2N3669: 3.6V, 150R)": [
-    {
-      "id": "vg",
-      "type": "V",
-      "part": "VG-3.6V",
-      "x": 120,
-      "y": 260,
-      "dc": 3.6,
-      "amp": 0,
-      "freq": 0,
-      "wave": "sine"
-    },
-    {
-      "id": "rg",
-      "type": "R",
-      "part": "RG-150R",
-      "x": 260,
-      "y": 260,
-      "val": 150
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-20R",
-      "x": 280,
-      "y": 120,
-      "val": 20
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "2N3669",
-      "x": 480,
-      "y": 240,
-      "vgt": 0.6
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "07. الدائرة المكافئة بترانزستورين (PNP + NPN Latch)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "DC-12V",
-      "x": 120,
-      "y": 240,
-      "dc": 12,
-      "amp": 0,
-      "freq": 0,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-100R",
-      "x": 280,
-      "y": 120,
-      "val": 100
-    },
-    {
-      "id": "q_npn",
-      "type": "Q",
-      "part": "BC547-NPN",
-      "x": 480,
-      "y": 240,
-      "pol": "NPN",
-      "bf": 150
-    },
-    {
-      "id": "rg",
-      "type": "R",
-      "part": "RG-1k",
-      "x": 260,
-      "y": 260,
-      "val": 1000
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "08. قدح مقاومة بسيطة (Resistive Gate Control 0°-90°)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-115V-60Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 162,
-      "freq": 60,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-40R",
-      "x": 280,
-      "y": 120,
-      "val": 40
-    },
-    {
-      "id": "r1",
-      "type": "R",
-      "part": "R1-3k",
-      "x": 250,
-      "y": 240,
-      "val": 3000
-    },
-    {
-      "id": "r2",
-      "type": "POT",
-      "part": "POT-R2-10k",
-      "x": 360,
-      "y": 240,
-      "val": "10k",
-      "pct": 78
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "2N3669",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "09. قدح مقاومة مع دايود حماية البوابة (Gate + D1)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "LAMP-100W",
-      "x": 280,
-      "y": 120,
-      "val": 484
-    },
-    {
-      "id": "r1",
-      "type": "R",
-      "part": "R1-4.7k",
-      "x": 230,
-      "y": 240,
-      "val": 4700
-    },
-    {
-      "id": "r2",
-      "type": "POT",
-      "part": "POT-R2-22k",
-      "x": 320,
-      "y": 240,
-      "val": "22k",
-      "pct": 50
-    },
-    {
-      "id": "d1",
-      "type": "D",
-      "part": "1N4007-PROT",
-      "x": 400,
-      "y": 240
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "BT151-500R",
-      "x": 495,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "10. مسألة قدح عند 90° (115Vrms, R1=3k, R2=7.8k)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-115V-60Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 162,
-      "freq": 60,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-40R",
-      "x": 280,
-      "y": 120,
-      "val": 40
-    },
-    {
-      "id": "r1",
-      "type": "R",
-      "part": "R1-3k",
-      "x": 250,
-      "y": 240,
-      "val": 3000
-    },
-    {
-      "id": "r2",
-      "type": "R",
-      "part": "R2-7.8k",
-      "x": 360,
-      "y": 240,
-      "val": 7800
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "2N3669",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "11. تشغيل SCR مع مصدر مستمر (DC Latching Circuit)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "DC-24V",
-      "x": 120,
-      "y": 240,
-      "dc": 24,
-      "amp": 0,
-      "freq": 0,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-50R",
-      "x": 280,
-      "y": 120,
-      "val": 50
-    },
-    {
-      "id": "r1",
-      "type": "R",
-      "part": "R1-1k",
-      "x": 250,
-      "y": 240,
-      "val": 1000
-    },
-    {
-      "id": "sw1",
-      "type": "PUSH_BTN",
-      "part": "SW-FIRE",
-      "x": 360,
-      "y": 240,
-      "closed": true
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "BT151-500R",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "12. دائرة إنذار السرقة والمصانع (Industrial Alarm SW1)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "DC-12V",
-      "x": 120,
-      "y": 240,
-      "dc": 12,
-      "amp": 0,
-      "freq": 0,
-      "wave": "sine"
-    },
-    {
-      "id": "siren",
-      "type": "R",
-      "part": "SIREN-12V-ALARM",
-      "x": 280,
-      "y": 120,
-      "val": 24
-    },
-    {
-      "id": "sw_door",
-      "type": "SW",
-      "part": "LIMIT-SW1",
-      "x": 250,
-      "y": 240,
-      "closed": true
-    },
-    {
-      "id": "r1",
-      "type": "R",
-      "part": "R1-1k",
-      "x": 360,
-      "y": 240,
-      "val": 1000
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "NTE5452",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "13. إنذار حريق متعدد الحساسات (Fire Alarm + START/STOP)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "DC-12V",
-      "x": 120,
-      "y": 240,
-      "dc": 12,
-      "amp": 0,
-      "freq": 0,
-      "wave": "sine"
-    },
-    {
-      "id": "siren",
-      "type": "R",
-      "part": "SIREN-12V",
-      "x": 280,
-      "y": 120,
-      "val": 24
-    },
-    {
-      "id": "t1",
-      "type": "SW",
-      "part": "THERMOSTAT-T1",
-      "x": 250,
-      "y": 240,
-      "closed": true
-    },
-    {
-      "id": "r1",
-      "type": "R",
-      "part": "R1-1k",
-      "x": 360,
-      "y": 240,
-      "val": 1000
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "NTE5452",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "14. تحكم حراري في سخان بـ NTC ودايود تمرير (Heater Control)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "heater",
-      "type": "R",
-      "part": "HEATER-220V-1kW",
-      "x": 280,
-      "y": 120,
-      "val": 48.4
-    },
-    {
-      "id": "r1",
-      "type": "R",
-      "part": "R1-10k",
-      "x": 250,
-      "y": 240,
-      "val": 10000
-    },
-    {
-      "id": "ntc",
-      "type": "NTC",
-      "part": "NTC-10K",
-      "x": 360,
-      "y": 310,
-      "val": "10k"
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "BTA16-600B",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "15. تحكم حراري بقنطرة ومكثف 0.1uF (Full-Bridge Heater)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-120V-60Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 170,
-      "freq": 60,
-      "wave": "sine"
-    },
-    {
-      "id": "heater",
-      "type": "R",
-      "part": "HEATER-100W",
-      "x": 280,
-      "y": 120,
-      "val": 144
-    },
-    {
-      "id": "r1",
-      "type": "R",
-      "part": "R1-510k",
-      "x": 250,
-      "y": 240,
-      "val": 510000
-    },
-    {
-      "id": "c1",
-      "type": "C",
-      "part": "C1-0.1uF",
-      "x": 360,
-      "y": 310,
-      "val": 1e-07
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "2N6509",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "16. شاحن بطاريات أوتوماتيكي (SCR + Zener Charger)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "BAT-LOAD-12V",
-      "x": 280,
-      "y": 120,
-      "val": 15
-    },
-    {
-      "id": "r1",
-      "type": "R",
-      "part": "R1-1k",
-      "x": 250,
-      "y": 240,
-      "val": 1000
-    },
-    {
-      "id": "z1",
-      "type": "Z",
-      "part": "1N4742A-12V",
-      "x": 360,
-      "y": 310,
-      "val": 12.0
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "TYN612-CHG",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "17. إنذار المطر البسيط (Simple Rain Alarm Circuit)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "DC-9V",
-      "x": 120,
-      "y": 240,
-      "dc": 9,
-      "amp": 0,
-      "freq": 0,
-      "wave": "sine"
-    },
-    {
-      "id": "buzz",
-      "type": "R",
-      "part": "BUZZER-9V",
-      "x": 280,
-      "y": 120,
-      "val": 120
-    },
-    {
-      "id": "rain_pad",
-      "type": "R",
-      "part": "RAIN-SENSOR-2k",
-      "x": 250,
-      "y": 240,
-      "val": 2000
-    },
-    {
-      "id": "rg",
-      "type": "R",
-      "part": "RG-1k",
-      "x": 360,
-      "y": 240,
-      "val": 1000
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "2N5060",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.6
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "18. إنذار الإمالة والانقلاب (Tilt & Tip-Over Alarm)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "DC-12V",
-      "x": 120,
-      "y": 240,
-      "dc": 12,
-      "amp": 0,
-      "freq": 0,
-      "wave": "sine"
-    },
-    {
-      "id": "siren",
-      "type": "R",
-      "part": "SIREN-12V",
-      "x": 280,
-      "y": 120,
-      "val": 24
-    },
-    {
-      "id": "r1",
-      "type": "R",
-      "part": "R1-4.7k",
-      "x": 250,
-      "y": 240,
-      "val": 4700
-    },
-    {
-      "id": "tilt",
-      "type": "SW",
-      "part": "TILT-SWITCH",
-      "x": 360,
-      "y": 240,
-      "closed": true
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "NTE5452",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "19. إنذار قطع سلك الأرضي (Ground-Break Anti-Theft Alarm)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "DC-12V",
-      "x": 120,
-      "y": 240,
-      "dc": 12,
-      "amp": 0,
-      "freq": 0,
-      "wave": "sine"
-    },
-    {
-      "id": "buzz",
-      "type": "R",
-      "part": "BUZZER-12V",
-      "x": 280,
-      "y": 120,
-      "val": 120
-    },
-    {
-      "id": "r1",
-      "type": "R",
-      "part": "R1-1k",
-      "x": 250,
-      "y": 240,
-      "val": 1000
-    },
-    {
-      "id": "q1",
-      "type": "Q",
-      "part": "BC547-NPN",
-      "x": 490,
-      "y": 240,
-      "pol": "NPN",
-      "bf": 200
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "20. إنذار الخزينة بالضوء (Light-Activated LDR Alarm)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "DC-12V",
-      "x": 120,
-      "y": 240,
-      "dc": 12,
-      "amp": 0,
-      "freq": 0,
-      "wave": "sine"
-    },
-    {
-      "id": "buzz",
-      "type": "R",
-      "part": "BUZZER-12V",
-      "x": 280,
-      "y": 120,
-      "val": 120
-    },
-    {
-      "id": "ldr",
-      "type": "LDR",
-      "part": "LDR-LIGHT-1k",
-      "x": 250,
-      "y": 240,
-      "val": "1k"
-    },
-    {
-      "id": "r2",
-      "type": "POT",
-      "part": "POT-SENS-10k",
-      "x": 360,
-      "y": 310,
-      "val": "10k",
-      "pct": 50
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "NTE5452",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "21. قدح بمكثف لتخطي 90 درجة (RC Phase Delay > 90°)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "HEATER-100R",
-      "x": 280,
-      "y": 120,
-      "val": 100
-    },
-    {
-      "id": "r1",
-      "type": "R",
-      "part": "R1-2.2k",
-      "x": 250,
-      "y": 240,
-      "val": 2200
-    },
-    {
-      "id": "r2",
-      "type": "POT",
-      "part": "POT-R2-100k",
-      "x": 360,
-      "y": 240,
-      "val": "100k",
-      "pct": 65
-    },
-    {
-      "id": "c1",
-      "type": "C",
-      "part": "C1-100nF",
-      "x": 360,
-      "y": 320,
-      "val": 1e-07
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "TYN612",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "22. قدح بمكثف ومقاومة بوابة (Extended Capacitor Firing)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-60R",
-      "x": 280,
-      "y": 120,
-      "val": 60
-    },
-    {
-      "id": "r2",
-      "type": "POT",
-      "part": "POT-R2-100k",
-      "x": 240,
-      "y": 240,
-      "val": "100k",
-      "pct": 55
-    },
-    {
-      "id": "c1",
-      "type": "C",
-      "part": "C1-100nF",
-      "x": 320,
-      "y": 320,
-      "val": 1e-07
-    },
-    {
-      "id": "rg",
-      "type": "R",
-      "part": "RG-10k",
-      "x": 390,
-      "y": 240,
-      "val": 10000
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "TYN612",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "23. قدح بشبكة Double RC (C1=68nF, C2=33nF, R1=27k, R2=250k)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-50R",
-      "x": 280,
-      "y": 120,
-      "val": 50
-    },
-    {
-      "id": "r1",
-      "type": "R",
-      "part": "R1-27k",
-      "x": 220,
-      "y": 240,
-      "val": 27000
-    },
-    {
-      "id": "r2",
-      "type": "POT",
-      "part": "POT-R2-250k",
-      "x": 300,
-      "y": 240,
-      "val": "250k",
-      "pct": 40
-    },
-    {
-      "id": "c1",
-      "type": "C",
-      "part": "C1-68nF",
-      "x": 300,
-      "y": 320,
-      "val": 6.8e-08
-    },
-    {
-      "id": "r3",
-      "type": "R",
-      "part": "R3-150k",
-      "x": 380,
-      "y": 240,
-      "val": 150000
-    },
-    {
-      "id": "c2",
-      "type": "C",
-      "part": "C2-33nF",
-      "x": 380,
-      "y": 320,
-      "val": 3.3e-08
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "TYN612",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "24. قدح نبضي بترانزستور UJT (2N2646 Pulse Triggering)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-40R",
-      "x": 280,
-      "y": 120,
-      "val": 40
-    },
-    {
-      "id": "re",
-      "type": "POT",
-      "part": "POT-RE-22k",
-      "x": 250,
-      "y": 240,
-      "val": "22k",
-      "pct": 45
-    },
-    {
-      "id": "ce",
-      "type": "C",
-      "part": "CE-100nF",
-      "x": 350,
-      "y": 320,
-      "val": 1e-07
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "TYN612",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "25. قدح نبضي بمفتاح SBS (MBS4991 Temp-Independent)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-50R",
-      "x": 280,
-      "y": 120,
-      "val": 50
-    },
-    {
-      "id": "r1",
-      "type": "POT",
-      "part": "POT-47k",
-      "x": 240,
-      "y": 240,
-      "val": "47k",
-      "pct": 50
-    },
-    {
-      "id": "c1",
-      "type": "C",
-      "part": "C1-100nF",
-      "x": 310,
-      "y": 320,
-      "val": 1e-07
-    },
-    {
-      "id": "sbs1",
-      "type": "DIAC",
-      "part": "MBS4991-SBS",
-      "x": 390,
-      "y": 240,
-      "val": 8.0
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "TYN612",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "26. تحكم موجة كاملة أحادي الاتجاه + Trigger مشترك": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-25R",
-      "x": 280,
-      "y": 120,
-      "val": 25
-    },
-    {
-      "id": "trig",
-      "type": "GATE_FIRING",
-      "part": "COMMON-TRIGGER-45deg",
-      "x": 320,
-      "y": 240,
-      "alpha": 45,
-      "freq": 50
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "TYN612",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "27. تحكم سرعة محرك DC بموجة كاملة (DC Motor Speed Control)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "motor",
-      "type": "MOTOR",
-      "part": "MOTOR-DC-24V",
-      "x": 280,
-      "y": 120,
-      "load": 0
-    },
-    {
-      "id": "trig",
-      "type": "GATE_FIRING",
-      "part": "SPEED-TRIGGER-60deg",
-      "x": 320,
-      "y": 240,
-      "alpha": 60,
-      "freq": 50
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "TYN612",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "28. تحكم موجة كاملة ثنائي الاتجاه + Trigger (2 SCR Anti-Parallel)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "UNIVERSAL-MOTOR",
-      "x": 280,
-      "y": 120,
-      "val": 35
-    },
-    {
-      "id": "trig1",
-      "type": "GATE_FIRING",
-      "part": "DUAL-TRIGGER-120deg",
-      "x": 320,
-      "y": 240,
-      "alpha": 120,
-      "freq": 50
-    },
-    {
-      "id": "scr1",
-      "type": "TRIAC",
-      "part": "DUAL-SCR-EQUIV",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "29. البديل بترياك واحد + Trigger (Single TRIAC Dimmer)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "UNIVERSAL-MOTOR",
-      "x": 280,
-      "y": 120,
-      "val": 35
-    },
-    {
-      "id": "r1",
-      "type": "POT",
-      "part": "POT-DIMMER-100k",
-      "x": 240,
-      "y": 240,
-      "val": "100k",
-      "pct": 50
-    },
-    {
-      "id": "c1",
-      "type": "C",
-      "part": "C1-100nF",
-      "x": 310,
-      "y": 320,
-      "val": 1e-07
-    },
-    {
-      "id": "diac",
-      "type": "DIAC",
-      "part": "DB3-DIAC",
-      "x": 390,
-      "y": 240,
-      "val": 32
-    },
-    {
-      "id": "triac",
-      "type": "TRIAC",
-      "part": "BTA16-600B",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.8
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "30. قنطرة توحيد مع SCR واحد + Trigger (AC Load Control)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "AC-LOAD-50R",
-      "x": 280,
-      "y": 120,
-      "val": 50
-    },
-    {
-      "id": "rtrig",
-      "type": "POT",
-      "part": "POT-TRIGGER-47k",
-      "x": 260,
-      "y": 240,
-      "val": "47k",
-      "pct": 50
-    },
-    {
-      "id": "ctrig",
-      "type": "C",
-      "part": "CTRIG-100nF",
-      "x": 360,
-      "y": 320,
-      "val": 1e-07
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "TYN612",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "31. قنطرة توحيد مع SCR داخل مسار DC (Unidirectional Load)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "AC-220V-50Hz",
-      "x": 120,
-      "y": 240,
-      "dc": 0,
-      "amp": 311,
-      "freq": 50,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "DC-LOAD-50R",
-      "x": 280,
-      "y": 120,
-      "val": 50
-    },
-    {
-      "id": "trig",
-      "type": "GATE_FIRING",
-      "part": "DC-SIDE-TRIGGER",
-      "x": 320,
-      "y": 240,
-      "alpha": 60,
-      "freq": 50
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "TYN612",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "32. إطفاء قسري DC بقصر الترانزستور (Transistor Shunt Turn-Off)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "DC-48V",
-      "x": 120,
-      "y": 240,
-      "dc": 48,
-      "amp": 0,
-      "freq": 0,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-12R",
-      "x": 280,
-      "y": 120,
-      "val": 12
-    },
-    {
-      "id": "p_on",
-      "type": "V",
-      "part": "PULSE-ON-SCR",
-      "x": 280,
-      "y": 240,
-      "dc": 0,
-      "amp": 5,
-      "freq": 125,
-      "wave": "square"
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "2N6509",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "33. إطفاء قسري DC بالمكثف العكسي (Reverse-Bias Capacitor)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "DC-48V",
-      "x": 120,
-      "y": 240,
-      "dc": 48,
-      "amp": 0,
-      "freq": 0,
-      "wave": "sine"
-    },
-    {
-      "id": "rload",
-      "type": "R",
-      "part": "RLOAD-12R",
-      "x": 280,
-      "y": 120,
-      "val": 12
-    },
-    {
-      "id": "c_rev",
-      "type": "C",
-      "part": "C-COMM-22uF",
-      "x": 320,
-      "y": 320,
-      "val": 2.2e-05
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "2N6509",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ],
-  "34. قاطع تيار مستمر صناعي (DC Circuit Breaker SCR1 & SCR2)": [
-    {
-      "id": "v1",
-      "type": "V",
-      "part": "DC-48V",
-      "x": 120,
-      "y": 240,
-      "dc": 48,
-      "amp": 0,
-      "freq": 0,
-      "wave": "sine"
-    },
-    {
-      "id": "motor",
-      "type": "MOTOR",
-      "part": "MOTOR-DC-48V",
-      "x": 280,
-      "y": 120,
-      "load": 0
-    },
-    {
-      "id": "c_comm",
-      "type": "C",
-      "part": "C-COMM-10uF",
-      "x": 320,
-      "y": 320,
-      "val": 1e-05
-    },
-    {
-      "id": "scr1",
-      "type": "SCR",
-      "part": "SCR1-MAIN",
-      "x": 490,
-      "y": 240,
-      "vgt": 0.65
-    },
-    {
-      "id": "gnd",
-      "type": "GND",
-      "part": "GND",
-      "x": 300,
-      "y": 400
-    }
-  ]
+  "01. التمثيل بترانزستورين (Two-Transistor Analogy)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-16V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 24,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 30
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 20,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "R",
+        "part": "Rg-1000",
+        "x": 125,
+        "y": 225,
+        "rot": 0,
+        "val": 1000
+      },
+      {
+        "id": 6,
+        "type": "D",
+        "part": "1N4007",
+        "x": 185,
+        "y": 225,
+        "rot": 0
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 7,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 8,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "02. منحنى خواص الثايرستور (SCR V-I Characteristics)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-70V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 100,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 45
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 25,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "GATE_FIRING",
+        "part": "SYNC-45deg",
+        "x": 140,
+        "y": 230,
+        "rot": 0,
+        "alpha": 45,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 6,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 7,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "03. الدائرة الأساسية للـ SCR (Basic SCR Circuit)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-35V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 50,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 35
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 20,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "R",
+        "part": "Rg-1000",
+        "x": 125,
+        "y": 225,
+        "rot": 0,
+        "val": 1000
+      },
+      {
+        "id": 6,
+        "type": "D",
+        "part": "1N4007",
+        "x": 185,
+        "y": 225,
+        "rot": 0
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 7,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 8,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "04. مفتاح قدرة بالثايرستور (SCR Power Switch)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-106V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 150,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 25
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 30,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "R",
+        "part": "Rg-1000",
+        "x": 125,
+        "y": 225,
+        "rot": 0,
+        "val": 1000
+      },
+      {
+        "id": 6,
+        "type": "D",
+        "part": "1N4007",
+        "x": 185,
+        "y": 225,
+        "rot": 0
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 7,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 8,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "05. تحكم SCR في نصف الموجة (Half-Wave Phase Control)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-219V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 311,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 60
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 50,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "GATE_FIRING",
+        "part": "SYNC-60deg",
+        "x": 140,
+        "y": 230,
+        "rot": 0,
+        "alpha": 60,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 6,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 7,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "06. تأثير زاوية الإشعال (Effect of Firing Angle α)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-219V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 311,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 90
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 50,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "GATE_FIRING",
+        "part": "SYNC-90deg",
+        "x": 140,
+        "y": 230,
+        "rot": 0,
+        "alpha": 90,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 6,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 7,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "07. حساب قدرة الحمل المتردد (AC Load Power Calculation)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-219V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 311,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 45
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 40,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "GATE_FIRING",
+        "part": "SYNC-45deg",
+        "x": 140,
+        "y": 230,
+        "rot": 0,
+        "alpha": 45,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 6,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 7,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "08. قدح مقاومة بسيطة (Simple Resistive Gate Trigger)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-120V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 170,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 40
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 35,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "R",
+        "part": "Rg-1000",
+        "x": 125,
+        "y": 225,
+        "rot": 0,
+        "val": 1000
+      },
+      {
+        "id": 6,
+        "type": "D",
+        "part": "1N4007",
+        "x": 185,
+        "y": 225,
+        "rot": 0
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 7,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 8,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "09. قدح بمقاومة متغيرة (Variable Resistor Trigger)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-155V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 220,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 55
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 40,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "POT",
+        "part": "R-Phase",
+        "x": 120,
+        "y": 220,
+        "rot": 0,
+        "val": 1000,
+        "pct": 30
+      },
+      {
+        "id": 6,
+        "type": "C",
+        "part": "470nF",
+        "x": 160,
+        "y": 265,
+        "rot": 90,
+        "val": "470n"
+      },
+      {
+        "id": 7,
+        "type": "GATE_FIRING",
+        "part": "DIAC-DB3",
+        "x": 200,
+        "y": 220,
+        "rot": 0,
+        "alpha": 55,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 7,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 7,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 8,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 9,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "10. قدح مع دايود عزل البوابة (Diode Gate Isolation)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-155V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 220,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 50
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 40,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "R",
+        "part": "Rg-1000",
+        "x": 125,
+        "y": 225,
+        "rot": 0,
+        "val": 1000
+      },
+      {
+        "id": 6,
+        "type": "D",
+        "part": "1N4007",
+        "x": 185,
+        "y": 225,
+        "rot": 0
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 7,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 8,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "11. حدود القدح المقاومي 90 درجة (90° Limit of R-Trigger)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-155V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 220,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 85
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 45,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "R",
+        "part": "Rg-1000",
+        "x": 125,
+        "y": 225,
+        "rot": 0,
+        "val": 1000
+      },
+      {
+        "id": 6,
+        "type": "D",
+        "part": "1N4007",
+        "x": 185,
+        "y": 225,
+        "rot": 0
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 7,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 8,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "12. إنذار ضد السرقة بالثايرستور (SCR Latching Burglar Alarm)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-16V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 24,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 20
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 12,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "GATE_FIRING",
+        "part": "SYNC-20deg",
+        "x": 140,
+        "y": 230,
+        "rot": 0,
+        "alpha": 20,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 6,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 7,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "13. إنذار فتح الأبواب المستمر (DC Latching Door Alarm)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-16V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 24,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 25
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 12,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "GATE_FIRING",
+        "part": "SYNC-25deg",
+        "x": 140,
+        "y": 230,
+        "rot": 0,
+        "alpha": 25,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 6,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 7,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "14. حماية من زيادة الجهد (Zener Over-Voltage Crowbar)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-33V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 48,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 40
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 16,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "GATE_FIRING",
+        "part": "SYNC-40deg",
+        "x": 140,
+        "y": 230,
+        "rot": 0,
+        "alpha": 40,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 6,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 7,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "15. التحكم في سخان حراري (SCR Heater Controller)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-219V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 311,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 50
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 30,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "GATE_FIRING",
+        "part": "SYNC-50deg",
+        "x": 140,
+        "y": 230,
+        "rot": 0,
+        "alpha": 50,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 6,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 7,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "16. منظم إضاءة نصف موجة (Half-Wave Lamp Dimmer)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-219V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 311,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 75
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 60,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "POT",
+        "part": "R-Phase",
+        "x": 120,
+        "y": 220,
+        "rot": 0,
+        "val": 1000,
+        "pct": 41
+      },
+      {
+        "id": 6,
+        "type": "C",
+        "part": "470nF",
+        "x": 160,
+        "y": 265,
+        "rot": 90,
+        "val": "470n"
+      },
+      {
+        "id": 7,
+        "type": "GATE_FIRING",
+        "part": "DIAC-DB3",
+        "x": 200,
+        "y": 220,
+        "rot": 0,
+        "alpha": 75,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 7,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 7,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 8,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 9,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "17. شاحن بطارية أوتوماتيكي (Automatic SCR Battery Charger)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-31V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 45,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 40
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 10,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "R",
+        "part": "Rg-1000",
+        "x": 125,
+        "y": 225,
+        "rot": 0,
+        "val": 1000
+      },
+      {
+        "id": 6,
+        "type": "D",
+        "part": "1N4007",
+        "x": 185,
+        "y": 225,
+        "rot": 0
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 7,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 8,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "18. دائرة فصل الشحن بالزينر (Zener Charge Cutoff Circuit)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-31V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 45,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 55
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 12,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "GATE_FIRING",
+        "part": "SYNC-55deg",
+        "x": 140,
+        "y": 230,
+        "rot": 0,
+        "alpha": 55,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 6,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 7,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "19. مفتاح طوارئ للإضاءة (Emergency Backup Light Switch)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-16V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 24,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 20
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 10,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "R",
+        "part": "Rg-1000",
+        "x": 125,
+        "y": 225,
+        "rot": 0,
+        "val": 1000
+      },
+      {
+        "id": 6,
+        "type": "D",
+        "part": "1N4007",
+        "x": 185,
+        "y": 225,
+        "rot": 0
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 7,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 8,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "20. إنذار الخزينة بالضوء (Light-Activated LDR Vault Alarm)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-16V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 24,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 30
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 12,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "GATE_FIRING",
+        "part": "SYNC-30deg",
+        "x": 140,
+        "y": 230,
+        "rot": 0,
+        "alpha": 30,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 6,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 7,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "21. قدح بمكثف لتخطي 90 درجة (RC Phase-Shift > 90°)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-219V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 311,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 115
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 50,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "POT",
+        "part": "R-Phase",
+        "x": 120,
+        "y": 220,
+        "rot": 0,
+        "val": 1000,
+        "pct": 63
+      },
+      {
+        "id": 6,
+        "type": "C",
+        "part": "470nF",
+        "x": 160,
+        "y": 265,
+        "rot": 90,
+        "val": "470n"
+      },
+      {
+        "id": 7,
+        "type": "GATE_FIRING",
+        "part": "DIAC-DB3",
+        "x": 200,
+        "y": 220,
+        "rot": 0,
+        "alpha": 115,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 7,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 7,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 8,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 9,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "22. شبكة RC مزدوجة للقدح (Double RC Phase-Shift Network)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-219V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 311,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 135
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 50,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "POT",
+        "part": "R-Phase",
+        "x": 120,
+        "y": 220,
+        "rot": 0,
+        "val": 1000,
+        "pct": 75
+      },
+      {
+        "id": 6,
+        "type": "C",
+        "part": "470nF",
+        "x": 160,
+        "y": 265,
+        "rot": 90,
+        "val": "470n"
+      },
+      {
+        "id": 7,
+        "type": "GATE_FIRING",
+        "part": "DIAC-DB3",
+        "x": 200,
+        "y": 220,
+        "rot": 0,
+        "alpha": 135,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 7,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 7,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 8,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 9,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "23. مذبذب التراخي UJT (UJT Relaxation Oscillator)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-33V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 48,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 65
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 20,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "POT",
+        "part": "R-Phase",
+        "x": 120,
+        "y": 220,
+        "rot": 0,
+        "val": 1000,
+        "pct": 36
+      },
+      {
+        "id": 6,
+        "type": "C",
+        "part": "470nF",
+        "x": 160,
+        "y": 265,
+        "rot": 90,
+        "val": "470n"
+      },
+      {
+        "id": 7,
+        "type": "GATE_FIRING",
+        "part": "DIAC-DB3",
+        "x": 200,
+        "y": 220,
+        "rot": 0,
+        "alpha": 65,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 7,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 7,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 8,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 9,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "24. قدح الثايرستور بـ UJT (UJT Triggered SCR Control)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-155V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 220,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 70
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 40,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "POT",
+        "part": "R-Phase",
+        "x": 120,
+        "y": 220,
+        "rot": 0,
+        "val": 1000,
+        "pct": 38
+      },
+      {
+        "id": 6,
+        "type": "C",
+        "part": "470nF",
+        "x": 160,
+        "y": 265,
+        "rot": 90,
+        "val": "470n"
+      },
+      {
+        "id": 7,
+        "type": "GATE_FIRING",
+        "part": "DIAC-DB3",
+        "x": 200,
+        "y": 220,
+        "rot": 0,
+        "alpha": 70,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 7,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 7,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 8,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 9,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "25. إنذار الحريق بالحرارة (NTC Over-Temperature Fire Alarm)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-16V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 24,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 25
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 12,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "GATE_FIRING",
+        "part": "SYNC-25deg",
+        "x": 140,
+        "y": 230,
+        "rot": 0,
+        "alpha": 25,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 6,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 7,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "26. توحيد موجة كاملة بـ 2 SCR (2-SCR Full-Wave Midpoint)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-155V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 220,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 45
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 35,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "GATE_FIRING",
+        "part": "SYNC-45deg",
+        "x": 140,
+        "y": 230,
+        "rot": 0,
+        "alpha": 45,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 6,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 7,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "27. تحكم سرعة محرك DC بموجة كاملة (Full-Wave DC Motor Drive)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-155V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 220,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 50
+      },
+      {
+        "id": 3,
+        "type": "MOTOR",
+        "part": "DC-MOTOR",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 25,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "GATE_FIRING",
+        "part": "SYNC-50deg",
+        "x": 140,
+        "y": 230,
+        "rot": 0,
+        "alpha": 50,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 6,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 7,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "28. مفتاح متردد بثايرستورين متعاكسين (Inverse-Parallel SCRs)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-219V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 311,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 60
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 40,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "GATE_FIRING",
+        "part": "SYNC-60deg",
+        "x": 140,
+        "y": 230,
+        "rot": 0,
+        "alpha": 60,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 6,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 7,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "29. البديل بترياك واحد (Single TRIAC AC Switch)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-219V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 311,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 60
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 40,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "POT",
+        "part": "R-Phase",
+        "x": 120,
+        "y": 220,
+        "rot": 0,
+        "val": 1000,
+        "pct": 33
+      },
+      {
+        "id": 6,
+        "type": "C",
+        "part": "470nF",
+        "x": 160,
+        "y": 265,
+        "rot": 90,
+        "val": "470n"
+      },
+      {
+        "id": 7,
+        "type": "GATE_FIRING",
+        "part": "DIAC-DB3",
+        "x": 200,
+        "y": 220,
+        "rot": 0,
+        "alpha": 60,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 7,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 7,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 8,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 9,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "30. ديمر إضاءة بالترياك والدياك (TRIAC-DIAC Light Dimmer)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-219V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 311,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 80
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 50,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "POT",
+        "part": "R-Phase",
+        "x": 120,
+        "y": 220,
+        "rot": 0,
+        "val": 1000,
+        "pct": 44
+      },
+      {
+        "id": 6,
+        "type": "C",
+        "part": "470nF",
+        "x": 160,
+        "y": 265,
+        "rot": 90,
+        "val": "470n"
+      },
+      {
+        "id": 7,
+        "type": "GATE_FIRING",
+        "part": "DIAC-DB3",
+        "x": 200,
+        "y": 220,
+        "rot": 0,
+        "alpha": 80,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 7,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 7,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 8,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 9,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "31. التحكم في سرعة مروحة مترددة (AC Fan Speed Controller)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-219V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 311,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 70
+      },
+      {
+        "id": 3,
+        "type": "MOTOR",
+        "part": "DC-MOTOR",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 45,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "GATE_FIRING",
+        "part": "SYNC-70deg",
+        "x": 140,
+        "y": 230,
+        "rot": 0,
+        "alpha": 70,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 6,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 7,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "32. قدح معزول ضوئياً (Opto-Isolated Gate Trigger)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "AC-155V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 0,
+        "amp": 220,
+        "freq": 50,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "BT151-500R",
+        "x": 200,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.005,
+        "alpha": 50
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 40,
+        "load": 0.08
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "GATE_FIRING",
+        "part": "SYNC-50deg",
+        "x": 140,
+        "y": 230,
+        "rot": 0,
+        "alpha": 50,
+        "freq": 50
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 6,
+        "compId": 1,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Source)",
+        "color": "#facc15"
+      },
+      {
+        "id": 7,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Out)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "33. إطفاء الثايرستور بترانزستور التوازي (Transistor Shunt Turn-Off)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "DC-24V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 24,
+        "amp": 0,
+        "freq": 0,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "SCR-Main",
+        "x": 195,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.01
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 12
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "V",
+        "part": "IG-Pulse",
+        "x": 135,
+        "y": 220,
+        "rot": 0,
+        "dc": 0,
+        "amp": 6,
+        "freq": 25,
+        "wave": "pulse",
+        "duty": 0.12
+      },
+      {
+        "id": 6,
+        "type": "SW",
+        "part": "COMM-SW",
+        "x": 135,
+        "y": 120,
+        "rot": 0,
+        "closed": true,
+        "t_on": 0.0,
+        "t_off": 0.022
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 7,
+        "compId": 5,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Gate Trigger)",
+        "color": "#facc15"
+      },
+      {
+        "id": 8,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Commutated)",
+        "color": "#38bdf8"
+      }
+    ]
+  },
+  "34. قاطع تيار مستمر صناعي بمكثف الإطفاء (Forced C-Commutation Chopper)": {
+    "tStop": 0.04,
+    "components": [
+      {
+        "id": 1,
+        "type": "V",
+        "part": "DC-48V",
+        "x": 70,
+        "y": 170,
+        "rot": 0,
+        "dc": 48,
+        "amp": 0,
+        "freq": 0,
+        "wave": "sine"
+      },
+      {
+        "id": 2,
+        "type": "TRIAC",
+        "part": "SCR-Main",
+        "x": 195,
+        "y": 120,
+        "rot": 0,
+        "vgt": 0.6,
+        "ih": 0.01
+      },
+      {
+        "id": 3,
+        "type": "R",
+        "part": "LOAD",
+        "x": 310,
+        "y": 170,
+        "rot": 90,
+        "val": 16
+      },
+      {
+        "id": 4,
+        "type": "GND",
+        "part": "GND",
+        "x": 70,
+        "y": 290,
+        "rot": 0
+      },
+      {
+        "id": 5,
+        "type": "V",
+        "part": "IG-Pulse",
+        "x": 135,
+        "y": 220,
+        "rot": 0,
+        "dc": 0,
+        "amp": 6,
+        "freq": 25,
+        "wave": "pulse",
+        "duty": 0.12
+      },
+      {
+        "id": 6,
+        "type": "SW",
+        "part": "AUX-SCR-C",
+        "x": 135,
+        "y": 120,
+        "rot": 0,
+        "closed": true,
+        "t_on": 0.0,
+        "t_off": 0.022
+      }
+    ],
+    "wires": [
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 6,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 6,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 2,
+          "pin": 2
+        }
+      },
+      {
+        "from": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 3,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 3,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 1,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 0,
+          "pin": 0
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 4,
+          "pinIdx": 0,
+          "pin": 0
+        }
+      }
+    ],
+    "probes": [
+      {
+        "id": 7,
+        "compId": 5,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH1 (Gate Trigger)",
+        "color": "#facc15"
+      },
+      {
+        "id": 8,
+        "compId": 3,
+        "pinIdx": 0,
+        "pin": 0,
+        "label": "CH2 (Load Commutated)",
+        "color": "#38bdf8"
+      }
+    ]
+  }
 };
+
 function launchExactDemoCircuit(key) {
   if (!window.EXTRA_LECTURE_PRESETS || !window.EXTRA_LECTURE_PRESETS[key]) return;
-  const rawList = JSON.parse(JSON.stringify(window.EXTRA_LECTURE_PRESETS[key]));
+  const net = JSON.parse(JSON.stringify(window.EXTRA_LECTURE_PRESETS[key]));
 
   if (typeof components !== 'undefined') components.length = 0;
   if (typeof wires !== 'undefined') wires.length = 0;
   if (typeof probes !== 'undefined') probes.length = 0;
   if (typeof deselectAll === 'function') deselectAll();
-  if (typeof tStopVal !== 'undefined') tStopVal = 0.04;
+  if (typeof tStopVal !== 'undefined') tStopVal = net.tStop || 0.04;
 
-  const builtComps = [];
-  const builtWires = [];
-  const builtProbes = [];
-
-  let gnd = rawList.find(c => c.type === 'GND') || { type: 'GND', part: 'GND' };
-  const src = rawList.find(c => c.type === 'V' || c.type === 'VCC');
-  const load = rawList.find(c => ['rload', 'heater', 'siren', 'buzz'].includes(c.id) || c.type === 'MOTOR');
-  const mainSw = rawList.find(c => ['SCR', 'TRIAC', 'Q', 'M'].includes(c.type));
-  const ctrlChain = rawList.filter(c => c !== gnd && c !== src && c !== load && c !== mainSw);
-
-  let idCounter = 1;
-  let srcId = null, loadId = null, swId = null, gndId = null;
-
-  if (src) {
-    srcId = idCounter++;
-    builtComps.push({
-      id: srcId, type: src.type, part: src.part || 'AC-220V',
-      x: 70, y: 170, rot: 0,
-      dc: src.dc || 0, amp: src.amp || 0, freq: src.freq || 0, wave: src.wave || 'sine'
-    });
+  if (typeof components !== 'undefined' && Array.isArray(net.components)) {
+    net.components.forEach(c => components.push(c));
+  }
+  if (typeof wires !== 'undefined' && Array.isArray(net.wires)) {
+    net.wires.forEach(w => wires.push(w));
+  }
+  if (typeof probes !== 'undefined' && Array.isArray(net.probes)) {
+    net.probes.forEach(p => probes.push(p));
+  }
+  if (typeof nextId !== 'undefined') {
+    nextId = 25;
   }
 
-  if (load) {
-    loadId = idCounter++;
-    builtComps.push({
-      id: loadId, type: load.type, part: load.part || 'LOAD',
-      x: 190, y: 100, rot: 0,
-      val: load.val || 50, load: load.load || 0
-    });
-  }
-
-  if (mainSw) {
-    swId = idCounter++;
-    const visualType = (mainSw.type === 'SCR') ? 'TRIAC' : mainSw.type;
-    builtComps.push({
-      id: swId, type: visualType, part: mainSw.part || 'BT151-500R',
-      x: 310, y: 170, rot: 0,
-      vgt: 0.65, alpha: 60, bf: mainSw.bf || 150, pol: mainSw.pol || 'NPN'
-    });
-  }
-
-  // إذا كانت الدائرة لا تحتوي على مقاومة بوابة صريحة، نضيف وحدة قدح مضبوطة بزاوية 60° حتى يعمل الثايرستور والمحرك فوراً
-  const ctrlIds = [];
-  if (ctrlChain.length === 0 && swId) {
-    const trigId = idCounter++;
-    builtComps.push({
-      id: trigId, type: 'GATE_FIRING', part: 'TRIG-60deg',
-      x: 190, y: 195, rot: 0, alpha: 60, freq: (src && src.freq) ? src.freq : 50
-    });
-    ctrlIds.push({ id: trigId, isShunt: false });
-  } else {
-    ctrlChain.forEach((c, idx) => {
-      const cid = idCounter++;
-      const isShunt = ['C', 'CELEC', 'Z', 'NTC'].includes(c.type);
-      const visualT = (c.type === 'UJT') ? 'Q' : c.type;
-      builtComps.push({
-        id: cid, type: visualT, part: c.part || c.type,
-        x: 165 + (idx % 2) * 75,
-        y: isShunt ? 245 : 170,
-        rot: isShunt ? 90 : 0,
-        val: c.val || 1000,
-        pct: c.pct || 50,
-        closed: true,
-        alpha: c.alpha || 60,
-        freq: c.freq || 50
-      });
-      ctrlIds.push({ id: cid, isShunt: isShunt });
-    });
-  }
-
-  gndId = idCounter++;
-  builtComps.push({ id: gndId, type: 'GND', part: 'GND', x: 70, y: 290, rot: 0 });
-
-  function addWire(c1, p1, c2, p2) {
-    builtWires.push({
-      from: { compId: c1, pinIdx: p1, pin: p1 },
-      to: { compId: c2, pinIdx: p2, pin: p2 }
-    });
-  }
-
-  // توصيل القدرة: المصدر -> الثايرستور (MT2=2 -> MT1=1) -> الحمل/المحرك -> الأرضي
-  // هذا الترتيب يجعل طرف الحمل الموجب (pin 0) يعرض موجة الخرج المقطوعة بالثايرستور مباشرة بالنسبة للأرضي!
-  if (srcId && loadId && swId) {
-    addWire(srcId, 0, swId, 2);
-    addWire(swId, 1, loadId, 0);
-    addWire(loadId, 1, gndId, 0);
-    addWire(srcId, 1, gndId, 0);
-  } else if (srcId && loadId) {
-    addWire(srcId, 0, loadId, 0);
-    addWire(loadId, 1, gndId, 0);
-    addWire(srcId, 1, gndId, 0);
-  } else if (srcId && swId) {
-    addWire(srcId, 0, swId, 2);
-    addWire(swId, 1, gndId, 0);
-    addWire(srcId, 1, gndId, 0);
-  }
-
-  // توصيل دائرة القدح إلى بوابة الثايرستور (pinIdx: 0)
-  let feedComp = srcId;
-  let feedPin = 0;
-  ctrlIds.forEach(item => {
-    if (item.isShunt) {
-      if (feedComp) addWire(feedComp, feedPin, item.id, 0);
-      addWire(item.id, 1, gndId, 0);
-    } else {
-      if (feedComp) addWire(feedComp, feedPin, item.id, 0);
-      feedComp = item.id;
-      feedPin = 1;
-    }
-  });
-  if (feedComp && swId) {
-    addWire(feedComp, feedPin, swId, 0);
-  }
-
-  // CH1: جهد الدخل (Source +) | CH2: جهد الخرج على الحمل/المحرك (Load pin 0 بالنسبة للأرضي)
-  if (srcId) {
-    builtProbes.push({ id: idCounter++, compId: srcId, pinIdx: 0, pin: 0, label: 'CH1 (Input)', color: '#facc15' });
-  }
-  if (loadId) {
-    builtProbes.push({ id: idCounter++, compId: loadId, pinIdx: 0, pin: 0, label: 'CH2 (Load Out)', color: '#38bdf8' });
-  } else if (swId) {
-    builtProbes.push({ id: idCounter++, compId: swId, pinIdx: 0, pin: 0, label: 'CH2 (Gate)', color: '#38bdf8' });
-  }
-
-  if (typeof components !== 'undefined') builtComps.forEach(c => components.push(c));
-  if (typeof wires !== 'undefined') builtWires.forEach(w => wires.push(w));
-  if (typeof probes !== 'undefined') builtProbes.forEach(p => probes.push(p));
-  if (typeof nextId !== 'undefined') nextId = idCounter + 1;
-
-  // ضبط تلقائي لمقياس الفولت (Volts/Div) بحيث تظهر موجة 48V أو 311V داخل الشاشة بوضوح تام
+  // ضبط مقياس الأوسليسكوب تلقائياً ليتناسب مع جهد الدائرة
+  const src = (net.components || []).find(c => c.type === 'V' || c.type === 'VCC');
   const vPeak = src ? Math.max(Math.abs(src.amp || 0), Math.abs(src.dc || 0), 10) : 50;
-  const idealDiv = Math.max(5, Math.ceil(vPeak / 2.2));
+  const idealDiv = Math.max(5, Math.ceil(vPeak / 2.5));
   document.querySelectorAll('input[type="range"]').forEach(sl => {
-    const handler = (sl.getAttribute('oninput') || '') + (sl.id || '');
-    if (handler.toLowerCase().includes('ch1') || handler.toLowerCase().includes('ch2') || handler.toLowerCase().includes('scale')) {
+    const h = ((sl.getAttribute('oninput') || '') + (sl.id || '')).toLowerCase();
+    if (h.includes('ch1') || h.includes('ch2') || h.includes('scale')) {
       sl.max = Math.max(Number(sl.max || 100), idealDiv * 2);
       sl.value = idealDiv;
       sl.dispatchEvent(new Event('input'));
@@ -1877,7 +5727,6 @@ function attachLectureCircuitsToLoadDemo() {
   sel.innerHTML = existing + extra;
   sel.dataset.demo34Bound = '1';
 
-  // اعتراض حدث الاختيار لتشغيل الدائرة فوراً ورسمها على البوردة
   sel.addEventListener('change', function(e) {
     const val = this.value;
     if (window.EXTRA_LECTURE_PRESETS && window.EXTRA_LECTURE_PRESETS[val]) {
@@ -1888,200 +5737,4 @@ function attachLectureCircuitsToLoadDemo() {
 }
 
 window.addEventListener('DOMContentLoaded', attachLectureCircuitsToLoadDemo);
-setInterval(attachLectureCircuitsToLoadDemo, 300);
-
-
-function initUnifiedScopeDashboard() {
-  // إيجاد عنصر الـ canvas الخاص بالأوسليسكوب نفسه
-  const scopeCanvas = Array.from(document.querySelectorAll('canvas')).find(c =>
-    c.id !== 'uniMotorMiniCanvas' && c.width >= 200 && c.closest('div') &&
-    c.closest('div').parentElement && c.closest('div').parentElement.textContent.includes('Proteus Virtual Oscilloscope')
-  );
-  if (!scopeCanvas || document.getElementById('unifiedMotorPowerBar')) return;
-
-  // الصعود لأقرب حاوية عمودية (Card/Modal body) وتأمين عرضها الكامل
-  let modalBody = scopeCanvas.parentElement;
-  while (modalBody && getComputedStyle(modalBody).display === 'flex' && getComputedStyle(modalBody).flexDirection === 'row') {
-    modalBody = modalBody.parentElement;
-  }
-  if (!modalBody) return;
-
-  modalBody.style.width = '95vw';
-  modalBody.style.maxWidth = '540px';
-  modalBody.style.boxSizing = 'border-box';
-  modalBody.style.overflowX = 'hidden';
-
-  const bar = document.createElement('div');
-  bar.id = 'unifiedMotorPowerBar';
-  bar.dir = 'rtl';
-  bar.style.cssText = 'width:100%;box-sizing:border-box;margin-top:8px;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:10px;color:#f8fafc;font-size:12px;display:block;clear:both;';
-  bar.innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;text-align:center;margin-bottom:6px;">
-      <div style="background:#1e293b;padding:4px 2px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">القدرة</div><div id="uniPowerVal" style="color:#4ade80;font-weight:bold;font-size:11px;">0.00 W</div></div>
-      <div style="background:#1e293b;padding:4px 2px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">السرعة</div><div id="uniRpmVal" style="color:#38bdf8;font-weight:bold;font-size:11px;">0 RPM</div></div>
-      <div style="background:#1e293b;padding:4px 2px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">العزم</div><div id="uniTorqueVal" style="color:#facc15;font-weight:bold;font-size:11px;">0.00 Nm</div></div>
-      <div style="background:#1e293b;padding:4px 2px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">التيار</div><div id="uniCurrVal" style="color:#f472b6;font-weight:bold;font-size:11px;">0.00 A</div></div>
-    </div>
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-      <span style="color:#e2e8f0;font-weight:bold;font-size:11px;white-space:nowrap;">زاوية الإشعال α: <strong id="uniAlphaText" style="color:#facc15;">60°</strong></span>
-      <input id="uniAlphaSlider" type="range" min="5" max="175" value="60" style="flex:1;min-width:0;accent-color:#facc15;cursor:pointer;">
-    </div>
-    <canvas id="uniMotorMiniCanvas" width="320" height="50" style="width:100%;height:50px;background:#020617;border:1px solid #1e293b;border-radius:6px;display:block;"></canvas>
-  `;
-
-  // إدراج اللوحة أسفل حاوية الكانفاس مباشرة كصف رأسي مستقل
-  const canvasWrapper = scopeCanvas.parentElement;
-  if (canvasWrapper && canvasWrapper.parentNode) {
-    canvasWrapper.parentNode.insertBefore(bar, canvasWrapper.nextSibling);
-  } else {
-    modalBody.appendChild(bar);
-  }
-
-  const slider = document.getElementById('uniAlphaSlider');
-  const alphaTxt = document.getElementById('uniAlphaText');
-  slider.addEventListener('input', function() {
-    const deg = Number(this.value);
-    alphaTxt.textContent = deg + '°';
-    if (typeof components !== 'undefined') {
-      components.forEach(c => {
-        if (c.type === 'GATE_FIRING' || c.type === 'TRIAC' || c.type === 'SCR') {
-          c.alpha = deg;
-        }
-      });
-    }
-    if (typeof runSim === 'function') runSim();
-  });
-}
-
-(function hookFetchForUnifiedWindow() {
-  const origFetch = window.fetch;
-  window.fetch = async function(...args) {
-    const resp = await origFetch.apply(this, args);
-    try {
-      const url = typeof args[0] === 'string' ? args[0] : (args[0] && args[0].url) || '';
-      if (url.includes('sim') || url.includes('run')) {
-        const clone = resp.clone();
-        const data = await clone.json();
-        setTimeout(() => updateUnifiedDashboardData(data), 80);
-      }
-    } catch (e) {}
-    return resp;
-  };
-})();
-
-function updateUnifiedDashboardData(data) {
-  initUnifiedScopeDashboard();
-  if (!data) return;
-
-  let totalW = 0;
-  const pStats = data.power_stats || data.powers || {};
-  Object.values(pStats).forEach(v => {
-    if (typeof v === 'number') totalW += v;
-    else if (v && typeof v === 'object') totalW += Number(v.watts || v.power || v.p || 0);
-  });
-  const pEl = document.getElementById('uniPowerVal');
-  if (pEl) pEl.textContent = totalW.toFixed(2) + ' W';
-
-  const mStats = data.motor_stats || data.motors || {};
-  const mKeys = Object.keys(mStats);
-  const rpmEl = document.getElementById('uniRpmVal');
-  const trqEl = document.getElementById('uniTorqueVal');
-  const curEl = document.getElementById('uniCurrVal');
-  const miniCvs = document.getElementById('uniMotorMiniCanvas');
-
-  if (mKeys.length > 0) {
-    const m = mStats[mKeys[0]];
-    if (rpmEl) rpmEl.textContent = Math.round(m.rpm || 0) + ' RPM';
-    if (trqEl) trqEl.textContent = Number(m.torque || 0).toFixed(2) + ' Nm';
-    if (curEl) curEl.textContent = Number(m.current || 0).toFixed(2) + ' A';
-
-    if (miniCvs && m.history && Array.isArray(m.history.rpm) && m.history.rpm.length > 1) {
-      const ctx = miniCvs.getContext('2d');
-      const W = miniCvs.width, H = miniCvs.height;
-      ctx.clearRect(0, 0, W, H);
-      const rpms = m.history.rpm;
-      const maxRpm = Math.max(100, ...rpms);
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      rpms.forEach((val, i) => {
-        const x = (i / (rpms.length - 1)) * W;
-        const y = H - 6 - ((val / maxRpm) * (H - 16));
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-      ctx.fillStyle = '#e2e8f0';
-      ctx.font = 'bold 10px sans-serif';
-      ctx.textAlign = 'right';
-      ctx.fillText('منحنى تسارع المحرك (RPM)', W - 8, 12);
-    }
-  } else if (miniCvs) {
-    const ctx = miniCvs.getContext('2d');
-    ctx.clearRect(0, 0, miniCvs.width, miniCvs.height);
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '11px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('لا يوجد عنصر محرك في هذه الدائرة (اختر 27 أو 34 لعرض منحنى RPM)', miniCvs.width / 2, 32);
-  }
-}
-
-setInterval(initUnifiedScopeDashboard, 600);
-
-
-
-function makeScopeFullScreenAndLive() {
-  const scopeCanvas = Array.from(document.querySelectorAll('canvas')).find(c =>
-    c.id !== 'uniMotorMiniCanvas' && c.width >= 200 && c.parentElement &&
-    c.parentElement.parentElement && c.parentElement.parentElement.textContent.includes('Proteus Virtual Oscilloscope')
-  );
-  if (!scopeCanvas) return;
-
-  // 1. توسيع نافذة الأوسليسكوب لتملأ الشاشة بالكامل (100% Full-Screen)
-  let modal = scopeCanvas.parentElement.parentElement;
-  if (modal && modal.dataset.fullScreenApplied !== '1') {
-    modal.style.position = 'fixed';
-    modal.style.top = '0';
-    modal.style.left = '0';
-    modal.style.width = '100vw';
-    modal.style.height = '100vh';
-    modal.style.maxWidth = '100vw';
-    modal.style.maxHeight = '100vh';
-    modal.style.margin = '0';
-    modal.style.borderRadius = '0';
-    modal.style.overflowY = 'auto';
-    modal.style.zIndex = '9999';
-    modal.dataset.fullScreenApplied = '1';
-
-    // تكبير شاشة الموجات نفسها لتكون واضحة وعريضة
-    scopeCanvas.style.width = '100%';
-    scopeCanvas.style.height = '240px';
-  }
-
-  // 2. ربط منزلق Live Source / Angle α الأصلي ليغير زاوية الإشعال في كل دوائر SCR الـ 34
-  const alphaSlider = Array.from(modal.querySelectorAll('input[type="range"]')).find(inp => {
-    const pText = inp.parentElement ? inp.parentElement.textContent : '';
-    return pText.includes('Angle') || pText.includes('Live Source');
-  });
-  if (alphaSlider && alphaSlider.dataset.alphaBound34 !== '1') {
-    alphaSlider.dataset.alphaBound34 = '1';
-    alphaSlider.min = '5';
-    alphaSlider.max = '175';
-    alphaSlider.addEventListener('input', function() {
-      const deg = Number(this.value);
-      if (typeof components !== 'undefined') {
-        components.forEach(c => {
-          if (c.type === 'GATE_FIRING' || c.type === 'TRIAC' || c.type === 'SCR') {
-            c.alpha = deg;
-          }
-          // في دوائر القدح بالمقاومة المتغيرة (POT)، تغيير الزاوية يغير نسبة المقاومة تلقائياً
-          if (c.type === 'POT') {
-            c.pct = Math.min(95, Math.max(5, Math.round((deg / 180) * 100)));
-          }
-        });
-      }
-      if (typeof runSim === 'function') runSim();
-    });
-  }
-}
-
-setInterval(makeScopeFullScreenAndLive, 350);
+setInterval(attachLectureCircuitsToLoadDemo, 350);

@@ -100,22 +100,48 @@ class ProSpiceBDF2Solver:
         dc = float(el.get('dc', 0.0))
         amp = float(el.get('amp', 0.0))
         freq = float(el.get('freq', 0.0))
-        wave = el.get('wave', 'sine')
+        wave = str(el.get('wave', 'sine')).lower()
+        phase_deg = float(el.get('phase', 0.0))
+        delay = float(el.get('delay', 0.0))
+        duty = float(el.get('duty', 0.5))
+
+        if t < delay:
+            return dc
+        t_eff = t - delay
         if freq <= 0 or amp == 0:
             return dc
-        phase = 2.0 * math.pi * freq * t
-        if wave in ('square', 'pulse'):
-            return dc + (amp if math.sin(phase) >= 0 else 0.0)
+
+        period = 1.0 / freq
+        pos = ((t_eff + (phase_deg / 360.0) * period) % period) / period
+        phase = 2.0 * math.pi * pos
+
+        if wave == 'square':
+            return dc + (amp if pos < duty else 0.0)
+        elif wave == 'pulse':
+            w_duty = float(el.get('duty', 0.15))
+            return dc + (amp if pos < w_duty else 0.0)
+        elif wave == 'triangle':
+            tri = 4.0 * pos if pos < 0.25 else (2.0 - 4.0 * pos if pos < 0.75 else 4.0 * pos - 4.0)
+            return dc + amp * tri
+        elif wave == 'sawtooth':
+            return dc + amp * (2.0 * pos - 1.0)
         return dc + amp * math.sin(phase)
 
-    def solve_transient(self, t_stop=0.04, num_steps=1200, dt_base=None, **kwargs):
+    def solve_transient(self, t_stop=0.04, num_steps=800, dt_base=None, **kwargs):
         if dt_base and dt_base > 0:
-            num_steps = max(800, min(3000, int(round(float(t_stop) / float(dt_base)))))
+            num_steps = max(400, min(2000, int(round(float(t_stop) / float(dt_base)))))
         else:
-            num_steps = 1200
+            num_steps = 800
         n = self.num_nodes
         dt = float(t_stop) / float(num_steps)
         times = np.linspace(0.0, float(t_stop), num_steps + 1)
+
+        # استخراج تردد المصدر الرئيسي لمزامنة عبور الصفر (Zero-Crossing Sync)
+        sync_freq = 50.0
+        for el in self.elements:
+            if el.get('type') == 'V' and float(el.get('freq', 0)) > 0:
+                sync_freq = float(el['freq'])
+                break
 
         extra_vars = 0
         branch_idx = {}
@@ -133,6 +159,11 @@ class ProSpiceBDF2Solver:
 
         cap_v_prev1, cap_v_prev2 = {}, {}
         ind_i_prev1, ind_i_prev2 = {}, {}
+        for idx, el in enumerate(self.elements):
+            if el['type'] in ('C', 'CELEC') and 'ic' in el:
+                cap_v_prev1[idx] = float(el['ic'])
+                cap_v_prev2[idx] = float(el['ic'])
+
         motor_states = {}
         for idx, el in enumerate(self.elements):
             if el['type'] == 'MOTOR':
@@ -183,20 +214,25 @@ class ProSpiceBDF2Solver:
                     elif etype == 'POT':
                         rtot = max(1e-2, self._parse_val(el.get('val', 10000.0), 10000.0))
                         pct = min(0.999, max(0.001, float(el.get('pct', 50.0)) / 100.0))
-                        if len(pins) >= 3 and pins[2] != pins[1]:
+                        if len(pins) >= 3 and pins[2] != pins[1] and pins[2] > 0:
                             stamp_g(G, p0, pins[1], 1.0 / (rtot * pct))
                             stamp_g(G, pins[1], pins[2], 1.0 / (rtot * (1.0 - pct)))
                         else:
                             stamp_g(G, p0, p1, 1.0 / (rtot * pct))
 
                     elif etype in ('SW', 'PUSH_BTN'):
-                        r_sw = 1e-4 if el.get('closed', True) else 1e10
+                        t_on = el.get('t_on', None)
+                        t_off = el.get('t_off', None)
+                        is_closed = el.get('closed', True)
+                        if t_on is not None:
+                            is_closed = (t >= float(t_on)) and (t_off is None or t <= float(t_off))
+                        r_sw = 1e-3 if is_closed else 1e9
                         stamp_g(G, p0, p1, 1.0 / r_sw)
 
                     elif etype in ('SW_SPDT', 'RELAY_SPDT') and len(pins) >= 3:
                         active = el.get('closed', True)
-                        stamp_g(G, p0, p1, 1e4 if active else 1e-10)
-                        stamp_g(G, p0, pins[2], 1e-10 if active else 1e4)
+                        stamp_g(G, p0, p1, 1e3 if active else 1e-9)
+                        stamp_g(G, p0, pins[2], 1e-9 if active else 1e3)
 
                     elif etype == 'RELAY':
                         v_coil = abs(node_v(p0) - node_v(p1))
@@ -204,7 +240,7 @@ class ProSpiceBDF2Solver:
                         stamp_g(G, p0, p1, 1.0 / 120.0)
                         if len(pins) >= 4:
                             closed = (v_coil >= 0.7 * v_nom)
-                            stamp_g(G, pins[2], pins[3], 1e4 if closed else 1e-10)
+                            stamp_g(G, pins[2], pins[3], 1e3 if closed else 1e-9)
 
                     elif etype == 'I':
                         ival = self._parse_val(el.get('val', 0.01), 0.01)
@@ -247,22 +283,25 @@ class ProSpiceBDF2Solver:
                         g_d = (is_sat / n_vt) * exp_v + 1e-10
                         i_d = is_sat * (exp_v - 1.0)
                         if etype == 'Z':
-                            vz = float(el.get('val', 5.1))
+                            vz = self._parse_val(el.get('val', 5.1), 5.1)
                             if vd < -vz:
                                 v_rev = -(vd + vz)
-                                g_d += 5.0
-                                i_d -= 5.0 * v_rev
+                                g_d += 10.0
+                                i_d -= 10.0 * v_rev
                         i_eq = i_d - g_d * vd_lim
                         stamp_g(G, p0, p1, g_d)
                         stamp_i(I_vec, p0, p1, i_eq)
 
                     elif etype == 'DIAC':
                         vd = node_v(p0) - node_v(p1)
-                        vbo = float(el.get('val', 32.0))
+                        vbo = self._parse_val(el.get('val', el.get('vbo', 32.0)), 32.0)
+                        diac_on = getattr(self, f'_diac_on_{idx}', False)
                         if abs(vd) >= vbo:
-                            stamp_g(G, p0, p1, 1.0 / 2.0)
-                        else:
-                            stamp_g(G, p0, p1, 1e-9)
+                            diac_on = True
+                        elif abs(vd) < 5.0:
+                            diac_on = False
+                        setattr(self, f'_diac_on_{idx}', diac_on)
+                        stamp_g(G, p0, p1, (1.0 / 5.0) if diac_on else 1e-9)
 
                     elif etype == 'BRIDGE' and len(pins) >= 4:
                         ac1, ac2, dcp, dcm = pins[0], pins[1], pins[2], pins[3]
@@ -286,14 +325,18 @@ class ProSpiceBDF2Solver:
                         gm = bf * g_pi
                         stamp_g(G, nb, ne, g_pi)
                         stamp_i(I_vec, nb, ne, pol * (ib - g_pi * vbe))
-                        if nc > 0:
-                            if nb > 0: G[nc - 1, nb - 1] += gm
-                            if ne > 0: G[nc - 1, ne - 1] -= gm
-                        if ne > 0:
-                            if nb > 0: G[ne - 1, nb - 1] -= gm
-                            if ne > 0: G[ne - 1, ne - 1] += gm
-                        stamp_i(I_vec, nc, ne, pol * (ic - gm * vbe))
-                        stamp_g(G, nc, ne, 1e-7)
+                        if vbe > 0.62:
+                            # تشبع قوي للترانزستور عند العمل كمفتاح إطفاء (Shunt Commutation)
+                            stamp_g(G, nc, ne, 1.0 / 0.15)
+                        else:
+                            if nc > 0:
+                                if nb > 0: G[nc - 1, nb - 1] += gm
+                                if ne > 0: G[nc - 1, ne - 1] -= gm
+                            if ne > 0:
+                                if nb > 0: G[ne - 1, nb - 1] -= gm
+                                if ne > 0: G[ne - 1, ne - 1] += gm
+                            stamp_i(I_vec, nc, ne, pol * (ic - gm * vbe))
+                            stamp_g(G, nc, ne, 1e-7)
 
                     elif etype == 'M' and len(pins) >= 3:
                         ng, nd, ns = pins[0], pins[1], pins[2]
@@ -316,56 +359,66 @@ class ProSpiceBDF2Solver:
                             stamp_g(G, nd, ns, 1e-9)
 
                     elif etype in ('TRIAC', 'SCR') and len(pins) >= 3:
-                        ng, mt1, mt2 = pins[0], pins[1], pins[2]
-                        vgk = node_v(ng) - node_v(mt1)
-                        vak = node_v(mt2) - node_v(mt1)
-                        vgt = float(el.get('vgt', 0.55))
+                        # Pin order in ProSim: pins[0]=Gate, pins[1]=Cathode/MT1, pins[2]=Anode/MT2
+                        ng, nk, na = pins[0], pins[1], pins[2]
+                        vgk = node_v(ng) - node_v(nk)
+                        vak = node_v(na) - node_v(nk)
+                        vgt = float(el.get('vgt', 0.6))
                         igt = float(el.get('igt', 0.0002))
-                        ih = float(el.get('ih', 0.002))
-                        vtm = float(el.get('vtm', 1.2))
-                        rg_int = 1500.0
-                        ig_curr = max(0.0, (vgk - 0.55) / rg_int) if etype == 'SCR' else max(0.0, (abs(vgk) - 0.55) / rg_int)
+                        ih = float(el.get('ih', 0.005))
+                        vtm = float(el.get('vtm', 0.85))
+                        ron = max(0.05, float(el.get('ron', 0.15)))
+                        rg_int = 1200.0
+
+                        ig_curr = max(0.0, (vgk - 0.5) / rg_int) if etype == 'SCR' else max(0.0, (abs(vgk) - 0.5) / rg_int)
                         latched = getattr(self, f'_latched_{idx}', False)
-                        ron = max(0.05, float(el.get('ron', 0.2)))
-                        iak_est = (abs(vak) - vtm) / ron if abs(vak) > vtm else 0.0
+                        iak_est = (vak - vtm) / ron if vak > vtm else 0.0
 
                         if etype == 'SCR':
-                            if vak <= 0.05:
+                            # شرط الفصل العكسي أو انخفاض التيار تحت تيار الإمساك (Forced Commutation / Reverse Bias)
+                            if vak <= 0.25 or (latched and iak_est < ih and vgk < vgt):
                                 latched = False
-                            elif (vgk >= vgt and ig_curr >= igt * 0.85) or (latched and iak_est >= ih):
+                            elif (vak > 0.4 and vgk >= vgt and ig_curr >= igt * 0.5) or (latched and iak_est >= ih):
                                 latched = True
-                            else:
-                                latched = False
                         else:
-                            if abs(vak) <= 0.05:
+                            iak_bi = (abs(vak) - vtm) / ron if abs(vak) > vtm else 0.0
+                            if abs(vak) <= 0.2 or (latched and iak_bi < ih and abs(vgk) < vgt):
                                 latched = False
-                            elif (abs(vgk) >= vgt and ig_curr >= igt * 0.85) or (latched and iak_est >= ih):
+                            elif (abs(vak) > 0.4 and abs(vgk) >= vgt) or (latched and iak_bi >= ih):
                                 latched = True
-                            else:
-                                latched = False
 
-                        setattr(self, f'_latched_{idx}', latched)
-                        if latched:
-                            stamp_g(G, mt2, mt1, 1.0 / ron)
-                            stamp_i(I_vec, mt2, mt1, -vtm / ron if vak > 0 else vtm / ron)
+                        if nr == 0:
+                            setattr(self, f'_latched_{idx}', latched)
                         else:
-                            stamp_g(G, mt2, mt1, 1e-9)
-                        stamp_g(G, ng, mt1, 1.0 / rg_int)
+                            latched = getattr(self, f'_latched_{idx}', latched)
+                            if etype == 'SCR' and vak > 0.4 and vgk >= vgt:
+                                latched = True
+                                setattr(self, f'_latched_{idx}', True)
+                            elif etype == 'TRIAC' and abs(vak) > 0.4 and abs(vgk) >= vgt:
+                                latched = True
+                                setattr(self, f'_latched_{idx}', True)
+
+                        if latched:
+                            stamp_g(G, na, nk, 1.0 / ron)
+                            stamp_i(I_vec, na, nk, -vtm / ron if vak >= 0 else vtm / ron)
+                        else:
+                            stamp_g(G, na, nk, 1e-9)
+                        stamp_g(G, ng, nk, 1.0 / rg_int)
 
                     elif etype == 'UJT' and len(pins) >= 3:
                         ne, nb1, nb2 = pins[0], pins[1], pins[2]
                         eta = float(el.get('eta', 0.65))
-                        vbb = max(0.0, node_v(nb2) - node_v(nb1))
+                        vbb = max(3.0, abs(node_v(nb2) - node_v(nb1)))
                         vp = eta * vbb + 0.6
                         ve = node_v(ne) - node_v(nb1)
                         ujt_on = getattr(self, f'_ujt_on_{idx}', False)
                         if ve >= vp:
                             ujt_on = True
-                        elif ve < 1.2:
+                        elif ve < 1.5:
                             ujt_on = False
                         setattr(self, f'_ujt_on_{idx}', ujt_on)
-                        stamp_g(G, nb2, nb1, 1.0 / 5000.0)
-                        stamp_g(G, ne, nb1, (1.0 / 4.0) if ujt_on else 1e-9)
+                        stamp_g(G, nb2, nb1, 1.0 / 4700.0)
+                        stamp_g(G, ne, nb1, (1.0 / 8.0) if ujt_on else 1e-9)
 
                     elif etype == 'MOTOR':
                         mid = el.get('id', idx)
@@ -403,15 +456,18 @@ class ProSpiceBDF2Solver:
                             I_vec[b] = vout
                         elif etype == 'GATE_FIRING':
                             alpha_deg = float(el.get('alpha', 60.0))
-                            f_ac = float(el.get('freq', 50.0))
+                            f_ac = float(el.get('freq', sync_freq))
                             period = 1.0 / max(1.0, f_ac)
                             half_p = period / 2.0
                             t_mod = t % half_p
                             delay = (alpha_deg / 180.0) * half_p
-                            v_pulse = 5.0 if t_mod >= delay else 0.0
+                            v_pulse = 8.0 if (t_mod >= delay and t_mod <= half_p * 0.96) else 0.0
+                            # pins[0]=sync/ref, pins[1]=gate_out
                             out_p = p1 if p1 > 0 else p0
+                            ref_p = p0 if (p1 > 0 and p0 != p1) else 0
                             if out_p > 0: G[out_p - 1, b] += 1.0; G[b, out_p - 1] += 1.0
-                            G[b, b] -= 1.0
+                            if ref_p > 0: G[ref_p - 1, b] -= 1.0; G[b, ref_p - 1] -= 1.0
+                            G[b, b] -= 10.0
                             I_vec[b] = v_pulse
                         elif etype == 'NE555':
                             v_trig = node_v(p0)
@@ -577,7 +633,7 @@ class ProSpiceBDF2Solver:
                 mag = (2.0 / len(times)) * np.abs(np.fft.rfft(sig))
                 fft_mags.append(mag[:60].tolist())
 
-        explanations = ['✅ تم الحل بدقة SPICE الفيزيائية الكاملة (BDF2 1200-Step + Electromechanical Motor Model).']
+        explanations = ['✅ تم الحل بدقة SPICE الفيزيائية الكاملة (BDF2 + Sync-Aware Gate Firing + Forced Commutation).']
         return (
             times.tolist(),
             node_voltages,
@@ -595,10 +651,10 @@ class ProSpiceBDF2Solver:
             True
         )
 
-    def run_transient(self, t_stop=0.04, num_steps=1200, dt_base=None, **kwargs):
+    def run_transient(self, t_stop=0.04, num_steps=800, dt_base=None, **kwargs):
         return self.solve_transient(t_stop=t_stop, num_steps=num_steps, dt_base=dt_base, **kwargs)
 
-    def simulate(self, t_stop=0.04, num_steps=1200, dt_base=None, **kwargs):
+    def simulate(self, t_stop=0.04, num_steps=800, dt_base=None, **kwargs):
         return self.solve_transient(t_stop=t_stop, num_steps=num_steps, dt_base=dt_base, **kwargs)
 
     def solve_dc(self, **kwargs):
