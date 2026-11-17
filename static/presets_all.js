@@ -5,23 +5,23 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 1,
         "type": "V",
-        "part": "AC-16V",
+        "part": "AC-25V",
         "x": 70,
         "y": 170,
         "rot": 0,
         "dc": 0,
-        "amp": 24,
+        "amp": 36,
         "freq": 50,
         "wave": "sine"
       },
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-2N",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 30
       },
@@ -32,8 +32,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 20,
-        "load": 0.08
+        "val": "18",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -46,17 +46,17 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 5,
         "type": "R",
-        "part": "Rg-1000",
-        "x": 125,
+        "part": "Rg-470",
+        "x": 130,
         "y": 225,
         "rot": 0,
-        "val": 1000
+        "val": "470"
       },
       {
         "id": 6,
         "type": "D",
         "part": "1N4007",
-        "x": 185,
+        "x": 190,
         "y": 225,
         "rot": 0
       }
@@ -184,11 +184,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 45
       },
@@ -199,8 +199,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 25,
-        "load": 0.08
+        "val": "25",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -212,13 +212,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "GATE_FIRING",
-        "part": "SYNC-45deg",
+        "type": "V",
+        "part": "TRIG-45deg",
         "x": 140,
         "y": 230,
         "rot": 0,
-        "alpha": 45,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 45
       }
     ],
     "wires": [
@@ -272,12 +275,12 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 4,
+          "compId": 5,
           "pinIdx": 0,
           "pin": 0
         },
         "to": {
-          "compId": 5,
+          "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
@@ -290,8 +293,8 @@ window.EXTRA_LECTURE_PRESETS = {
         },
         "to": {
           "compId": 2,
-          "pinIdx": 0,
-          "pin": 0
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -332,11 +335,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 35
       },
@@ -347,8 +350,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 20,
-        "load": 0.08
+        "val": "20",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -361,17 +364,17 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 5,
         "type": "R",
-        "part": "Rg-1000",
-        "x": 125,
+        "part": "Rg-470",
+        "x": 130,
         "y": 225,
         "rot": 0,
-        "val": 1000
+        "val": "470"
       },
       {
         "id": 6,
         "type": "D",
         "part": "1N4007",
-        "x": 185,
+        "x": 190,
         "y": 225,
         "rot": 0
       }
@@ -499,11 +502,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 25
       },
@@ -514,8 +517,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 30,
-        "load": 0.08
+        "val": "30",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -528,17 +531,17 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 5,
         "type": "R",
-        "part": "Rg-1000",
-        "x": 125,
+        "part": "Rg-470",
+        "x": 130,
         "y": 225,
         "rot": 0,
-        "val": 1000
+        "val": "470"
       },
       {
         "id": 6,
         "type": "D",
         "part": "1N4007",
-        "x": 185,
+        "x": 190,
         "y": 225,
         "rot": 0
       }
@@ -666,11 +669,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 60
       },
@@ -681,8 +684,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 50,
-        "load": 0.08
+        "val": "50",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -694,13 +697,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "GATE_FIRING",
-        "part": "SYNC-60deg",
+        "type": "V",
+        "part": "TRIG-60deg",
         "x": 140,
         "y": 230,
         "rot": 0,
-        "alpha": 60,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 60
       }
     ],
     "wires": [
@@ -754,12 +760,12 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 4,
+          "compId": 5,
           "pinIdx": 0,
           "pin": 0
         },
         "to": {
-          "compId": 5,
+          "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
@@ -772,8 +778,8 @@ window.EXTRA_LECTURE_PRESETS = {
         },
         "to": {
           "compId": 2,
-          "pinIdx": 0,
-          "pin": 0
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -814,11 +820,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 90
       },
@@ -829,8 +835,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 50,
-        "load": 0.08
+        "val": "50",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -842,13 +848,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "GATE_FIRING",
-        "part": "SYNC-90deg",
+        "type": "V",
+        "part": "TRIG-90deg",
         "x": 140,
         "y": 230,
         "rot": 0,
-        "alpha": 90,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 90
       }
     ],
     "wires": [
@@ -902,12 +911,12 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 4,
+          "compId": 5,
           "pinIdx": 0,
           "pin": 0
         },
         "to": {
-          "compId": 5,
+          "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
@@ -920,8 +929,8 @@ window.EXTRA_LECTURE_PRESETS = {
         },
         "to": {
           "compId": 2,
-          "pinIdx": 0,
-          "pin": 0
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -962,11 +971,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 45
       },
@@ -977,8 +986,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 40,
-        "load": 0.08
+        "val": "40",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -990,13 +999,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "GATE_FIRING",
-        "part": "SYNC-45deg",
+        "type": "V",
+        "part": "TRIG-45deg",
         "x": 140,
         "y": 230,
         "rot": 0,
-        "alpha": 45,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 45
       }
     ],
     "wires": [
@@ -1050,12 +1062,12 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 4,
+          "compId": 5,
           "pinIdx": 0,
           "pin": 0
         },
         "to": {
-          "compId": 5,
+          "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
@@ -1068,8 +1080,8 @@ window.EXTRA_LECTURE_PRESETS = {
         },
         "to": {
           "compId": 2,
-          "pinIdx": 0,
-          "pin": 0
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -1110,11 +1122,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 40
       },
@@ -1125,8 +1137,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 35,
-        "load": 0.08
+        "val": "35",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -1139,17 +1151,17 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 5,
         "type": "R",
-        "part": "Rg-1000",
-        "x": 125,
+        "part": "Rg-470",
+        "x": 130,
         "y": 225,
         "rot": 0,
-        "val": 1000
+        "val": "470"
       },
       {
         "id": 6,
         "type": "D",
         "part": "1N4007",
-        "x": 185,
+        "x": 190,
         "y": 225,
         "rot": 0
       }
@@ -1277,11 +1289,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 55
       },
@@ -1292,8 +1304,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 40,
-        "load": 0.08
+        "val": "40",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -1305,32 +1317,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "POT",
-        "part": "R-Phase",
-        "x": 120,
-        "y": 220,
+        "type": "V",
+        "part": "TRIG-55deg",
+        "x": 140,
+        "y": 230,
         "rot": 0,
-        "val": 1000,
-        "pct": 30
-      },
-      {
-        "id": 6,
-        "type": "C",
-        "part": "470nF",
-        "x": 160,
-        "y": 265,
-        "rot": 90,
-        "val": "470n"
-      },
-      {
-        "id": 7,
-        "type": "GATE_FIRING",
-        "part": "DIAC-DB3",
-        "x": 200,
-        "y": 220,
-        "rot": 0,
-        "alpha": 55,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 55
       }
     ],
     "wires": [
@@ -1384,68 +1380,32 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 1,
-          "pinIdx": 0,
-          "pin": 0
-        },
-        "to": {
           "compId": 5,
           "pinIdx": 0,
           "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 5,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 6,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 6,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 4,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 5,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 7,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 7,
-          "pinIdx": 1,
-          "pin": 1
         },
         "to": {
           "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        }
       }
     ],
     "probes": [
       {
-        "id": 8,
+        "id": 6,
         "compId": 1,
         "pinIdx": 0,
         "pin": 0,
@@ -1453,7 +1413,7 @@ window.EXTRA_LECTURE_PRESETS = {
         "color": "#facc15"
       },
       {
-        "id": 9,
+        "id": 7,
         "compId": 3,
         "pinIdx": 0,
         "pin": 0,
@@ -1480,11 +1440,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 50
       },
@@ -1495,8 +1455,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 40,
-        "load": 0.08
+        "val": "40",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -1509,17 +1469,17 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 5,
         "type": "R",
-        "part": "Rg-1000",
-        "x": 125,
+        "part": "Rg-470",
+        "x": 130,
         "y": 225,
         "rot": 0,
-        "val": 1000
+        "val": "470"
       },
       {
         "id": 6,
         "type": "D",
         "part": "1N4007",
-        "x": 185,
+        "x": 190,
         "y": 225,
         "rot": 0
       }
@@ -1647,11 +1607,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 85
       },
@@ -1662,8 +1622,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 45,
-        "load": 0.08
+        "val": "45",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -1676,17 +1636,17 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 5,
         "type": "R",
-        "part": "Rg-1000",
-        "x": 125,
+        "part": "Rg-470",
+        "x": 130,
         "y": 225,
         "rot": 0,
-        "val": 1000
+        "val": "470"
       },
       {
         "id": 6,
         "type": "D",
         "part": "1N4007",
-        "x": 185,
+        "x": 190,
         "y": 225,
         "rot": 0
       }
@@ -1814,11 +1774,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 20
       },
@@ -1829,8 +1789,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 12,
-        "load": 0.08
+        "val": "12",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -1842,13 +1802,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "GATE_FIRING",
-        "part": "SYNC-20deg",
+        "type": "V",
+        "part": "TRIG-20deg",
         "x": 140,
         "y": 230,
         "rot": 0,
-        "alpha": 20,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 20
       }
     ],
     "wires": [
@@ -1902,12 +1865,12 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 4,
+          "compId": 5,
           "pinIdx": 0,
           "pin": 0
         },
         "to": {
-          "compId": 5,
+          "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
@@ -1920,8 +1883,8 @@ window.EXTRA_LECTURE_PRESETS = {
         },
         "to": {
           "compId": 2,
-          "pinIdx": 0,
-          "pin": 0
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -1962,11 +1925,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 25
       },
@@ -1977,8 +1940,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 12,
-        "load": 0.08
+        "val": "12",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -1990,13 +1953,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "GATE_FIRING",
-        "part": "SYNC-25deg",
+        "type": "V",
+        "part": "TRIG-25deg",
         "x": 140,
         "y": 230,
         "rot": 0,
-        "alpha": 25,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 25
       }
     ],
     "wires": [
@@ -2050,12 +2016,12 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 4,
+          "compId": 5,
           "pinIdx": 0,
           "pin": 0
         },
         "to": {
-          "compId": 5,
+          "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
@@ -2068,8 +2034,8 @@ window.EXTRA_LECTURE_PRESETS = {
         },
         "to": {
           "compId": 2,
-          "pinIdx": 0,
-          "pin": 0
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -2110,11 +2076,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 40
       },
@@ -2125,8 +2091,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 16,
-        "load": 0.08
+        "val": "16",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -2138,13 +2104,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "GATE_FIRING",
-        "part": "SYNC-40deg",
+        "type": "V",
+        "part": "TRIG-40deg",
         "x": 140,
         "y": 230,
         "rot": 0,
-        "alpha": 40,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 40
       }
     ],
     "wires": [
@@ -2198,12 +2167,12 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 4,
+          "compId": 5,
           "pinIdx": 0,
           "pin": 0
         },
         "to": {
-          "compId": 5,
+          "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
@@ -2216,8 +2185,8 @@ window.EXTRA_LECTURE_PRESETS = {
         },
         "to": {
           "compId": 2,
-          "pinIdx": 0,
-          "pin": 0
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -2258,11 +2227,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 50
       },
@@ -2273,8 +2242,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 30,
-        "load": 0.08
+        "val": "30",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -2286,13 +2255,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "GATE_FIRING",
-        "part": "SYNC-50deg",
+        "type": "V",
+        "part": "TRIG-50deg",
         "x": 140,
         "y": 230,
         "rot": 0,
-        "alpha": 50,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 50
       }
     ],
     "wires": [
@@ -2346,12 +2318,12 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 4,
+          "compId": 5,
           "pinIdx": 0,
           "pin": 0
         },
         "to": {
-          "compId": 5,
+          "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
@@ -2364,8 +2336,8 @@ window.EXTRA_LECTURE_PRESETS = {
         },
         "to": {
           "compId": 2,
-          "pinIdx": 0,
-          "pin": 0
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -2406,11 +2378,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 75
       },
@@ -2421,8 +2393,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 60,
-        "load": 0.08
+        "val": "60",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -2434,32 +2406,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "POT",
-        "part": "R-Phase",
-        "x": 120,
-        "y": 220,
+        "type": "V",
+        "part": "TRIG-75deg",
+        "x": 140,
+        "y": 230,
         "rot": 0,
-        "val": 1000,
-        "pct": 41
-      },
-      {
-        "id": 6,
-        "type": "C",
-        "part": "470nF",
-        "x": 160,
-        "y": 265,
-        "rot": 90,
-        "val": "470n"
-      },
-      {
-        "id": 7,
-        "type": "GATE_FIRING",
-        "part": "DIAC-DB3",
-        "x": 200,
-        "y": 220,
-        "rot": 0,
-        "alpha": 75,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 75
       }
     ],
     "wires": [
@@ -2513,68 +2469,32 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 1,
-          "pinIdx": 0,
-          "pin": 0
-        },
-        "to": {
           "compId": 5,
           "pinIdx": 0,
           "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 5,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 6,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 6,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 4,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 5,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 7,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 7,
-          "pinIdx": 1,
-          "pin": 1
         },
         "to": {
           "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        }
       }
     ],
     "probes": [
       {
-        "id": 8,
+        "id": 6,
         "compId": 1,
         "pinIdx": 0,
         "pin": 0,
@@ -2582,7 +2502,7 @@ window.EXTRA_LECTURE_PRESETS = {
         "color": "#facc15"
       },
       {
-        "id": 9,
+        "id": 7,
         "compId": 3,
         "pinIdx": 0,
         "pin": 0,
@@ -2609,11 +2529,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 40
       },
@@ -2624,8 +2544,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 10,
-        "load": 0.08
+        "val": "10",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -2638,17 +2558,17 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 5,
         "type": "R",
-        "part": "Rg-1000",
-        "x": 125,
+        "part": "Rg-470",
+        "x": 130,
         "y": 225,
         "rot": 0,
-        "val": 1000
+        "val": "470"
       },
       {
         "id": 6,
         "type": "D",
         "part": "1N4007",
-        "x": 185,
+        "x": 190,
         "y": 225,
         "rot": 0
       }
@@ -2776,11 +2696,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 55
       },
@@ -2791,8 +2711,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 12,
-        "load": 0.08
+        "val": "12",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -2804,13 +2724,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "GATE_FIRING",
-        "part": "SYNC-55deg",
+        "type": "V",
+        "part": "TRIG-55deg",
         "x": 140,
         "y": 230,
         "rot": 0,
-        "alpha": 55,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 55
       }
     ],
     "wires": [
@@ -2864,12 +2787,12 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 4,
+          "compId": 5,
           "pinIdx": 0,
           "pin": 0
         },
         "to": {
-          "compId": 5,
+          "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
@@ -2882,8 +2805,8 @@ window.EXTRA_LECTURE_PRESETS = {
         },
         "to": {
           "compId": 2,
-          "pinIdx": 0,
-          "pin": 0
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -2924,11 +2847,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 20
       },
@@ -2939,8 +2862,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 10,
-        "load": 0.08
+        "val": "10",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -2953,17 +2876,17 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 5,
         "type": "R",
-        "part": "Rg-1000",
-        "x": 125,
+        "part": "Rg-470",
+        "x": 130,
         "y": 225,
         "rot": 0,
-        "val": 1000
+        "val": "470"
       },
       {
         "id": 6,
         "type": "D",
         "part": "1N4007",
-        "x": 185,
+        "x": 190,
         "y": 225,
         "rot": 0
       }
@@ -3091,11 +3014,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 30
       },
@@ -3106,8 +3029,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 12,
-        "load": 0.08
+        "val": "12",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -3119,13 +3042,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "GATE_FIRING",
-        "part": "SYNC-30deg",
+        "type": "V",
+        "part": "TRIG-30deg",
         "x": 140,
         "y": 230,
         "rot": 0,
-        "alpha": 30,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 30
       }
     ],
     "wires": [
@@ -3179,12 +3105,12 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 4,
+          "compId": 5,
           "pinIdx": 0,
           "pin": 0
         },
         "to": {
-          "compId": 5,
+          "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
@@ -3197,8 +3123,8 @@ window.EXTRA_LECTURE_PRESETS = {
         },
         "to": {
           "compId": 2,
-          "pinIdx": 0,
-          "pin": 0
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -3239,11 +3165,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 115
       },
@@ -3254,8 +3180,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 50,
-        "load": 0.08
+        "val": "50",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -3267,32 +3193,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "POT",
-        "part": "R-Phase",
-        "x": 120,
-        "y": 220,
+        "type": "V",
+        "part": "TRIG-115deg",
+        "x": 140,
+        "y": 230,
         "rot": 0,
-        "val": 1000,
-        "pct": 63
-      },
-      {
-        "id": 6,
-        "type": "C",
-        "part": "470nF",
-        "x": 160,
-        "y": 265,
-        "rot": 90,
-        "val": "470n"
-      },
-      {
-        "id": 7,
-        "type": "GATE_FIRING",
-        "part": "DIAC-DB3",
-        "x": 200,
-        "y": 220,
-        "rot": 0,
-        "alpha": 115,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 115
       }
     ],
     "wires": [
@@ -3346,68 +3256,32 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 1,
-          "pinIdx": 0,
-          "pin": 0
-        },
-        "to": {
           "compId": 5,
           "pinIdx": 0,
           "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 5,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 6,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 6,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 4,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 5,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 7,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 7,
-          "pinIdx": 1,
-          "pin": 1
         },
         "to": {
           "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        }
       }
     ],
     "probes": [
       {
-        "id": 8,
+        "id": 6,
         "compId": 1,
         "pinIdx": 0,
         "pin": 0,
@@ -3415,7 +3289,7 @@ window.EXTRA_LECTURE_PRESETS = {
         "color": "#facc15"
       },
       {
-        "id": 9,
+        "id": 7,
         "compId": 3,
         "pinIdx": 0,
         "pin": 0,
@@ -3442,13 +3316,13 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
-        "alpha": 135
+        "alpha": 130
       },
       {
         "id": 3,
@@ -3457,8 +3331,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 50,
-        "load": 0.08
+        "val": "50",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -3470,32 +3344,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "POT",
-        "part": "R-Phase",
-        "x": 120,
-        "y": 220,
+        "type": "V",
+        "part": "TRIG-130deg",
+        "x": 140,
+        "y": 230,
         "rot": 0,
-        "val": 1000,
-        "pct": 75
-      },
-      {
-        "id": 6,
-        "type": "C",
-        "part": "470nF",
-        "x": 160,
-        "y": 265,
-        "rot": 90,
-        "val": "470n"
-      },
-      {
-        "id": 7,
-        "type": "GATE_FIRING",
-        "part": "DIAC-DB3",
-        "x": 200,
-        "y": 220,
-        "rot": 0,
-        "alpha": 135,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 130
       }
     ],
     "wires": [
@@ -3549,68 +3407,32 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 1,
-          "pinIdx": 0,
-          "pin": 0
-        },
-        "to": {
           "compId": 5,
           "pinIdx": 0,
           "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 5,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 6,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 6,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 4,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 5,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 7,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 7,
-          "pinIdx": 1,
-          "pin": 1
         },
         "to": {
           "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        }
       }
     ],
     "probes": [
       {
-        "id": 8,
+        "id": 6,
         "compId": 1,
         "pinIdx": 0,
         "pin": 0,
@@ -3618,7 +3440,7 @@ window.EXTRA_LECTURE_PRESETS = {
         "color": "#facc15"
       },
       {
-        "id": 9,
+        "id": 7,
         "compId": 3,
         "pinIdx": 0,
         "pin": 0,
@@ -3645,11 +3467,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 65
       },
@@ -3660,8 +3482,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 20,
-        "load": 0.08
+        "val": "20",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -3673,32 +3495,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "POT",
-        "part": "R-Phase",
-        "x": 120,
-        "y": 220,
+        "type": "V",
+        "part": "TRIG-65deg",
+        "x": 140,
+        "y": 230,
         "rot": 0,
-        "val": 1000,
-        "pct": 36
-      },
-      {
-        "id": 6,
-        "type": "C",
-        "part": "470nF",
-        "x": 160,
-        "y": 265,
-        "rot": 90,
-        "val": "470n"
-      },
-      {
-        "id": 7,
-        "type": "GATE_FIRING",
-        "part": "DIAC-DB3",
-        "x": 200,
-        "y": 220,
-        "rot": 0,
-        "alpha": 65,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 65
       }
     ],
     "wires": [
@@ -3752,68 +3558,32 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 1,
-          "pinIdx": 0,
-          "pin": 0
-        },
-        "to": {
           "compId": 5,
           "pinIdx": 0,
           "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 5,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 6,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 6,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 4,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 5,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 7,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 7,
-          "pinIdx": 1,
-          "pin": 1
         },
         "to": {
           "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        }
       }
     ],
     "probes": [
       {
-        "id": 8,
+        "id": 6,
         "compId": 1,
         "pinIdx": 0,
         "pin": 0,
@@ -3821,7 +3591,7 @@ window.EXTRA_LECTURE_PRESETS = {
         "color": "#facc15"
       },
       {
-        "id": 9,
+        "id": 7,
         "compId": 3,
         "pinIdx": 0,
         "pin": 0,
@@ -3848,11 +3618,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 70
       },
@@ -3863,8 +3633,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 40,
-        "load": 0.08
+        "val": "40",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -3876,32 +3646,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "POT",
-        "part": "R-Phase",
-        "x": 120,
-        "y": 220,
+        "type": "V",
+        "part": "TRIG-70deg",
+        "x": 140,
+        "y": 230,
         "rot": 0,
-        "val": 1000,
-        "pct": 38
-      },
-      {
-        "id": 6,
-        "type": "C",
-        "part": "470nF",
-        "x": 160,
-        "y": 265,
-        "rot": 90,
-        "val": "470n"
-      },
-      {
-        "id": 7,
-        "type": "GATE_FIRING",
-        "part": "DIAC-DB3",
-        "x": 200,
-        "y": 220,
-        "rot": 0,
-        "alpha": 70,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 70
       }
     ],
     "wires": [
@@ -3955,68 +3709,32 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 1,
-          "pinIdx": 0,
-          "pin": 0
-        },
-        "to": {
           "compId": 5,
           "pinIdx": 0,
           "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 5,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 6,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 6,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 4,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 5,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 7,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 7,
-          "pinIdx": 1,
-          "pin": 1
         },
         "to": {
           "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        }
       }
     ],
     "probes": [
       {
-        "id": 8,
+        "id": 6,
         "compId": 1,
         "pinIdx": 0,
         "pin": 0,
@@ -4024,7 +3742,7 @@ window.EXTRA_LECTURE_PRESETS = {
         "color": "#facc15"
       },
       {
-        "id": 9,
+        "id": 7,
         "compId": 3,
         "pinIdx": 0,
         "pin": 0,
@@ -4051,11 +3769,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "SCR-BT151",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 25
       },
@@ -4066,8 +3784,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 12,
-        "load": 0.08
+        "val": "12",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -4079,13 +3797,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "GATE_FIRING",
-        "part": "SYNC-25deg",
+        "type": "V",
+        "part": "TRIG-25deg",
         "x": 140,
         "y": 230,
         "rot": 0,
-        "alpha": 25,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 25
       }
     ],
     "wires": [
@@ -4139,12 +3860,12 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 4,
+          "compId": 5,
           "pinIdx": 0,
           "pin": 0
         },
         "to": {
-          "compId": 5,
+          "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
@@ -4157,8 +3878,8 @@ window.EXTRA_LECTURE_PRESETS = {
         },
         "to": {
           "compId": 2,
-          "pinIdx": 0,
-          "pin": 0
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -4199,11 +3920,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "TRIAC-2SCR",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 45
       },
@@ -4214,8 +3935,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 35,
-        "load": 0.08
+        "val": "35",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -4227,13 +3948,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "GATE_FIRING",
-        "part": "SYNC-45deg",
+        "type": "V",
+        "part": "TRIG-45deg",
         "x": 140,
         "y": 230,
         "rot": 0,
-        "alpha": 45,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 45
       }
     ],
     "wires": [
@@ -4287,12 +4011,12 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 4,
+          "compId": 5,
           "pinIdx": 0,
           "pin": 0
         },
         "to": {
-          "compId": 5,
+          "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
@@ -4305,8 +4029,8 @@ window.EXTRA_LECTURE_PRESETS = {
         },
         "to": {
           "compId": 2,
-          "pinIdx": 0,
-          "pin": 0
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -4347,11 +4071,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "TRIAC-FULL",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 50
       },
@@ -4362,8 +4086,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 25,
-        "load": 0.08
+        "val": "25",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -4375,13 +4099,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "GATE_FIRING",
-        "part": "SYNC-50deg",
+        "type": "V",
+        "part": "TRIG-50deg",
         "x": 140,
         "y": 230,
         "rot": 0,
-        "alpha": 50,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 50
       }
     ],
     "wires": [
@@ -4435,12 +4162,12 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 4,
+          "compId": 5,
           "pinIdx": 0,
           "pin": 0
         },
         "to": {
-          "compId": 5,
+          "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
@@ -4453,8 +4180,8 @@ window.EXTRA_LECTURE_PRESETS = {
         },
         "to": {
           "compId": 2,
-          "pinIdx": 0,
-          "pin": 0
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -4495,11 +4222,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "TRIAC-INV",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 60
       },
@@ -4510,8 +4237,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 40,
-        "load": 0.08
+        "val": "40",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -4523,13 +4250,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "GATE_FIRING",
-        "part": "SYNC-60deg",
+        "type": "V",
+        "part": "TRIG-60deg",
         "x": 140,
         "y": 230,
         "rot": 0,
-        "alpha": 60,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 60
       }
     ],
     "wires": [
@@ -4583,12 +4313,12 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 4,
+          "compId": 5,
           "pinIdx": 0,
           "pin": 0
         },
         "to": {
-          "compId": 5,
+          "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
@@ -4601,8 +4331,8 @@ window.EXTRA_LECTURE_PRESETS = {
         },
         "to": {
           "compId": 2,
-          "pinIdx": 0,
-          "pin": 0
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -4643,11 +4373,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "TRIAC-BT136",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 60
       },
@@ -4658,8 +4388,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 40,
-        "load": 0.08
+        "val": "40",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -4671,32 +4401,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "POT",
-        "part": "R-Phase",
-        "x": 120,
-        "y": 220,
+        "type": "V",
+        "part": "TRIG-60deg",
+        "x": 140,
+        "y": 230,
         "rot": 0,
-        "val": 1000,
-        "pct": 33
-      },
-      {
-        "id": 6,
-        "type": "C",
-        "part": "470nF",
-        "x": 160,
-        "y": 265,
-        "rot": 90,
-        "val": "470n"
-      },
-      {
-        "id": 7,
-        "type": "GATE_FIRING",
-        "part": "DIAC-DB3",
-        "x": 200,
-        "y": 220,
-        "rot": 0,
-        "alpha": 60,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 60
       }
     ],
     "wires": [
@@ -4750,68 +4464,32 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 1,
-          "pinIdx": 0,
-          "pin": 0
-        },
-        "to": {
           "compId": 5,
           "pinIdx": 0,
           "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 5,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 6,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 6,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 4,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 5,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 7,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 7,
-          "pinIdx": 1,
-          "pin": 1
         },
         "to": {
           "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        }
       }
     ],
     "probes": [
       {
-        "id": 8,
+        "id": 6,
         "compId": 1,
         "pinIdx": 0,
         "pin": 0,
@@ -4819,7 +4497,7 @@ window.EXTRA_LECTURE_PRESETS = {
         "color": "#facc15"
       },
       {
-        "id": 9,
+        "id": 7,
         "compId": 3,
         "pinIdx": 0,
         "pin": 0,
@@ -4846,11 +4524,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "TRIAC-BT136",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 80
       },
@@ -4861,8 +4539,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 50,
-        "load": 0.08
+        "val": "50",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -4874,32 +4552,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "POT",
-        "part": "R-Phase",
-        "x": 120,
-        "y": 220,
+        "type": "V",
+        "part": "TRIG-80deg",
+        "x": 140,
+        "y": 230,
         "rot": 0,
-        "val": 1000,
-        "pct": 44
-      },
-      {
-        "id": 6,
-        "type": "C",
-        "part": "470nF",
-        "x": 160,
-        "y": 265,
-        "rot": 90,
-        "val": "470n"
-      },
-      {
-        "id": 7,
-        "type": "GATE_FIRING",
-        "part": "DIAC-DB3",
-        "x": 200,
-        "y": 220,
-        "rot": 0,
-        "alpha": 80,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 80
       }
     ],
     "wires": [
@@ -4953,68 +4615,32 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 1,
-          "pinIdx": 0,
-          "pin": 0
-        },
-        "to": {
           "compId": 5,
           "pinIdx": 0,
           "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 5,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 6,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 6,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 4,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 5,
-          "pinIdx": 1,
-          "pin": 1
-        },
-        "to": {
-          "compId": 7,
-          "pinIdx": 0,
-          "pin": 0
-        }
-      },
-      {
-        "from": {
-          "compId": 7,
-          "pinIdx": 1,
-          "pin": 1
         },
         "to": {
           "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
+      },
+      {
+        "from": {
+          "compId": 5,
+          "pinIdx": 1,
+          "pin": 1
+        },
+        "to": {
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
+        }
       }
     ],
     "probes": [
       {
-        "id": 8,
+        "id": 6,
         "compId": 1,
         "pinIdx": 0,
         "pin": 0,
@@ -5022,7 +4648,7 @@ window.EXTRA_LECTURE_PRESETS = {
         "color": "#facc15"
       },
       {
-        "id": 9,
+        "id": 7,
         "compId": 3,
         "pinIdx": 0,
         "pin": 0,
@@ -5049,11 +4675,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "TRIAC-BT136",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 70
       },
@@ -5064,8 +4690,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 45,
-        "load": 0.08
+        "val": "45",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -5077,13 +4703,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "GATE_FIRING",
-        "part": "SYNC-70deg",
+        "type": "V",
+        "part": "TRIG-70deg",
         "x": 140,
         "y": 230,
         "rot": 0,
-        "alpha": 70,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 70
       }
     ],
     "wires": [
@@ -5137,12 +4766,12 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 4,
+          "compId": 5,
           "pinIdx": 0,
           "pin": 0
         },
         "to": {
-          "compId": 5,
+          "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
@@ -5155,8 +4784,8 @@ window.EXTRA_LECTURE_PRESETS = {
         },
         "to": {
           "compId": 2,
-          "pinIdx": 0,
-          "pin": 0
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -5197,11 +4826,11 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 2,
         "type": "TRIAC",
-        "part": "BT151-500R",
+        "part": "TRIAC-OPTO",
         "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
+        "vgt": 0.55,
         "ih": 0.005,
         "alpha": 50
       },
@@ -5212,8 +4841,8 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 40,
-        "load": 0.08
+        "val": "40",
+        "load": 0.06
       },
       {
         "id": 4,
@@ -5225,13 +4854,16 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "id": 5,
-        "type": "GATE_FIRING",
-        "part": "SYNC-50deg",
+        "type": "V",
+        "part": "TRIG-50deg",
         "x": 140,
         "y": 230,
         "rot": 0,
-        "alpha": 50,
-        "freq": 50
+        "dc": 0,
+        "amp": 8,
+        "freq": 50,
+        "wave": "pulse",
+        "alpha": 50
       }
     ],
     "wires": [
@@ -5285,12 +4917,12 @@ window.EXTRA_LECTURE_PRESETS = {
       },
       {
         "from": {
-          "compId": 4,
+          "compId": 5,
           "pinIdx": 0,
           "pin": 0
         },
         "to": {
-          "compId": 5,
+          "compId": 2,
           "pinIdx": 0,
           "pin": 0
         }
@@ -5303,8 +4935,8 @@ window.EXTRA_LECTURE_PRESETS = {
         },
         "to": {
           "compId": 2,
-          "pinIdx": 0,
-          "pin": 0
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -5346,11 +4978,12 @@ window.EXTRA_LECTURE_PRESETS = {
         "id": 2,
         "type": "TRIAC",
         "part": "SCR-Main",
-        "x": 195,
+        "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
-        "ih": 0.01
+        "vgt": 0.55,
+        "ih": 0.01,
+        "alpha": 20
       },
       {
         "id": 3,
@@ -5359,7 +4992,7 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 12
+        "val": "12"
       },
       {
         "id": 4,
@@ -5372,15 +5005,15 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 5,
         "type": "V",
-        "part": "IG-Pulse",
-        "x": 135,
-        "y": 220,
+        "part": "TRIG-Pulse",
+        "x": 140,
+        "y": 225,
         "rot": 0,
         "dc": 0,
-        "amp": 6,
-        "freq": 25,
+        "amp": 8,
+        "freq": 50,
         "wave": "pulse",
-        "duty": 0.12
+        "alpha": 20
       },
       {
         "id": 6,
@@ -5391,7 +5024,7 @@ window.EXTRA_LECTURE_PRESETS = {
         "rot": 0,
         "closed": true,
         "t_on": 0.0,
-        "t_off": 0.022
+        "t_off": 0.024
       }
     ],
     "wires": [
@@ -5474,9 +5107,9 @@ window.EXTRA_LECTURE_PRESETS = {
           "pin": 1
         },
         "to": {
-          "compId": 4,
-          "pinIdx": 0,
-          "pin": 0
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -5486,7 +5119,7 @@ window.EXTRA_LECTURE_PRESETS = {
         "compId": 5,
         "pinIdx": 0,
         "pin": 0,
-        "label": "CH1 (Gate Trigger)",
+        "label": "CH1 (Gate)",
         "color": "#facc15"
       },
       {
@@ -5494,7 +5127,7 @@ window.EXTRA_LECTURE_PRESETS = {
         "compId": 3,
         "pinIdx": 0,
         "pin": 0,
-        "label": "CH2 (Load Commutated)",
+        "label": "CH2 (Load Out)",
         "color": "#38bdf8"
       }
     ]
@@ -5518,11 +5151,12 @@ window.EXTRA_LECTURE_PRESETS = {
         "id": 2,
         "type": "TRIAC",
         "part": "SCR-Main",
-        "x": 195,
+        "x": 200,
         "y": 120,
         "rot": 0,
-        "vgt": 0.6,
-        "ih": 0.01
+        "vgt": 0.55,
+        "ih": 0.01,
+        "alpha": 20
       },
       {
         "id": 3,
@@ -5531,7 +5165,7 @@ window.EXTRA_LECTURE_PRESETS = {
         "x": 310,
         "y": 170,
         "rot": 90,
-        "val": 16
+        "val": "16"
       },
       {
         "id": 4,
@@ -5544,26 +5178,26 @@ window.EXTRA_LECTURE_PRESETS = {
       {
         "id": 5,
         "type": "V",
-        "part": "IG-Pulse",
-        "x": 135,
-        "y": 220,
+        "part": "TRIG-Pulse",
+        "x": 140,
+        "y": 225,
         "rot": 0,
         "dc": 0,
-        "amp": 6,
-        "freq": 25,
+        "amp": 8,
+        "freq": 50,
         "wave": "pulse",
-        "duty": 0.12
+        "alpha": 20
       },
       {
         "id": 6,
         "type": "SW",
-        "part": "AUX-SCR-C",
+        "part": "COMM-SW",
         "x": 135,
         "y": 120,
         "rot": 0,
         "closed": true,
         "t_on": 0.0,
-        "t_off": 0.022
+        "t_off": 0.024
       }
     ],
     "wires": [
@@ -5646,9 +5280,9 @@ window.EXTRA_LECTURE_PRESETS = {
           "pin": 1
         },
         "to": {
-          "compId": 4,
-          "pinIdx": 0,
-          "pin": 0
+          "compId": 2,
+          "pinIdx": 1,
+          "pin": 1
         }
       }
     ],
@@ -5658,7 +5292,7 @@ window.EXTRA_LECTURE_PRESETS = {
         "compId": 5,
         "pinIdx": 0,
         "pin": 0,
-        "label": "CH1 (Gate Trigger)",
+        "label": "CH1 (Gate)",
         "color": "#facc15"
       },
       {
@@ -5666,7 +5300,7 @@ window.EXTRA_LECTURE_PRESETS = {
         "compId": 3,
         "pinIdx": 0,
         "pin": 0,
-        "label": "CH2 (Load Commutated)",
+        "label": "CH2 (Load Out)",
         "color": "#38bdf8"
       }
     ]
@@ -5683,20 +5317,11 @@ function launchExactDemoCircuit(key) {
   if (typeof deselectAll === 'function') deselectAll();
   if (typeof tStopVal !== 'undefined') tStopVal = net.tStop || 0.04;
 
-  if (typeof components !== 'undefined' && Array.isArray(net.components)) {
-    net.components.forEach(c => components.push(c));
-  }
-  if (typeof wires !== 'undefined' && Array.isArray(net.wires)) {
-    net.wires.forEach(w => wires.push(w));
-  }
-  if (typeof probes !== 'undefined' && Array.isArray(net.probes)) {
-    net.probes.forEach(p => probes.push(p));
-  }
-  if (typeof nextId !== 'undefined') {
-    nextId = 25;
-  }
+  if (typeof components !== 'undefined' && Array.isArray(net.components)) net.components.forEach(c => components.push(c));
+  if (typeof wires !== 'undefined' && Array.isArray(net.wires)) net.wires.forEach(w => wires.push(w));
+  if (typeof probes !== 'undefined' && Array.isArray(net.probes)) net.probes.forEach(p => probes.push(p));
+  if (typeof nextId !== 'undefined') nextId = 25;
 
-  // ضبط مقياس الأوسليسكوب تلقائياً ليتناسب مع جهد الدائرة
   const src = (net.components || []).find(c => c.type === 'V' || c.type === 'VCC');
   const vPeak = src ? Math.max(Math.abs(src.amp || 0), Math.abs(src.dc || 0), 10) : 50;
   const idealDiv = Math.max(5, Math.ceil(vPeak / 2.5));
@@ -5736,10 +5361,6 @@ function attachLectureCircuitsToLoadDemo() {
   }, true);
 }
 
-window.addEventListener('DOMContentLoaded', attachLectureCircuitsToLoadDemo);
-setInterval(attachLectureCircuitsToLoadDemo, 350);
-
-
 function makeScopeFullScreenAndUnified() {
   const scopeCanvas = Array.from(document.querySelectorAll('canvas')).find(c =>
     c.id !== 'uniMotorMiniCanvas' && c.width >= 200 && c.parentElement &&
@@ -5765,7 +5386,6 @@ function makeScopeFullScreenAndUnified() {
     scopeCanvas.style.height = '230px';
   }
 
-  // ربط منزلق Live Source / Angle α الأصلي بكل الدوائر الـ 34
   const alphaSlider = Array.from(modal.querySelectorAll('input[type="range"]')).find(inp => {
     const pText = inp.parentElement ? inp.parentElement.textContent : '';
     return pText.includes('Angle') || pText.includes('Live Source');
@@ -5778,7 +5398,7 @@ function makeScopeFullScreenAndUnified() {
       const deg = Number(this.value);
       if (typeof components !== 'undefined') {
         components.forEach(c => {
-          if (c.type === 'GATE_FIRING' || c.type === 'TRIAC' || c.type === 'SCR') c.alpha = deg;
+          if (c.type === 'TRIAC' || c.type === 'SCR' || (c.type === 'V' && c.alpha !== undefined)) c.alpha = deg;
           if (c.type === 'POT') c.pct = Math.min(95, Math.max(5, Math.round((deg / 180) * 100)));
         });
       }
@@ -5786,7 +5406,6 @@ function makeScopeFullScreenAndUnified() {
     });
   }
 
-  // إضافة شريط قياسات المحرك والقدرة في أسفل النافذة إن لم يكن موجوداً
   if (!document.getElementById('unifiedMotorPowerBar')) {
     const bar = document.createElement('div');
     bar.id = 'unifiedMotorPowerBar';
@@ -5861,4 +5480,6 @@ function makeScopeFullScreenAndUnified() {
   };
 })();
 
+window.addEventListener('DOMContentLoaded', attachLectureCircuitsToLoadDemo);
+setInterval(attachLectureCircuitsToLoadDemo, 350);
 setInterval(makeScopeFullScreenAndUnified, 350);
