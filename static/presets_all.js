@@ -5738,3 +5738,127 @@ function attachLectureCircuitsToLoadDemo() {
 
 window.addEventListener('DOMContentLoaded', attachLectureCircuitsToLoadDemo);
 setInterval(attachLectureCircuitsToLoadDemo, 350);
+
+
+function makeScopeFullScreenAndUnified() {
+  const scopeCanvas = Array.from(document.querySelectorAll('canvas')).find(c =>
+    c.id !== 'uniMotorMiniCanvas' && c.width >= 200 && c.parentElement &&
+    c.parentElement.parentElement && c.parentElement.parentElement.textContent.includes('Proteus Virtual Oscilloscope')
+  );
+  if (!scopeCanvas) return;
+
+  let modal = scopeCanvas.parentElement.parentElement;
+  if (modal && modal.dataset.fullScreenApplied !== '1') {
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100vw';
+    modal.style.height = '100vh';
+    modal.style.maxWidth = '100vw';
+    modal.style.maxHeight = '100vh';
+    modal.style.margin = '0';
+    modal.style.borderRadius = '0';
+    modal.style.overflowY = 'auto';
+    modal.style.zIndex = '9999';
+    modal.dataset.fullScreenApplied = '1';
+    scopeCanvas.style.width = '100%';
+    scopeCanvas.style.height = '230px';
+  }
+
+  // ربط منزلق Live Source / Angle α الأصلي بكل الدوائر الـ 34
+  const alphaSlider = Array.from(modal.querySelectorAll('input[type="range"]')).find(inp => {
+    const pText = inp.parentElement ? inp.parentElement.textContent : '';
+    return pText.includes('Angle') || pText.includes('Live Source');
+  });
+  if (alphaSlider && alphaSlider.dataset.alphaBound34 !== '1') {
+    alphaSlider.dataset.alphaBound34 = '1';
+    alphaSlider.min = '5';
+    alphaSlider.max = '175';
+    alphaSlider.addEventListener('input', function() {
+      const deg = Number(this.value);
+      if (typeof components !== 'undefined') {
+        components.forEach(c => {
+          if (c.type === 'GATE_FIRING' || c.type === 'TRIAC' || c.type === 'SCR') c.alpha = deg;
+          if (c.type === 'POT') c.pct = Math.min(95, Math.max(5, Math.round((deg / 180) * 100)));
+        });
+      }
+      if (typeof runSim === 'function') runSim();
+    });
+  }
+
+  // إضافة شريط قياسات المحرك والقدرة في أسفل النافذة إن لم يكن موجوداً
+  if (!document.getElementById('unifiedMotorPowerBar')) {
+    const bar = document.createElement('div');
+    bar.id = 'unifiedMotorPowerBar';
+    bar.dir = 'rtl';
+    bar.style.cssText = 'width:100%;box-sizing:border-box;margin-top:8px;padding:8px;background:#0f172a;border:1px solid #334155;border-radius:10px;color:#f8fafc;font-size:12px;display:block;';
+    bar.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;text-align:center;margin-bottom:6px;">
+        <div style="background:#1e293b;padding:4px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">القدرة الفعالة</div><div id="uniPowerVal" style="color:#4ade80;font-weight:bold;font-size:12px;">0.00 W</div></div>
+        <div style="background:#1e293b;padding:4px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">سرعة المحرك</div><div id="uniRpmVal" style="color:#38bdf8;font-weight:bold;font-size:12px;">0 RPM</div></div>
+        <div style="background:#1e293b;padding:4px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">العزم</div><div id="uniTorqueVal" style="color:#facc15;font-weight:bold;font-size:12px;">0.00 Nm</div></div>
+        <div style="background:#1e293b;padding:4px;border-radius:6px;"><div style="color:#94a3b8;font-size:10px;">التيار</div><div id="uniCurrVal" style="color:#f472b6;font-weight:bold;font-size:12px;">0.00 A</div></div>
+      </div>
+      <canvas id="uniMotorMiniCanvas" width="320" height="55" style="width:100%;height:55px;background:#020617;border:1px solid #1e293b;border-radius:6px;display:block;"></canvas>
+    `;
+    modal.appendChild(bar);
+  }
+}
+
+(function hookFetchTelemetry() {
+  const origFetch = window.fetch;
+  window.fetch = async function(...args) {
+    const resp = await origFetch.apply(this, args);
+    try {
+      const url = typeof args[0] === 'string' ? args[0] : (args[0] && args[0].url) || '';
+      if (url.includes('sim') || url.includes('run')) {
+        const data = await resp.clone().json();
+        setTimeout(() => {
+          makeScopeFullScreenAndUnified();
+          let totalW = 0;
+          const pStats = data.power_stats || data.powers || {};
+          Object.values(pStats).forEach(v => {
+            if (typeof v === 'number') totalW += v;
+            else if (v && typeof v === 'object') totalW += Number(v.watts || v.power || v.p || 0);
+          });
+          const pEl = document.getElementById('uniPowerVal');
+          if (pEl) pEl.textContent = totalW.toFixed(2) + ' W';
+
+          const mStats = data.motor_stats || data.motors || {};
+          const mKeys = Object.keys(mStats);
+          const miniCvs = document.getElementById('uniMotorMiniCanvas');
+          if (mKeys.length > 0) {
+            const m = mStats[mKeys[0]];
+            if (document.getElementById('uniRpmVal')) document.getElementById('uniRpmVal').textContent = Math.round(m.rpm || 0) + ' RPM';
+            if (document.getElementById('uniTorqueVal')) document.getElementById('uniTorqueVal').textContent = Number(m.torque || 0).toFixed(2) + ' Nm';
+            if (document.getElementById('uniCurrVal')) document.getElementById('uniCurrVal').textContent = Number(m.current || 0).toFixed(2) + ' A';
+            if (miniCvs && m.history && Array.isArray(m.history.rpm) && m.history.rpm.length > 1) {
+              const ctx = miniCvs.getContext('2d');
+              const W = miniCvs.width, H = miniCvs.height;
+              ctx.clearRect(0, 0, W, H);
+              const rpms = m.history.rpm;
+              const maxRpm = Math.max(100, ...rpms);
+              ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2; ctx.beginPath();
+              rpms.forEach((val, i) => {
+                const x = (i / (rpms.length - 1)) * W;
+                const y = H - 6 - ((val / maxRpm) * (H - 16));
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+              });
+              ctx.stroke();
+              ctx.fillStyle = '#e2e8f0'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'right';
+              ctx.fillText('منحنى تسارع المحرك (RPM)', W - 8, 12);
+            }
+          } else if (miniCvs) {
+            const ctx = miniCvs.getContext('2d');
+            ctx.clearRect(0, 0, miniCvs.width, miniCvs.height);
+            ctx.fillStyle = '#94a3b8'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText('القدرة الفعالة محسوبة لحظياً • اختر 27 أو 31 لعرض منحنى RPM', miniCvs.width / 2, 32);
+          }
+        }, 80);
+      }
+    } catch (e) {}
+    return resp;
+  };
+})();
+
+setInterval(makeScopeFullScreenAndUnified, 350);
