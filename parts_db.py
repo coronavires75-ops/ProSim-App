@@ -314,9 +314,12 @@ def build_full_proteus_catalog():
             ctype = 'M' if prefix in ('2SK', '2SJ', 'IRF', 'IRFZ', 'IRFP', 'IRLZ', 'STP', 'FQP', 'BSS', 'BUZ') else 'Q'
             pol = 'P' if prefix in ('2SJ',) else ('N' if ctype == 'M' else ('PNP' if prefix in ('2SA', '2SB') else 'NPN'))
             sub = f"سلسلة {prefix}xxx ({'MOSFET' if ctype=='M' else 'BJT'})"
-            add_part('4. الترانزستورات وأشباه الموصلات', sub, p, ctype, f"شبه موصل تجاري {p}", pol=pol, bf=180, vth=2.5, kp=1.8)
+            # رقم تجاري بلا نموذج SPICE حقيقي: يُحاكى بنموذج عام ويظهر تحذير (الصق .MODEL الرسمي للدقة)
+            add_part('4. الترانزستورات وأشباه الموصلات', sub, p, ctype, f"{p} (نموذج عام — الصق .MODEL للدقة)", pol=pol, generic_part=True)
 
-    for ic_fam in ['74HC', '74HCT', '74LS', '74AC', '74F', '74ALS', 'CD40', 'CD45', 'LM', 'TL', 'NE', 'MC', 'AD', 'OPA', 'MCP']:
+    # أُزيلت: عائلات ICs المولّدة آلياً (74HCxx, CD40xx, LMxx...) كانت كلها تُحاكى كبوابة AND أو Op-Amp مثالي
+    # (مثلاً CD4017 عدّاد كان يُحاكى كـ AND، وLM386 كـ Op-Amp) => نتائج خاطئة. الشرائح المدعومة فعلاً موجودة أعلاه بنماذجها.
+    for ic_fam in []:
         for num in range(1, 500):
             p = f"{ic_fam}{num:02d}" if len(str(num)) < 3 else f"{ic_fam}{num}"
             if p.upper() in models: continue

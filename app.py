@@ -29,6 +29,8 @@ def parse_eng_val(raw, allow_zero=True):
         'm': 1e-3, 'k': 1e3, 'K': 1e3, 'M': 1e6, 'G': 1e9
     }
     # Support European notation like 4k7 -> 4.7k, 2u2 -> 2.2u
+    if s.lower().endswith('meg') and re.match(r'^[+-]?\d*\.?\d+$', s[:-3]):
+        return float(s[:-3]) * 1e6
     euro = re.match(r'^([+-]?\d+)([pnuµmkKMG])(\d+)$', s)
     if euro:
         num = float(f"{euro.group(1)}.{euro.group(3)}")
@@ -38,6 +40,16 @@ def parse_eng_val(raw, allow_zero=True):
     if m and m.group(1) != '':
         return float(m.group(1)) * multipliers.get(m.group(2), 1.0)
     raise ValueError(f"قيمة هندسية غير مفهومة: '{raw}'")
+
+def _duty(raw):
+    """نسبة الـ duty: تقبل 0.3 أو 30 (نسبة مئوية)"""
+    if raw in (None, ''): return None
+    d = parse_eng_val(raw)
+    if d > 1.0: d /= 100.0
+    return d if 0.0 < d < 1.0 else None
+
+import models as _models
+from models import resolve as resolve_model, zener_rz
 
 PART_MODELS = {
     # Standard & Fast & Schottky Diodes (Is, n, Rs, BV)
@@ -72,7 +84,7 @@ PART_MODELS = {
     # More Regulators
     '7806': 6.0, '7808': 8.0, '7818': 18.0, '7824': 24.0,
     '7905': -5.0, '7912': -12.0, '7915': -15.0, 'AMS1117-3.3': 3.3, 'AMS1117-5.0': 5.0,
-    '7805': 5.0, '7809': 9.0, '7812': 12.0, '7815': 15.0, 'LM317': 3.3,
+    '7805': 5.0, '7809': 9.0, '7812': 12.0, '7815': 15.0, 'LM317': 1.25, 'LM337': -1.25,
     # TRIACs & SCRs
     'BT134': (0.7, 0.004), 'BT136': (0.8, 0.005), 'BT137': (0.85, 0.006),
     'BT138': (0.9, 0.008), 'BT139': (1.0, 0.010), 'BTA16': (0.9, 0.008),
@@ -95,14 +107,28 @@ PART_MODELS = {
     'TIP125': (1.0e-13, 1000.0, 'PNP'), 'S8550': (1.5e-14, 220.0, 'PNP')
 }
 
-def build_circuit(data, override_pid=None):
+PIN_NEED = {'R': 2, 'LDR': 2, 'NTC': 2, 'FUSE': 2, 'I': 2, 'C': 2, 'CELEC': 2, 'L': 2, 'D': 2, 'LED': 2, 'Z': 2, 'DIAC': 2, 'SW': 2, 'PUSH_BTN': 2,
+            'AMMETER': 2, 'POT': 2, 'MOTOR': 2, 'V': 2, 'GATE_FIRING': 2, 'VCC': 1, 'LOGIC_TOGGLE': 1, 'LM35': 1, 'HCSR04': 1, 'LCD16': 1,
+            'Q': 3, 'M': 3, 'SCR': 3, 'TRIAC': 3, 'OP': 3, 'PID': 3, 'REG': 3, 'SW_SPDT': 3, 'COMPARATOR': 3, 'AND': 3, 'OR': 3, 'NAND': 3,
+            'NOR': 3, 'XOR': 3, 'XNOR': 3, 'NOT': 2, 'BUF': 2, 'SCHMITT': 2, 'TRF': 4, 'BRIDGE': 4, 'WATTMETER': 4, 'NE555': 4, 'OPTO': 4,
+            'RELAY': 4, 'BCD7': 4, 'RELAY_SPDT': 5, 'DFF': 5, 'JKFF': 5, 'COUNTER4': 6, 'NE555_8': 8}
+
+def build_circuit(data, override_pid=None, seed=None):
     num_nodes = int(data['num_nodes'])
     monte_carlo = bool(data.get('monte_carlo', False))
+    rng = random.Random(seed)   # نفس البذرة في كل إعادة حل لنفس الطلب => نفس قيم التفاوت (Monte Carlo) أثناء التحقق الذاتي
     ckt = ProCircuitSolver(num_nodes=num_nodes)
+    ckt.model_notes = []
+    ckt.use_op = not bool(data.get('uic', False))   # افتراضياً: نقطة التشغيل DC أولاً مثل SPICE/Proteus
 
     for comp in data['components']:
         ctype = comp['type']
-        pins = comp['pins']
+        pins = [int(p) for p in comp.get('pins', [])]
+        need = PIN_NEED.get(ctype, 0)
+        if len(pins) < need:
+            raise ValueError(f"القطعة #{comp.get('id')} ({ctype}) تحتاج {need} أطراف لكن وصل {len(pins)} فقط — راجع التوصيل")
+        if any(p < 0 or p > num_nodes for p in pins):
+            raise ValueError(f"القطعة #{comp.get('id')} متصلة بعقدة غير موجودة")
         val = parse_eng_val(comp.get('val', 0))
         part = comp.get('part', 'CUSTOM')
         fault = comp.get('fault', 'NONE')
@@ -114,7 +140,7 @@ def build_circuit(data, override_pid=None):
             ckt.add_resistor(pins[0], pins[1], 1e-4, id_tag=comp['id'], part=part)
             continue
 
-        tol = random.uniform(0.95, 1.05) if monte_carlo else 1.0
+        tol = rng.uniform(0.95, 1.05) if monte_carlo else 1.0
 
         if ctype in ['R', 'LDR', 'NTC']:
             if val < 0:
@@ -124,29 +150,17 @@ def build_circuit(data, override_pid=None):
             ckt.add_resistor(pins[0], pins[1], max(val, 0.005), id_tag=comp['id'], part=part)
         elif ctype == 'I':
             # Current source modeled via Norton equivalent (100k parallel R)
-            r_norton = 1e5
-            ckt.add_vsource(pins[0], pins[1], dc=val * r_norton)
-            ckt.add_resistor(pins[0], pins[1], r_norton)
+            ckt.add_element({'type': 'I', 'pins': [pins[0], pins[1]], 'val': val, 'id': comp['id']})   # مصدر تيار حقيقي: التيار يمر من pin0 إلى pin1
         elif ctype == 'BRIDGE':
             ckt.add_bridge(pins[0], pins[1], pins[2], pins[3])
         elif ctype == 'RELAY_SPDT':
             ckt.add_spdt_relay(pins[0], pins[1], pins[2], pins[3], pins[4], v_coil=val if val > 0 else 5.0, id_tag=comp['id'])
-        elif ctype in ['DFF', 'JKFF']:
-            ckt.add_flipflop(ctype, pins[0], pins[1], pins[2], pins[3], pins[4])
         elif ctype == 'GATE_FIRING':
             ckt.add_gate_firing(pins[0], pins[1], alpha_deg=parse_eng_val(comp.get('alpha', 60)), freq=parse_eng_val(comp.get('freq', 50)))
         elif ctype == 'WATTMETER':
-            ckt.add_wattmeter(pins[0], pins[1], pins[2], pins[3], id_tag=comp['id'])
+            ckt.add_element({'type': 'WATTMETER', 'pins': list(pins[:4]), 'id': comp['id']})
         elif ctype == 'VCC':
             ckt.add_vsource(pins[0], 0, dc=val if val != 0 else 5.0)
-        elif ctype == 'COMPARATOR':
-            ckt.add_comparator(pins[0], pins[1], pins[2], vcc=val if val > 0 else 5.0)
-        elif ctype == 'SCHMITT':
-            ckt.add_schmitt(pins[0], pins[1], vcc=val if val > 0 else 5.0)
-        elif ctype == 'COUNTER4':
-            ckt.add_counter4(pins[0], pins[1], pins[2], pins[3], pins[4], pins[5])
-        elif ctype == 'OPTOTRIAC':
-            ckt.add_optotriac(pins[0], pins[1], pins[2], pins[3], part=part)
         elif ctype == 'SW_SPDT':
             pos = comp.get('closed', True)
             ckt.add_resistor(pins[0], pins[1], 0.01 if pos else 1e9)
@@ -180,25 +194,24 @@ def build_circuit(data, override_pid=None):
         elif ctype == 'TRF':
             ckt.add_transformer(pins[0], pins[1], pins[2], pins[3], ratio=val if val > 0 else 0.1)
         elif ctype == 'D':
-            model = PART_MODELS.get(part, (parse_eng_val(comp.get('Is', 7.02e-9)), parse_eng_val(comp.get('n', 1.77)), 0.04, 1000.0))
-            ckt.add_diode(pins[0], pins[1], Is=model[0], n=model[1], rs=model[2], bv=model[3], part=part)
+            mp, note = resolve_model(comp, 'D', part, PART_MODELS.get(part)); ckt.model_notes.append(note)
+            ckt.add_element({'type': 'D', 'pins': [pins[0], pins[1]], 'part': part, 'id': comp['id'], **{k: mp[k] for k in ('Is', 'n', 'rs', 'bv') if k in mp}})
         elif ctype == 'LED':
-            vf = PART_MODELS.get(part, 1.85)
-            ckt.add_led(pins[0], pins[1], comp['id'], vf=vf, part=part)
+            mp, note = resolve_model(comp, 'LED', part, PART_MODELS.get(part, 1.85)); ckt.model_notes.append(note)
+            ckt.add_element({'type': 'LED', 'pins': [pins[0], pins[1]], 'part': part, 'id': comp['id'], 'vf': mp.get('vf', 1.85), **{k: mp[k] for k in ('Is', 'n', 'rs') if k in mp}})
         elif ctype == 'Z':
-            vz = PART_MODELS.get(part, val if val > 0 else 5.1)
-            ckt.add_zener(pins[0], pins[1], vz=vz * tol, part=part)
+            mp, note = resolve_model(comp, 'Z', part, PART_MODELS.get(part, val if val > 0 else 5.1)); ckt.model_notes.append(note)
+            vz = float(mp.get('val', val if val > 0 else 5.1))
+            ckt.add_element({'type': 'Z', 'pins': [pins[0], pins[1]], 'part': part, 'id': comp['id'], 'val': vz * tol, 'rz': mp.get('rz', zener_rz(vz))})
         elif ctype == 'REG':
             vout = PART_MODELS.get(part, val if val > 0 else 5.0)
             ckt.add_regulator(pins[0], pins[1], pins[2], vout=vout, part=part)
         elif ctype == 'NE555':
             ckt.add_ne555(pins[0], pins[1], pins[2], pins[3], vcc=val if val > 0 else 5.0)
-        elif ctype == 'OPTO':
-            ckt.add_optocoupler(pins[0], pins[1], pins[2], pins[3], part=part)
         elif ctype == 'RELAY':
             ckt.add_relay(pins[0], pins[1], pins[2], pins[3], v_coil=val if val > 0 else 5.0, id_tag=comp['id'])
         elif ctype == 'MOTOR':
-            p_up = part.upper()
+            p_up = part.upper().replace('NEMA', 'STEPPER').replace('PMSM', 'BLDC').replace('PUMP', 'DC')
             mtype = 'STEPPER' if 'STEPPER' in p_up else (
                     'BLDC' if 'BLDC' in p_up else (
                     'INDUCTION' if 'INDUCTION' in p_up else (
@@ -210,22 +223,25 @@ def build_circuit(data, override_pid=None):
             load_t = parse_eng_val(comp.get('load', 0.0))
             ckt.add_motor(pins[0], pins[1], motor_type=mtype, load_torque=load_t, id_tag=comp['id'], part=part)
         elif ctype == 'BCD7':
-            ckt.add_bcd_display(pins[0], pins[1], pins[2], pins[3], id_tag=comp['id'])
+            ckt.add_element({'type': 'BCD7', 'pins': list(pins[:4]), 'id': comp['id']})
         elif ctype == 'V':
             ckt.add_vsource(
                 pins[0], pins[1],
                 dc=parse_eng_val(comp.get('dc', 0)), amp=parse_eng_val(comp.get('amp', 0)),
                 freq=parse_eng_val(comp.get('freq', 0)), wave=comp.get('wave', 'sine'),
-                phase_deg=parse_eng_val(comp.get('phase', 0))
+                phase=parse_eng_val(comp.get('phase', 0)),
+                delay=parse_eng_val(comp.get('delay', 0)), duty=_duty(comp.get('duty'))
             )
         elif ctype == 'OP':
             ckt.add_opamp(pins[0], pins[1], pins[2])
         elif ctype == 'M':
-            vth, kp, pol = PART_MODELS.get(part, (val if val > 0 else 2.5, parse_eng_val(comp.get('kp', 2.0)), comp.get('pol', 'N')))
-            ckt.add_mosfet(pins[0], pins[1], pins[2], vth=vth, kp=kp, pol=pol, part=part)
+            mp, note = resolve_model(comp, 'M', part, PART_MODELS.get(part)); ckt.model_notes.append(note)
+            if note['source'] == 'generic' and val > 0 and 'vth' not in comp: mp['vth'] = val
+            ckt.add_element({'type': 'M', 'pins': list(pins[:3]), 'part': part, 'id': comp['id'], **{k: mp[k] for k in ('vth', 'kp', 'lambda', 'pol') if k in mp}})
         elif ctype == 'Q':
-            Is, bf, pol = PART_MODELS.get(part, (1.4e-14, val if val > 0 else 200.0, comp.get('pol', 'NPN')))
-            ckt.add_bjt(pins[0], pins[1], pins[2], Is=Is, bf=bf, pol=pol, part=part)
+            mp, note = resolve_model(comp, 'Q', part, PART_MODELS.get(part)); ckt.model_notes.append(note)
+            if note['source'] == 'generic' and val > 0 and 'bf' not in comp: mp['bf'] = val
+            ckt.add_element({'type': 'Q', 'pins': list(pins[:3]), 'part': part, 'id': comp['id'], **{k: mp[k] for k in ('Is', 'bf', 'br', 'vaf', 'nf', 'pol') if k in mp}})
         elif ctype == 'SCR':
             vgt, ih = PART_MODELS.get(part, (parse_eng_val(comp.get('vgt', 0.7)), parse_eng_val(comp.get('ih', 0.005))))
             ckt.add_scr(pins[0], pins[1], pins[2], vgt=vgt, ih=ih, part=part)
@@ -235,12 +251,19 @@ def build_circuit(data, override_pid=None):
         elif ctype == 'DIAC':
             vbo = PART_MODELS.get(part, val if val > 0 else 32.0)
             ckt.add_diac(pins[0], pins[1], vbo=vbo, part=part)
-        elif ctype in ['AND', 'OR', 'NOT', 'NAND', 'XOR']:
-            in2 = pins[1] if len(pins) > 2 else 0
-            out = pins[2] if len(pins) > 2 else pins[1]
-            ckt.add_logic_gate(ctype, pins[0], in2, out)
+        elif ctype in ('COMPARATOR', 'SCHMITT', 'DFF', 'JKFF', 'COUNTER4', 'OPTO'):
+            ckt.add_element({'type': ctype, 'pins': list(pins), 'part': part, 'id': comp['id'], 'vcc': val if (val > 0 and ctype in ('COMPARATOR', 'SCHMITT')) else 5.0, 'ctr': parse_eng_val(comp.get('ctr', 1.0)) or 1.0})
+        elif ctype == 'NE555_8':
+            ckt.add_element({'type': 'NE555_8', 'pins': list(pins), 'part': part})
+        elif ctype in ['AND', 'OR', 'NOT', 'NAND', 'NOR', 'XOR', 'XNOR', 'BUF']:
+            ckt.add_element({'type': ctype, 'pins': list(pins)})
         elif ctype == 'MCU':
             ckt.add_mcu(pins[0], pins[1], code=comp.get('code', ''), pwm_freq=val if val > 0 else 250.0, threshold=parse_eng_val(comp.get('th', 2.5)))
+        elif ctype in ('GND', 'VMETER', 'PROBE', 'OSC'):
+            pass   # أجهزة قياس فقط: تقرأ جهد العقد ولا تؤثر على الدائرة
+        else:
+            ckt.model_notes.append({'id': comp.get('id'), 'part': part, 'type': ctype, 'source': 'unsupported', 'ignored': [],
+                                    'warn': f"القطعة '{part}' (النوع {ctype}) غير مدعومة في المحاكاة — يتم تجاهلها، فالنتيجة لا تتضمنها."})
     return ckt
 
 @app.route('/api/parts', methods=['GET'])
@@ -249,7 +272,8 @@ def api_parts():
         q = request.args.get('q', '')
         cat = request.args.get('cat', 'الكل')
         subcat = request.args.get('subcat', 'الكل')
-        offset = int(request.args.get('offset', 0))
+        try: offset = max(0, int(request.args.get('offset', 0)))
+        except ValueError: offset = 0
         res = search_catalog(query=q, category=cat, subcategory=subcat, limit=100, offset=offset)
         return jsonify({
             'status': 'ok',
@@ -279,12 +303,15 @@ def service_worker():
 @app.route('/simulate', methods=['POST'])
 def simulate():
     try:
-        data = request.json
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict) or not isinstance(data.get('components'), list):
+            return jsonify({'status': 'error', 'message': 'طلب غير صالح: لازم JSON فيه components'}), 400
         mode = data.get('mode', 'transient')
+        seed = random.randrange(1 << 30)
 
         if mode == 'bode':
-            ckt = build_circuit(data)
-            freqs, mags, phases, poles = ckt.run_ac_bode_and_stability(f_start=10.0, f_stop=100000.0, points=120)
+            ckt = build_circuit(data, seed=seed)
+            freqs, mags, phases, poles = ckt.run_ac_bode_and_stability(f_start=1.0, f_stop=1000000.0, points=160)
             return jsonify({'status': 'success', 'mode': 'bode', 'freqs': freqs, 'mags': mags, 'phases': phases, 'poles': poles})
         elif mode == 'autotune':
             # Real ITAE optimization on the user's actual circuit!
@@ -301,36 +328,90 @@ def simulate():
                 (5.0, 35.0, 0.10), (7.5, 50.0, 0.15), (1.0, 5.0, 0.01)
             ]
             for gains in candidates:
-                ckt_test = build_circuit(data, override_pid=gains)
+                ckt_test = build_circuit(data, override_pid=gains, seed=seed)
                 times, volts, *_ = ckt_test.run_transient(t_stop=t_stop, dt_base=t_stop / 250.0)
                 if len(times) > 5 and set_node > 0 and fb_node > 0:
                     t_arr = np.array(times)
-                    err = np.abs(np.array(volts[set_node - 1]) - np.array(volts[fb_node - 1]))
+                    err = np.abs(np.array(volts[set_node]) - np.array(volts[fb_node]))   # volts قاموس مفاتيحه أرقام العقد نفسها
                     itae = float(np.trapezoid(t_arr * err, t_arr))
                     if itae < best_itae:
                         best_itae = itae
                         best_gains = gains
             return jsonify({'status': 'success', 'mode': 'autotune', 'kp': best_gains[0], 'ki': best_gains[1], 'kd': best_gains[2], 'itae': round(best_itae, 6)})
         else:
-            ckt = build_circuit(data)
+            ckt = build_circuit(data, seed=seed)
             t_stop = max(parse_eng_val(data.get('t_stop', 0.04)), 1e-5)
             # Determine adaptive dt based on highest source frequency to prevent PWM/AC aliasing
             max_freq = max([parse_eng_val(c.get('freq', 0)) for c in data.get('components', []) if c['type'] == 'V'] + [0.0])
-            min_steps = max(800, int(t_stop * max_freq * 40))
-            min_steps = min(min_steps, 4000)
+            # دقة عالية: 80 نقطة/دورة كحد أدنى (أو 2400 نقطة) — والـ dt_hint من الأوسيلوسكوب يرفعها أكثر
+            min_steps = max(2400, int(t_stop * max_freq * 80))
+            hint = data.get('dt_hint')
+            if hint:
+                try: min_steps = max(min_steps, int(t_stop / float(hint)))
+                except Exception: pass
+            if any(c.get('type') == 'NE555_8' for c in data.get('components', [])):
+                min_steps = max(min_steps, 8000)     # توقيت الـ 555 يتحسب بدقة الخطوة الزمنية
+            min_steps = min(min_steps, 8000)
             dt = t_stop / min_steps
 
+            import time as _time
+            _t0 = _time.time()
             (times, node_voltages, led_states, power_stats, ammeter_stats,
              motor_stats, bcd_stats, lcd_stats, mcu_logs, bus_frames,
              fft_freqs, fft_mags, explanations, converged) = ckt.run_transient(t_stop=t_stop, dt_base=dt)
+            diag = dict(getattr(ckt, 'diag', {}))
+            warnings = []
+            step_err = None
+            elapsed = _time.time() - _t0
+            # تحقق ذاتي: أعد الحل بخطوة نصف الحجم وقارن (لو الزمن مسموح) — الفرق الكبير = النتيجة حساسة للخطوة الزمنية
+            if data.get('verify', True) and converged and min_steps * 2 <= 16000 and elapsed < 1.5:
+                ckt2 = build_circuit(data, seed=seed)
+                r2 = ckt2.run_transient(t_stop=t_stop, dt_base=dt / 2.0)
+                if r2[-1] and len(r2[0]) == 2 * (len(times) - 1) + 1:
+                    nv2 = r2[1]; scale = 1e-3; err = 0.0
+                    for k in node_voltages:
+                        if k <= 0 or k not in nv2: continue
+                        a1 = np.array(node_voltages[k]); a2 = np.array(nv2[k])[::2]
+                        scale = max(scale, float(np.max(np.abs(a2))))
+                        err = max(err, float(np.sqrt(np.mean((a1 - a2) ** 2))))
+                    step_err = err / scale * 100.0
+                    (times, node_voltages, led_states, power_stats, ammeter_stats, motor_stats, bcd_stats, lcd_stats,
+                     mcu_logs, bus_frames, fft_freqs, fft_mags, explanations, converged) = r2
+                    diag = dict(getattr(ckt2, 'diag', {}))
+                    cur_steps, cur_dt = 2 * min_steps, dt / 2.0
+                    while step_err > 1.0 and cur_steps * 2 <= 32000 and (_time.time() - _t0) < 8.0:
+                        ck3 = build_circuit(data, seed=seed); r3 = ck3.run_transient(t_stop=t_stop, dt_base=cur_dt / 2.0)
+                        if not (r3[-1] and len(r3[0]) == 2 * (len(times) - 1) + 1): break
+                        a_prev = {k: np.array(node_voltages[k]) for k in node_voltages if k > 0}; err = 0.0; scale = 1e-3
+                        for k, a1 in a_prev.items():
+                            a2 = np.array(r3[1][k])[::2]; scale = max(scale, float(np.max(np.abs(a2)))); err = max(err, float(np.sqrt(np.mean((a1 - a2) ** 2))))
+                        step_err = err / scale * 100.0; cur_steps *= 2; cur_dt /= 2.0
+                        (times, node_voltages, led_states, power_stats, ammeter_stats, motor_stats, bcd_stats, lcd_stats,
+                         mcu_logs, bus_frames, fft_freqs, fft_mags, explanations, converged) = r3
+                        diag = dict(getattr(ck3, 'diag', {}))
+                    if step_err > 1.0:
+                        warnings.append('النتيجة حساسة للخطوة الزمنية (فرق %.2f%% بين خطوتين حتى %d نقطة) — الدائرة فيها أحداث تبديل حادة؛ قد لا تتقارب القيم الدقيقة.' % (step_err, cur_steps))
+            if not converged:
+                warnings.append(explanations[0] if explanations else 'الحل لم يتقارب')
+            _notes = list(getattr(ckt, 'model_notes', []))
+            for _n in _notes:
+                if _n.get('source') == 'unsupported' or (_n.get('warn') and _n.get('source') == 'user-model-error'):
+                    warnings.append(_n['warn'])
+            for _n in _notes:
+                if _n.get('warn') and _n.get('source') not in ('unsupported', 'generic'):
+                    warnings.append(_n['warn'])        # .MODEL فيه خطأ/لا يناسب القطعة
+            _generic = sorted({str(_n['part']) for _n in _notes if _n.get('source') == 'generic'})
+            accuracy = {'converged': bool(converged), 'generic_models': _generic, 'unsupported': [n['part'] for n in _notes if n.get('source') == 'unsupported'], 'verified': step_err is not None, 'step_error_pct': None if step_err is None else round(step_err, 4),
+                        'nonconv_steps': diag.get('nonconv_steps', 0), 'integrator': diag.get('integrator'), 'warnings': warnings,
+                        'model_notes': [n for n in getattr(ckt, 'model_notes', [])]}
 
             return jsonify({
                 'status': 'success', 'mode': mode, 'converged': converged,
-                'times': times, 'voltages': node_voltages,
+                'times': times, 'voltages': [node_voltages[k] for k in sorted(k for k in node_voltages if k > 0)], 'num_steps': len(times) - 1,
                 'leds': led_states, 'powers': power_stats, 'ammeters': ammeter_stats,
                 'motors': motor_stats, 'bcds': bcd_stats, 'lcds': lcd_stats,
                 'mcu_logs': mcu_logs, 'bus_frames': bus_frames,
-                'fft_freqs': fft_freqs, 'fft_mags': fft_mags, 'explanations': explanations
+                'fft_freqs': fft_freqs, 'fft_mags': fft_mags, 'explanations': explanations, 'accuracy': accuracy, 'wattmeters': diag.get('meters', {})
             })
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 400

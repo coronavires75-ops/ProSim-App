@@ -105,6 +105,8 @@
   th, td { border: 1px solid #334155; padding: 6px; text-align: right; }
   th { background: #060a14; color: var(--accent); }
 </style>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/static/app_icon.png">
 </head>
 <body>
 
@@ -121,9 +123,10 @@
       <option value="lm35_mcu">4. حساس LM35 + Arduino + LCD</option>
       <option value="bjt">5. ترانزستور 2N2222 Switch</option>
       <option value="zener">6. منظم زينر 1N4733A 5.1V</option>
-      <option value="ne555">7. مذبذب NE555 Astable</option>
+      <option value="ne555">7. مذبذب NE555 Astable (حقيقي 8 أطراف)</option>
     </select>
     <button class="btn btn-run" onclick="runSim()">▶ تشغيل</button>
+    <button class="btn" id="isisBtn" onclick="toggleISIS()" title="ثيم Proteus ISIS">🎨 ISIS</button>
     <button class="btn btn-scope" onclick="openScope()">🖥️ الأوسليسكوب</button>
     <button class="btn" style="background:#4338ca;" onclick="openReport()">📜 التقرير & SPICE</button>
   </div>
@@ -186,7 +189,7 @@
 <div class="modal" id="scopeModal">
   <div class="modal-card" style="max-width:960px; border-color:var(--accent);">
     <div class="modal-head" style="background:#060a14;">
-      <strong style="color:var(--green);">🖥️ Proteus Virtual Oscilloscope & Logic Analyzer</strong>
+      <strong style="color:var(--green);">🖥️ Legacy Scope (مستبدل بـ ProSim Scope)</strong>
       <div style="display:flex; gap:5px; flex-wrap:wrap;">
         <button class="btn active" id="modeTimeBtn" onclick="setScopeMode('time')">Time (DSO)</button>
         <button class="btn" id="modeLogicBtn" onclick="setScopeMode('logic')">Logic Analyzer</button>
@@ -219,7 +222,8 @@
         </div>
         <div class="ch-box" style="border-color:#10b981;">
           <label style="font-size:0.74rem; color:#10b981; font-weight:bold;">Timebase (s): <span id="tStopLbl">0.04s</span></label>
-          <input type="range" min="0.005" max="0.25" step="0.005" value="0.04" oninput="document.getElementById('tStopLbl').innerText=this.value+'s'; tStopVal=+this.value; runSim(true);">
+          <input type="range" min="0.0005" max="0.25" step="0.0005" value="0.04" oninput="document.getElementById('tStopLbl').innerText=this.value+'s'; tStopVal=+this.value; runSim(true);">
+          <label style="font-size:0.7rem; color:#e2e8f0; display:block; margin-top:4px;" title="افتراضياً تُحسب نقطة التشغيل DC أولاً مثل Proteus/SPICE. فعّلها لترى شحن المكثفات من الصفر لحظة التوصيل"><input type="checkbox" id="uicChk" onchange="runSim(true)"> بدء من الصفر (UIC)</label>
         </div>
         <div class="ch-box" style="border-color:#ec4899;">
           <label style="font-size:0.74rem; color:#ec4899; font-weight:bold;">Live Source / Angle α: <span id="liveTuneLbl">--</span></label>
@@ -352,6 +356,9 @@ const LIBRARY = [
 
   // 7. Digital Logic, Flip-Flops, Counters & MCU
   { cat: '7. الدوائر الرقمية والـ Arduino', name: '74HC08 (AND Gate)', type: 'AND', part: '74HC08' },
+  { cat: '7. الدوائر الرقمية والـ Arduino', name: '74HC02 (NOR Gate)', type: 'NOR', part: '74HC02' },
+  { cat: '7. الدوائر الرقمية والـ Arduino', name: '74HC266 (XNOR Gate)', type: 'XNOR', part: '74HC266' },
+  { cat: '7. الدوائر الرقمية والـ Arduino', name: '74HC34 (Buffer)', type: 'BUF', part: '74HC34' },
   { cat: '7. الدوائر الرقمية والـ Arduino', name: '74HC32 (OR Gate)', type: 'OR', part: '74HC32' },
   { cat: '7. الدوائر الرقمية والـ Arduino', name: '74HC00 (NAND Gate)', type: 'NAND', part: '74HC00' },
   { cat: '7. الدوائر الرقمية والـ Arduino', name: '74HC86 (XOR Gate)', type: 'XOR', part: '74HC86' },
@@ -374,7 +381,11 @@ const LIBRARY = [
   { cat: '8. المحركات والحساسات والتحكم', name: 'MOTOR-UNIVERSAL (محرك عام 230V AC/DC)', type: 'MOTOR', part: 'UNIVERSAL-MOTOR', load: 0 },
   { cat: '8. المحركات والحساسات والتحكم', name: 'MOTOR-STEPPER (محرك خطوي NEMA17)', type: 'MOTOR', part: 'STEPPER-MOTOR', load: 0 },
   { cat: '8. المحركات والحساسات والتحكم', name: 'MOTOR-BLDC (محرك بدون فرش BLDC)', type: 'MOTOR', part: 'BLDC-MOTOR', load: 0 },
-  { cat: '8. المحركات والحساسات والتحكم', name: 'MOTOR-INDUCTION (محرك حثي AC 220V)', type: 'MOTOR', part: 'INDUCTION-MOTOR', load: 0 },
+  { cat: '8. المحركات والحساسات والتحكم', name: 'MOTOR-INDUCTION (محرك حثي 3-phase U,V,W)', type: 'MOTOR', part: 'INDUCTION-MOTOR', load: 0 },
+  { cat: '8. المحركات والحساسات والتحكم', name: 'MOTOR-PMSM (متزامن مغناطيس دائم 3-phase)', type: 'MOTOR', part: 'PMSM-MOTOR', load: 0 },
+  { cat: '8. المحركات والحساسات والتحكم', name: 'MOTOR-BLDC-3PH (3 أطراف + سواق خارجي)', type: 'MOTOR', part: 'BLDC-3PH', load: 0 },
+  { cat: '8. المحركات والحساسات والتحكم', name: 'MOTOR-NEMA23 (خطوي عزم عالي)', type: 'MOTOR', part: 'NEMA23', load: 0 },
+  { cat: '8. المحركات والحساسات والتحكم', name: 'WATER-PUMP (مضخة مياه)', type: 'MOTOR', part: 'WATER-PUMP', load: 0 },
   { cat: '8. المحركات والحساسات والتحكم', name: 'PID-CTRL (متحكم PID حلقة مغلقة)', type: 'PID', part: 'PID-CTRL', kp: 3.5, ki: 25.0, kd: 0.08 },
   { cat: '8. المحركات والحساسات والتحكم', name: 'LM35 (حساس حرارة 10mV/°C)', type: 'LM35', part: 'LM35', val: 35 },
   { cat: '8. المحركات والحساسات والتحكم', name: 'HC-SR04 (حساس مسافة بالموجات فوق الصوتية)', type: 'HCSR04', part: 'HC-SR04', val: 120 },
@@ -480,10 +491,14 @@ function getPins(c) {
   else if (['OP', 'COMPARATOR', 'PID'].includes(c.type)) raw = [{ x: c.x - 40, y: c.y - 12 }, { x: c.x - 40, y: c.y + 12 }, { x: c.x + 40, y: c.y }];
   else if (c.type === 'SW_SPDT') raw = [{ x: c.x - 40, y: c.y }, { x: c.x + 40, y: c.y - 16 }, { x: c.x + 40, y: c.y + 16 }];
   else if (['Q', 'M', 'SCR', 'TRIAC'].includes(c.type)) raw = [{ x: c.x - 40, y: c.y }, { x: c.x + 20, y: c.y - 35 }, { x: c.x + 20, y: c.y + 35 }];
-  else if (['AND', 'OR', 'NAND', 'XOR'].includes(c.type)) raw = [{ x: c.x - 40, y: c.y - 12 }, { x: c.x - 40, y: c.y + 12 }, { x: c.x + 40, y: c.y }];
+  else if (['AND', 'OR', 'NAND', 'NOR', 'XOR', 'XNOR'].includes(c.type)) raw = [{ x: c.x - 40, y: c.y - 12 }, { x: c.x - 40, y: c.y + 12 }, { x: c.x + 40, y: c.y }];
   else if (['TRF', 'BRIDGE', 'WATTMETER', 'NE555', 'OPTO', 'OPTOTRIAC', 'RELAY', 'BCD7'].includes(c.type)) raw = [{ x: c.x - 40, y: c.y - 16 }, { x: c.x - 40, y: c.y + 16 }, { x: c.x + 40, y: c.y - 16 }, { x: c.x + 40, y: c.y + 16 }];
   else if (['RELAY_SPDT', 'DFF', 'JKFF'].includes(c.type)) raw = [{ x: c.x - 40, y: c.y - 16 }, { x: c.x - 40, y: c.y }, { x: c.x - 40, y: c.y + 16 }, { x: c.x + 40, y: c.y - 14 }, { x: c.x + 40, y: c.y + 14 }];
   else if (c.type === 'COUNTER4') raw = [{ x: c.x - 40, y: c.y - 14 }, { x: c.x - 40, y: c.y + 14 }, { x: c.x + 40, y: c.y - 21 }, { x: c.x + 40, y: c.y - 7 }, { x: c.x + 40, y: c.y + 7 }, { x: c.x + 40, y: c.y + 21 }];
+  else if (c.type === 'NE555_8') raw = [{ x: c.x + 40, y: c.y + 30 }, { x: c.x - 40, y: c.y - 30 }, { x: c.x + 40, y: c.y + 10 }, { x: c.x - 40, y: c.y + 30 }, { x: c.x - 40, y: c.y + 10 }, { x: c.x - 40, y: c.y - 10 }, { x: c.x + 40, y: c.y - 10 }, { x: c.x + 40, y: c.y - 30 }];
+  else if (c.type === 'OSC') raw = [{ x: c.x - 40, y: c.y - 18 }, { x: c.x - 40, y: c.y - 6 }, { x: c.x - 40, y: c.y + 6 }, { x: c.x - 40, y: c.y + 18 }];
+  else if (c.type === 'MOTOR' && /3PH|PMSM|INDUCTION/i.test(c.part || '')) raw = [{ x: c.x - 40, y: c.y - 16 }, { x: c.x - 40, y: c.y }, { x: c.x - 40, y: c.y + 16 }];
+  else if (c.type === 'MOTOR' && /STEPPER|NEMA/i.test(c.part || '')) raw = [{ x: c.x - 40, y: c.y - 14 }, { x: c.x - 40, y: c.y + 14 }, { x: c.x + 40, y: c.y - 14 }, { x: c.x + 40, y: c.y + 14 }];
   else raw = [{ x: c.x - 40, y: c.y }, { x: c.x + 40, y: c.y }];
 
   const rad = ((c.rot || 0) * Math.PI) / 180;
@@ -669,6 +684,7 @@ function selectComponent(c) {
   } else {
     html = `<div style="font-size:0.78rem; color:var(--muted);">العنصر (${c.part}) جاهز للتوصيل والمحاكاة.</div>`;
   }
+  if (typeof modelBlock === 'function') html += modelBlock(c);
   body.innerHTML = html;
   sheet.style.display = 'block';
 }
@@ -701,14 +717,6 @@ function draw() {
 
   ctx.save();
 
-    if (c.type === 'SCR' || c.visualType === 'SCR') {
-      ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2.5;
-      ctx.beginPath(); ctx.moveTo(-25, 0); ctx.lineTo(-8, 0); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(-8, -14); ctx.lineTo(-8, 14); ctx.lineTo(12, 0); ctx.closePath(); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(12, -14); ctx.lineTo(12, 14); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(12, 0); ctx.lineTo(25, 0); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(12, 7); ctx.lineTo(20, 20); ctx.lineTo(0, 20); ctx.stroke();
-    }
 
   ctx.translate(view.x, view.y);
   ctx.scale(view.scale, view.scale);
@@ -740,6 +748,13 @@ function draw() {
     }
   });
 
+  (function junctions() {
+    const cnt = {}; const key = (id, i) => id + ':' + i;
+    wires.forEach(w => { [w.from, w.to].forEach(e => { const k = key(e.compId, e.pinIdx); cnt[k] = (cnt[k] || 0) + 1; }); });
+    ctx.fillStyle = viewMode === 'pcb' ? '#fbbf24' : '#10b981';
+    Object.keys(cnt).forEach(k => { if (cnt[k] < 2) return; const [id, pi] = k.split(':').map(Number); const c = components.find(x => x.id === id); if (!c) return; const p = getPins(c)[pi]; if (!p) return; ctx.beginPath(); ctx.arc(p.x, p.y, 4.6, 0, Math.PI * 2); ctx.fill(); });
+  })();
+
   if (wireStart) {
     ctx.strokeStyle = '#facc15'; ctx.setLineDash([5, 5]);
     ctx.beginPath(); ctx.moveTo(wireStart.x, wireStart.y); ctx.lineTo(pointerWorld.x, wireStart.y); ctx.lineTo(pointerWorld.x, pointerWorld.y); ctx.stroke();
@@ -761,6 +776,7 @@ function draw() {
     ctx.fillStyle = pr.color; ctx.beginPath(); ctx.arc(p.x, p.y - 12, 6, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(pr.label, p.x, p.y - 21);
+    if (net) { const nv = nodeVoltagesLast[net.getNode(pr.compId, pr.pinIdx)]; if (nv !== undefined) { ctx.fillStyle = '#facc15'; ctx.fillText(nv.toFixed(2) + ' V', p.x, p.y - 33); } }
   });
 
   ctx.restore();
@@ -796,9 +812,14 @@ function drawComponent(c) {
     ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
     ctx.fillText(c.freq > 0 ? '~' : 'DC', 0, 4);
   } else if (c.type === 'MOTOR') {
-    ctx.beginPath(); ctx.moveTo(-40, 0); ctx.lineTo(-20, 0); ctx.moveTo(20, 0); ctx.lineTo(40, 0); ctx.stroke();
+    const mp = c.part || '', is3 = /3PH|PMSM|INDUCTION/i.test(mp), isS = /STEPPER|NEMA/i.test(mp);
+    ctx.beginPath();
+    if (is3) { [-16, 0, 16].forEach(y => { ctx.moveTo(-40, y); ctx.lineTo(-18, y * 0.7); }); }
+    else if (isS) { [[-40, -14], [-40, 14], [40, -14], [40, 14]].forEach(([x, y]) => { ctx.moveTo(x, y); ctx.lineTo(x * 0.5, y * 0.6); }); }
+    else { ctx.moveTo(-40, 0); ctx.lineTo(-20, 0); ctx.moveTo(20, 0); ctx.lineTo(40, 0); }
+    ctx.stroke();
     ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI * 2); ctx.fillStyle = '#0b1120'; ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#10b981'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center'; ctx.fillText('M', 0, 4);
+    ctx.fillStyle = '#10b981'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center'; ctx.fillText(is3 ? '3~' : (isS ? 'SM' : 'M'), 0, 4);
   } else if (c.type === 'LCD16') {
     ctx.beginPath(); ctx.moveTo(-45, 0); ctx.lineTo(-35, 0); ctx.stroke();
     ctx.fillStyle = '#14532d'; ctx.fillRect(-35, -18, 70, 36); ctx.strokeRect(-35, -18, 70, 36);
@@ -808,6 +829,7 @@ function drawComponent(c) {
     ctx.fillStyle = '#090d16'; ctx.fillRect(-24, -26, 48, 52); ctx.strokeRect(-24, -26, 48, 52);
     ctx.fillStyle = '#ef4444'; ctx.font = 'bold 28px monospace'; ctx.textAlign = 'center';
     ctx.fillText(bcdStats[c.id] !== undefined ? bcdStats[c.id] : 0, 0, 10);
+  } else if (typeof drawSymbolPro === 'function' && drawSymbolPro(c)) {
   } else {
     ctx.fillStyle = '#111827'; ctx.fillRect(-26, -22, 52, 44); ctx.strokeRect(-26, -22, 52, 44);
     ctx.fillStyle = '#e2e8f0'; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
@@ -821,6 +843,8 @@ function drawComponent(c) {
     if (['R', 'C', 'CELEC', 'L'].includes(c.type)) sub = `${c.val}`;
     if (c.type === 'V') sub = c.freq > 0 ? `${c.amp}V ${c.freq}Hz` : `${c.dc}V DC`;
     if (c.type === 'MOTOR' && motorStats[c.id]) sub = `${Math.abs(motorStats[c.id].rpm).toFixed(0)} RPM`;
+    if (c.type === 'VMETER' && window.meterText) sub = window.meterText(c);
+    if (c.type === 'WATTMETER' && simData && simData.data && simData.data.wattmeters && simData.data.wattmeters[c.id]) { const m = simData.data.wattmeters[c.id]; sub = `${m.P.toFixed(Math.abs(m.P) < 10 ? 3 : 2)} W  PF ${m.PF.toFixed(2)}`; }
     if (c.type === 'AMMETER' && ammeterStats[c.id] !== undefined) sub = `${(ammeterStats[c.id]*1000).toFixed(1)}mA`;
     ctx.fillText(sub, c.x, c.y + 34);
   }
@@ -844,13 +868,11 @@ function buildNetlist() {
   });
   const getNode = (cid, pid) => map[find(k(cid, pid))] ?? 0;
 
-  const netComps = components.filter(c => c.type !== 'GND').map(c => ({
-    id: c.id, type: c.type, part: c.part,
-    pins: getPins(c).map((_, i) => getNode(c.id, i)),
-    val: c.val, dc: c.dc, amp: c.amp, freq: c.freq, wave: c.wave,
-    pol: c.pol, pct: c.pct, alpha: c.alpha, kp: c.kp, ki: c.ki, kd: c.kd,
-    load: c.load, closed: c.closed, code: c.code
-  }));
+  // كل خصائص القطعة تُرسل للـ solver (ما عدا إحداثيات الرسم) — فتصل حقول مثل model, vf, Is, n, rs, bf, vth, ctr...
+  const netComps = components.filter(c => c.type !== 'GND').map(c => {
+    const { x, y, rot, ...rest } = c;
+    return Object.assign(rest, { pins: getPins(c).map((_, i) => getNode(c.id, i)) });
+  });
 
   const probeMap = probes.map(p => ({ label: p.label, color: p.color, node: getNode(p.compId, p.pinIdx) }));
   return { num_nodes: idx - 1, components: netComps, probeMap, getNode };
@@ -868,7 +890,7 @@ async function runSim(silent = false) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       mode: scopeMode === 'bode' ? 'bode' : 'transient',
-      num_nodes: net.num_nodes, t_stop: tStopVal, components: net.components
+      num_nodes: net.num_nodes, t_stop: tStopVal, components: net.components, dt_hint: window.__dtHint || undefined, uic: !!(document.getElementById('uicChk') && document.getElementById('uicChk').checked)
     })
   });
   const data = await res.json();
@@ -1258,24 +1280,19 @@ function loadDemo(name) {
     ];
     probes = [{ compId: 2, pinIdx: 1, label: 'CH1 (5.1V Zener)', color: '#10b981' }];
   } else if (name === 'ne555') {
-    tStopVal = 0.05;
+    tStopVal = 0.02;
     components = [
-      { id: 1, type: 'V', part: 'DC-5V', x: 80, y: 140, rot: 0, dc: 5, amp: 0, freq: 0, wave: 'sine' },
-      { id: 2, type: 'NE555', part: 'NE555', x: 280, y: 160, rot: 0, val: 5.0 },
-      { id: 3, type: 'R', part: 'R1', x: 180, y: 100, rot: 0, val: '10k' },
-      { id: 4, type: 'C', part: 'C1', x: 180, y: 220, rot: 90, val: '1u' },
-      { id: 5, type: 'GND', part: 'GND', x: 80, y: 280, rot: 0 }
+      { id: 1, type: 'V', part: 'DC-5V', x: 80, y: 120, rot: 0, dc: 5, amp: 0, freq: 0, wave: 'sine' },
+      { id: 2, type: 'NE555_8', part: 'NE555', x: 330, y: 170, rot: 0 },
+      { id: 3, type: 'R', part: 'R1 1k', x: 240, y: 40, rot: 90, val: '1k' },
+      { id: 4, type: 'R', part: 'R2 10k', x: 160, y: 100, rot: 90, val: '10k' },
+      { id: 5, type: 'C', part: 'C1 100n', x: 160, y: 220, rot: 90, val: '100n' },
+      { id: 6, type: 'GND', part: 'GND', x: 80, y: 300, rot: 0 }
     ];
-    nextId = 6;
-    wires = [
-      { from: { compId: 1, pinIdx: 0 }, to: { compId: 3, pinIdx: 0 } },
-      { from: { compId: 3, pinIdx: 1 }, to: { compId: 2, pinIdx: 0 } },
-      { from: { compId: 2, pinIdx: 0 }, to: { compId: 2, pinIdx: 1 } },
-      { from: { compId: 2, pinIdx: 1 }, to: { compId: 4, pinIdx: 0 } },
-      { from: { compId: 4, pinIdx: 1 }, to: { compId: 5, pinIdx: 0 } },
-      { from: { compId: 1, pinIdx: 1 }, to: { compId: 5, pinIdx: 0 } }
-    ];
-    probes = [{ compId: 2, pinIdx: 3, label: 'CH1 (555 Out)', color: '#facc15' }, { compId: 4, pinIdx: 0, label: 'CH2 (Cap)', color: '#38bdf8' }];
+    nextId = 7;
+    const W = (a, i, b, j) => ({ from: { compId: a, pinIdx: i }, to: { compId: b, pinIdx: j } });
+    wires = [W(1, 0, 3, 0), W(1, 0, 2, 7), W(1, 0, 2, 3), W(3, 1, 4, 0), W(3, 1, 2, 6), W(4, 1, 2, 5), W(4, 1, 2, 1), W(4, 1, 5, 0), W(5, 1, 6, 0), W(2, 0, 6, 0), W(1, 1, 6, 0)];
+    probes = [{ compId: 2, pinIdx: 2, label: 'OUT', color: '#facc15' }, { compId: 5, pinIdx: 0, label: 'Cap', color: '#38bdf8' }];
   }
   runSim();
 }
@@ -1317,7 +1334,13 @@ function ensureAllPresetsLoaded() {
 }
 setInterval(ensureAllPresetsLoaded, 1000);
 </script>
-<script src="/static/presets_all.js?v=85">
+<script src="/static/isis_theme.js?v=91"></script>
+<script src="/static/symbols.js?v=91"></script>
+<script src="/static/scope.js?v=91"></script>
+<script src="/static/instruments.js?v=91"></script>
+<script src="/static/presets_all.js?v=90"></script>
+<script src="/static/lecture_circuits.js?v=90"></script>
+<script>
     try {
       if (typeof PRESETS !== 'undefined') window.PRESETS = PRESETS;
       if (typeof components !== 'undefined') window.components = components;

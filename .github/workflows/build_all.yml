@@ -145,7 +145,7 @@ jobs:
       - name: Package iOS App Bundle
         run: |
           mkdir -p ProSimUltimate-iOS-App
-          cp -r app.py solver.py main.py templates static manifest.webmanifest service-worker.js requirements.txt Procfile ProSimUltimate-iOS-App/
+          cp -r app.py solver.py models.py parts_db.py main.py run_local.py templates static manifest.webmanifest service-worker.js requirements.txt Procfile ProSimUltimate-iOS-App/
           zip -r ProSimUltimate-iOS-Bundle.zip ProSimUltimate-iOS-App
       - uses: actions/upload-artifact@v4
         with:

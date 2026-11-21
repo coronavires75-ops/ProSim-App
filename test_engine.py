@@ -1,79 +1,74 @@
+"""اختبارات مباشرة للـ solver بدون سيرفر: python3 test_engine.py"""
+import math
 import numpy as np
 from solver import ProCircuitSolver
 
-def run_tests():
-    passed = 0
-    total = 0
 
-    def check(name, actual, expected, tol_pct=3.0):
+def final(ckt, node, t_stop=1e-3, dt=1e-6):
+    r = ckt.run_transient(t_stop=t_stop, dt_base=dt)
+    return r[1][node][-1], r
+
+
+def run_tests():
+    passed = total = 0
+
+    def check(name, actual, expected, tol_pct):
         nonlocal passed, total
         total += 1
         err = abs(actual - expected) / max(abs(expected), 1e-6) * 100.0
         ok = err <= tol_pct
-        if ok:
-            passed += 1
-        status = "PASS ✅" if ok else "FAIL ❌"
-        print(f"[{status}] {name}: Measured={actual:.4f} | Analytic={expected:.4f} | Error={err:.2f}%")
+        passed += ok
+        print(f"[{'PASS ✅' if ok else 'FAIL ❌'}] {name}: Measured={actual:.4f} | Expected={expected:.4f} | Error={err:.2f}%")
 
-    print("=== ProSim Singularity v12.0 Mathematical Verification Suite ===")
+    print("=== ProSim solver verification ===")
 
-    # 1. Voltage Divider & European Notation
-    ckt1 = ProCircuitSolver(2)
-    ckt1.add_vsource(1, 0, dc=10.0)
-    ckt1.add_resistor(1, 2, 1000.0)
-    ckt1.add_resistor(2, 0, 1000.0)
-    X1, ok1 = ckt1.solve_step(0, 0, is_dc=True)
-    check("1. Voltage Divider (10V, 1k/1k)", X1[1], 5.0, tol_pct=0.01)
+    c = ProCircuitSolver(2)
+    c.add_vsource(1, 0, dc=10.0); c.add_resistor(1, 2, 1000.0); c.add_resistor(2, 0, 1000.0)
+    check("1. Voltage divider 10V 1k/1k", final(c, 2)[0], 5.0, 0.01)
 
-    # 2. Silicon Diode Forward Drop (1N4007)
-    ckt2 = ProCircuitSolver(2)
-    ckt2.add_vsource(1, 0, dc=5.0)
-    ckt2.add_resistor(1, 2, 430.0)
-    ckt2.add_diode(2, 0, Is=7.02e-9, n=1.77, part='1N4007')
-    X2, _ = ckt2.solve_step(0, 0, is_dc=True)
-    check("2. 1N4007 Silicon Diode Vf (~0.68V)", X2[1], 0.68, tol_pct=5.0)
+    # دايود 1N4007 (Is=76.9p n=1.45 Rs=0.042): الحل الدقيق بالتنصيف
+    Is, n, rs, Vt = 76.9e-12, 1.45, 0.042, 0.02585
+    lo, hi = 0.0, 1.0
+    for _ in range(200):
+        vd = (lo + hi) / 2
+        i = Is * (math.exp(vd / (n * Vt)) - 1)
+        lo, hi = (vd, hi) if (5 - vd - i * rs) / 430.0 > i else (lo, vd)
+    vexact = vd + Is * (math.exp(vd / (n * Vt)) - 1) * rs
+    c = ProCircuitSolver(2)
+    c.add_vsource(1, 0, dc=5.0); c.add_resistor(1, 2, 430.0); c.add_diode(2, 0, Is=Is, n=n, rs=rs, part='1N4007')
+    check("2. Diode 1N4007 forward voltage", final(c, 2)[0], vexact, 0.05)
 
-    # 3. Schottky Diode Forward Drop (1N5819)
-    ckt3 = ProCircuitSolver(2)
-    ckt3.add_vsource(1, 0, dc=5.0)
-    ckt3.add_resistor(1, 2, 470.0)
-    ckt3.add_diode(2, 0, Is=3.15e-5, n=1.05, part='1N5819')
-    X3, _ = ckt3.solve_step(0, 0, is_dc=True)
-    check("3. 1N5819 Schottky Diode Vf (~0.18V-0.25V)", X3[1], 0.18, tol_pct=15.0)
+    c = ProCircuitSolver(2)
+    c.add_vsource(1, 0, dc=12.0); c.add_resistor(1, 2, 1000.0); c.add_zener(0, 2, vz=5.1, rz=7.0, part='1N4733A')
+    check("3. Zener 5.1V clamp", final(c, 2)[0], 5.1, 2.0)
 
-    # 4. Zener 5.1V Regulation (1N4733A)
-    ckt4 = ProCircuitSolver(2)
-    ckt4.add_vsource(1, 0, dc=12.0)
-    ckt4.add_resistor(1, 2, 1000.0)
-    ckt4.add_zener(0, 2, vz=5.1, part='1N4733A')
-    X4, _ = ckt4.solve_step(0, 0, is_dc=True)
-    check("4. 1N4733A Zener Clamping (5.10V)", X4[1], 5.10, tol_pct=1.5)
+    c = ProCircuitSolver(3)
+    c.add_vsource(1, 0, dc=5.0); c.add_resistor(1, 2, 1000.0); c.add_resistor(1, 3, 220.0)
+    c.add_bjt(2, 3, 0, Is=1.4e-14, bf=200.0, pol='NPN', part='2N2222')
+    vce = final(c, 3)[0]
+    total += 1; ok = 0.01 < vce < 0.30; passed += ok
+    print(f"[{'PASS ✅' if ok else 'FAIL ❌'}] 4. BJT saturation Vce(sat)={vce:.4f}V (0.01..0.30)")
 
-    # 5. BJT Saturation Switch (2N2222)
-    ckt5 = ProCircuitSolver(3)
-    ckt5.add_vsource(1, 0, dc=5.0)
-    ckt5.add_resistor(1, 2, 1000.0)   # Base resistor (Ib ~ 4.3mA)
-    ckt5.add_resistor(1, 3, 220.0)    # Collector load (Ic_sat ~ 22mA)
-    ckt5.add_bjt(2, 3, 0, Is=1.4e-14, bf=200.0, pol='NPN', part='2N2222')
-    X5, _ = ckt5.solve_step(0, 0, is_dc=True)
-    total += 1
-    if 0.01 < X5[2] < 0.30:
-        passed += 1
-        print(f"[PASS ✅] 5. BJT Saturation Vce(sat): Measured={X5[2]:.4f}V (Expected 0.05V - 0.25V)")
-    else:
-        print(f"[FAIL ❌] 5. BJT Saturation Vce(sat): Measured={X5[2]:.4f}V")
+    # RC: بدء من الصفر (UIC) => v(tau) = 5(1-e^-1)
+    c = ProCircuitSolver(2); c.use_op = False
+    c.add_vsource(1, 0, dc=5.0); c.add_resistor(1, 2, 1000.0); c.add_capacitor(2, 0, 1e-6)
+    check("5. RC charge at tau (UIC)", final(c, 2, t_stop=1e-3, dt=1e-6)[0], 5 * (1 - math.exp(-1)), 0.1)
 
-    # 6. DC Motor Steady-State Speed (12V, Ra=2.2, Ke=0.035, B=1.5e-5, T_load=0)
-    ckt6 = ProCircuitSolver(1)
-    ckt6.add_vsource(1, 0, dc=12.0)
-    ckt6.add_motor(1, 0, motor_type='DC', load_torque=0.0, id_tag=1)
-    ckt6.run_transient(t_stop=0.25, dt_base=0.0005)
-    # Analytic steady-state omega = (V * Kt) / (Ra * B + Ke * Kt)
-    w_analytic = (12.0 * 0.035) / (2.2 * 1.5e-5 + 0.035 * 0.035)
-    rpm_analytic = w_analytic * 60.0 / (2.0 * np.pi)
-    check("6. DC Motor Steady-State RPM (12V No-Load)", ckt6.motors[0]['rpm'], rpm_analytic, tol_pct=1.0)
+    # نفس الدائرة مع نقطة تشغيل DC (السلوك الافتراضي مثل SPICE/Proteus) => المكثف مشحون من البداية
+    c = ProCircuitSolver(2)
+    c.add_vsource(1, 0, dc=5.0); c.add_resistor(1, 2, 1000.0); c.add_capacitor(2, 0, 1e-6)
+    v, r = final(c, 2)
+    check("6. RC with DC operating point (t=0)", r[1][2][0], 5.0, 0.01)
+
+    # مصدر بإزاحة طور 90° => قيمته عند t=0 تساوي السعة
+    c = ProCircuitSolver(1)
+    c.add_vsource(1, 0, amp=10.0, freq=50.0, wave='sine', phase=90.0); c.add_resistor(1, 0, 1000.0)
+    r = c.run_transient(t_stop=0.02, dt_base=1e-5)
+    check("7. Source phase 90deg (v at t=0)", r[1][1][0], 10.0, 0.01)
 
     print(f"\nSummary: {passed}/{total} tests passed.")
+    return passed == total
+
 
 if __name__ == '__main__':
-    run_tests()
+    raise SystemExit(0 if run_tests() else 1)

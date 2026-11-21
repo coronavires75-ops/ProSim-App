@@ -1,14 +1,11 @@
 {
   "name": "ProSim Ultimate",
   "short_name": "ProSim",
-  "description": "Electronic circuit design and simulation",
   "start_url": "/",
-  "scope": "/",
   "display": "standalone",
-  "background_color": "#060911",
+  "background_color": "#0f172a",
   "theme_color": "#0f172a",
-  "orientation": "any",
-  "icons": [
-    {"src": "/static/app_icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
-  ]
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [{ "src": "/static/app_icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }]
 }

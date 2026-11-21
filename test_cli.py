@@ -21,10 +21,10 @@ ckt.add_resistor(2, 0, 1000.0, id_tag='R_Load', part='RES')
 ckt.add_capacitor(2, 0, 100e-6)
 
 print("[+] Building MNA matrix & running adaptive transient analysis...")
-times, voltages, led_states, power_stats, ammeter_stats, motor_stats, bcd_stats, lcd_stats, mcu_logs, bus_frames, fft_freqs, fft_mags, explanations = ckt.run_transient(t_stop=0.04, dt_base=0.0001)
+times, voltages, led_states, power_stats, ammeter_stats, motor_stats, bcd_stats, lcd_stats, mcu_logs, bus_frames, fft_freqs, fft_mags, explanations, converged = ckt.run_transient(t_stop=0.04, dt_base=0.0001)
 
 # استخراج النتائج
-node2_voltages = voltages[1] if len(voltages) > 1 else [0]
+node2_voltages = voltages[2]   # voltages قاموس مفاتيحه أرقام العقد
 v_max = max(node2_voltages)
 v_rms = np.sqrt(np.mean(np.array(node2_voltages)**2))
 total_power = sum(power_stats.values())
