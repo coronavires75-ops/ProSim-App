@@ -709,17 +709,28 @@ class ProSpiceBDF2Solver:
                             ng, nk, na = pins[0], pins[1], pins[2]
                             vgk = node_v(ng) - node_v(nk)
                             vak = node_v(na) - node_v(nk)
-                            vgt = float(el.get('vgt', 0.55))
+                            vgt = float(el.get('vgt', 0.60))
+                            igt = float(el.get('igt', 0.0005))   # تيار الإشعال (افتراضي حساس 0.5mA للتوافق مع الدوائر الجاهزة)
                             ih = float(el.get('ih', 0.005))
-                            vtm = float(el.get('vtm', 0.85))
+                            vtm = float(el.get('vtm', 1.20))     # هبوط جهد التوصيل الحقيقي (1.2V) لنجاح الإطفاء القسري بالترانزستور
+                            vbo = float(el.get('vbo', 600.0))    # جهد الانهيار الأمامي بدون بوابة
                             ron = max(0.05, float(el.get('ron', 0.15)))
-                            rg_int = 1200.0
                             is_scr = (etype == 'SCR') or ('SCR' in str(el.get('part', '')).upper())
+
+                            # وصلة بوابة-كاثود حقيقية (دايود 0.6V للـ SCR، وثنائي الاتجاه للـ TRIAC)
+                            if is_scr:
+                                ig_now, gg_now = _diode_iv(vgk, 1e-12, 1.5 * VT_THERMAL, 15.0)
+                                ig_trig = (ig_now >= igt) and (vgk >= vgt * 0.85)
+                            else:
+                                sgn_g = 1.0 if vgk >= 0 else -1.0
+                                ig_mag, gg_now = _diode_iv(abs(vgk), 1e-12, 1.5 * VT_THERMAL, 15.0)
+                                ig_now = sgn_g * ig_mag
+                                ig_trig = (ig_mag >= igt) and (abs(vgk) >= vgt * 0.85)
 
                             latched = getattr(self, f'_latched_{idx}', False)
                             iak_est = (abs(vak) - vtm) / ron if abs(vak) > vtm else 0.0
 
-                            # دعم القدح المباشر بزاوية الإشعال alpha أو بجهد البوابة vgk
+                            # دعم القدح المباشر بزاوية الإشعال alpha أو بتيار/جهد البوابة أو بجهد الانهيار Vbo
                             alpha_deg = el.get('alpha', None)
                             alpha_trig = False
                             if alpha_deg is not None:
@@ -730,14 +741,14 @@ class ProSpiceBDF2Solver:
                                     alpha_trig = True
 
                             if is_scr:
-                                if vak <= 0.2 or (latched and iak_est < ih and vgk < vgt and not alpha_trig):
+                                if vak <= 0.35 or (latched and iak_est < ih and not ig_trig and not alpha_trig):
                                     latched = False
-                                elif vak > 0.4 and (vgk >= vgt or alpha_trig or (latched and iak_est >= ih)):
+                                elif (vak > vtm and (ig_trig or alpha_trig or (latched and iak_est >= ih))) or (vak >= vbo):
                                     latched = True
                             else:
-                                if abs(vak) <= 0.2 or (latched and iak_est < ih and abs(vgk) < vgt and not alpha_trig):
+                                if abs(vak) <= 0.35 or (latched and iak_est < ih and not ig_trig and not alpha_trig):
                                     latched = False
-                                elif abs(vak) > 0.4 and (abs(vgk) >= vgt or alpha_trig or (latched and iak_est >= ih)):
+                                elif (abs(vak) > vtm and (ig_trig or alpha_trig or (latched and iak_est >= ih))) or (abs(vak) >= vbo):
                                     latched = True
 
                             setattr(self, f'_latched_{idx}', latched)
@@ -746,7 +757,9 @@ class ProSpiceBDF2Solver:
                                 stamp_i(I_vec, na, nk, -vtm / ron if vak >= 0 else vtm / ron)
                             else:
                                 stamp_g(G, na, nk, 1e-8)
-                            stamp_g(G, ng, nk, 1.0 / rg_int)
+                            # ختم وصلة البوابة الحقيقية في مصفوفة MNA
+                            stamp_g(G, ng, nk, gg_now + 1e-6)
+                            stamp_i(I_vec, ng, nk, ig_now - gg_now * vgk)
 
                         elif etype == 'UJT' and len(pins) >= 3:
                             ne, nb1, nb2 = pins[0], pins[1], pins[2]
