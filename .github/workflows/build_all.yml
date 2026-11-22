@@ -31,9 +31,42 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Build Android APK with Custom Icon
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build Self-Contained Offline Android APK (Embedded Python + Signed)
+        env:
+          VER_CODE: ${{ github.run_number }}
         run: |
           mkdir -p android_app/app/src/main/java/org/prosim/isis
+          mkdir -p android_app/app/src/main/python
+          cp -r app.py solver.py models.py parts_db.py run_local.py templates static manifest.webmanifest service-worker.js android_app/app/src/main/python/
+
+          # توليد Keystore ثابت في كل مرة بدون الاعتماد على Termux
+          python3 -c "import os; os.system('keytool -genkeypair -noprompt -keystore android_app/prosim_release.jks -alias prosim_key -keyalg RSA -keysize 2048 -validity 10000 -storepass prosim123456 -keypass prosim123456 -dname "CN=ProSim, OU=Electronics, O=ProSim, L=Cairo, S=Cairo, C=EG"')"
+
+          cat << 'INNER' > android_app/app/src/main/python/android_server.py
+          import threading, time, socket
+          from app import app
+
+          _port = None
+
+          def start():
+              global _port
+              if _port is not None:
+                  return _port
+              with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                  s.bind(('127.0.0.1', 0))
+                  _port = s.getsockname()[1]
+              t = threading.Thread(
+                  target=lambda: app.run(host='127.0.0.1', port=_port, debug=False, use_reloader=False, threaded=True),
+                  daemon=True
+              )
+              t.start()
+              time.sleep(0.8)
+              return _port
+          INNER
+
           for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
             mkdir -p android_app/app/src/main/res/mipmap-$d
             cp static/app_icon.png android_app/app/src/main/res/mipmap-$d/ic_launcher.png
@@ -41,22 +74,38 @@ jobs:
           done
 
           cat << 'INNER' > android_app/settings.gradle
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+                  maven { url "https://chaquo.com/maven" }
+              }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+              repositories {
+                  google()
+                  mavenCentral()
+                  maven { url "https://chaquo.com/maven" }
+              }
+          }
           rootProject.name = "ProSimUltimate"
           include ':app'
           INNER
 
           cat << 'INNER' > android_app/build.gradle
-          buildscript {
-              repositories { google(); mavenCentral() }
-              dependencies { classpath 'com.android.tools.build:gradle:8.2.2' }
-          }
-          allprojects {
-              repositories { google(); mavenCentral() }
+          plugins {
+              id 'com.android.application' version '8.2.2' apply false
+              id 'com.chaquo.python' version '15.0.1' apply false
           }
           INNER
 
           cat << 'INNER' > android_app/app/build.gradle
-          apply plugin: 'com.android.application'
+          plugins {
+              id 'com.android.application'
+              id 'com.chaquo.python'
+          }
           android {
               namespace 'org.prosim.isis'
               compileSdk 34
@@ -64,15 +113,39 @@ jobs:
                   applicationId "org.prosim.isis"
                   minSdk 21
                   targetSdk 34
-                  versionCode 3
-                  versionName "1.2"
+                  versionCode ${VER_CODE} + 10
+                  versionName "2.${VER_CODE}"
+                  ndk {
+                      abiFilters "arm64-v8a", "armeabi-v7a", "x86_64"
+                  }
+              }
+              signingConfigs {
+                  release {
+                      storeFile file("../prosim_release.jks")
+                      storePassword "prosim123456"
+                      keyAlias "prosim_key"
+                      keyPassword "prosim123456"
+                  }
               }
               buildTypes {
-                  release { minifyEnabled false }
+                  release {
+                      minifyEnabled false
+                      signingConfig signingConfigs.release
+                  }
               }
               compileOptions {
                   sourceCompatibility JavaVersion.VERSION_17
                   targetCompatibility JavaVersion.VERSION_17
+              }
+          }
+          chaquopy {
+              defaultConfig {
+                  version "3.11"
+                  pip {
+                        install "Flask>=3.0,<4.0"
+                        install "numpy>=2.0,<3.0"
+                        install "gunicorn>=21.2.0"
+                  }
               }
           }
           dependencies {}
@@ -88,7 +161,7 @@ jobs:
                   android:roundIcon="@mipmap/ic_launcher_round"
                   android:usesCleartextTraffic="true"
                   android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
-                  <activity android:name=".MainActivity" android:exported="true" android:configChanges="orientation|screenSize">
+                  <activity android:name=".MainActivity" android:exported="true" android:configChanges="orientation|screenSize|keyboardHidden">
                       <intent-filter>
                           <action android:name="android.intent.action.MAIN" />
                           <category android:name="android.intent.category.LAUNCHER" />
@@ -101,28 +174,59 @@ jobs:
           cat << 'INNER' > android_app/app/src/main/java/org/prosim/isis/MainActivity.java
           package org.prosim.isis;
           import android.app.Activity;
+          import android.graphics.Color;
           import android.os.Bundle;
+          import android.view.Gravity;
           import android.webkit.WebSettings;
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
+          import android.widget.FrameLayout;
+          import android.widget.TextView;
+          import com.chaquo.python.PyObject;
+          import com.chaquo.python.Python;
+          import com.chaquo.python.android.AndroidPlatform;
 
           public class MainActivity extends Activity {
               private WebView webView;
               @Override
               protected void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
-                  webView = new WebView(this);
-                  WebSettings settings = webView.getSettings();
-                  settings.setJavaScriptEnabled(true);
-                  settings.setDomStorageEnabled(true);
-                  settings.setAllowFileAccess(true);
-                  webView.setWebViewClient(new WebViewClient());
-                  webView.loadUrl("http://127.0.0.1:5000");
-                  setContentView(webView);
+                  FrameLayout root = new FrameLayout(this);
+                  root.setBackgroundColor(Color.parseColor("#0f172a"));
+
+                  TextView loading = new TextView(this);
+                  loading.setText("Starting ProSim SPICE Engine...");
+                  loading.setTextColor(Color.WHITE);
+                  loading.setTextSize(18f);
+                  loading.setGravity(Gravity.CENTER);
+                  root.addView(loading);
+                  setContentView(root);
+
+                  new Thread(() -> {
+                      if (!Python.isStarted()) {
+                          Python.start(new AndroidPlatform(this));
+                      }
+                      Python py = Python.getInstance();
+                      PyObject srv = py.getModule("android_server");
+                      int port = srv.callAttr("start").toInt();
+                      String url = "http://127.0.0.1:" + port;
+
+                      runOnUiThread(() -> {
+                          webView = new WebView(this);
+                          WebSettings settings = webView.getSettings();
+                          settings.setJavaScriptEnabled(true);
+                          settings.setDomStorageEnabled(true);
+                          settings.setAllowFileAccess(true);
+                          webView.setWebViewClient(new WebViewClient());
+                          root.removeAllViews();
+                          root.addView(webView);
+                          webView.loadUrl(url);
+                      });
+                  }).start();
               }
               @Override
               public void onBackPressed() {
-                  if (webView.canGoBack()) webView.goBack();
+                  if (webView != null && webView.canGoBack()) webView.goBack();
                   else super.onBackPressed();
               }
           }
@@ -130,13 +234,13 @@ jobs:
 
           cd android_app
           gradle wrapper --gradle-version 8.5
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease
 
-      - name: Upload Android APK
+      - name: Upload Signed Offline Android APK
         uses: actions/upload-artifact@v4
         with:
           name: ProSimUltimate-Android-APK
-          path: android_app/app/build/outputs/apk/debug/app-debug.apk
+          path: android_app/app/build/outputs/apk/release/app-release.apk
 
   build-ios:
     runs-on: macos-latest
