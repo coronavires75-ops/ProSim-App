@@ -112,8 +112,8 @@ jobs:
                   applicationId = "org.prosim.isis"
                   minSdk = 21
                   targetSdk = 34
-                  versionCode = Integer.parseInt("${VER_CODE}") + 10
-                  versionName = "2.${VER_CODE}"
+                  versionCode = (System.getenv("VER_CODE") ?: "1").toInteger() + 10
+                  versionName = "2." + (System.getenv("VER_CODE") ?: "1")
                   ndk {
                       abiFilters.addAll(["arm64-v8a", "armeabi-v7a"])
                   }
