@@ -42,7 +42,6 @@ jobs:
           mkdir -p android_app/app/src/main/python
           cp -r app.py solver.py models.py parts_db.py run_local.py templates static manifest.webmanifest service-worker.js android_app/app/src/main/python/
 
-          # توليد Keystore ثابت في كل مرة بدون الاعتماد على Termux
           keytool -genkeypair -noprompt -keystore android_app/prosim_release.jks -alias prosim_key -keyalg RSA -keysize 2048 -validity 10000 -storepass prosim123456 -keypass prosim123456 -dname "CN=ProSim, OU=Electronics, O=ProSim, L=Cairo, S=Cairo, C=EG"
 
           cat << 'INNER' > android_app/app/src/main/python/android_server.py
@@ -113,10 +112,10 @@ jobs:
                   applicationId "org.prosim.isis"
                   minSdk 21
                   targetSdk 34
-                  versionCode ${VER_CODE} + 10
+                  versionCode (${VER_CODE} + 10)
                   versionName "2.${VER_CODE}"
                   ndk {
-                      abiFilters "arm64-v8a", "armeabi-v7a", "x86_64"
+                      abiFilters "arm64-v8a", "armeabi-v7a"
                   }
               }
               signingConfigs {
@@ -144,7 +143,6 @@ jobs:
                   pip {
                         install "Flask>=3.0,<4.0"
                         install "numpy>=2.0,<3.0"
-                        install "gunicorn>=21.2.0"
                   }
               }
           }
@@ -232,9 +230,12 @@ jobs:
           }
           INNER
 
+          # تحميل Gradle 8.5 الرسمي مباشرة وتثبيت الـ Wrapper به
+          wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip -O /tmp/gradle-8.5.zip
+          unzip -q /tmp/gradle-8.5.zip -d /tmp/
           cd android_app
-          gradle wrapper --gradle-version 8.5
-          ./gradlew assembleRelease
+          /tmp/gradle-8.5/bin/gradle wrapper --gradle-version 8.5
+          ./gradlew assembleRelease --no-daemon
 
       - name: Upload Signed Offline Android APK
         uses: actions/upload-artifact@v4
