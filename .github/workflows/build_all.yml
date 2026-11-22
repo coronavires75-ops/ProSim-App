@@ -43,7 +43,7 @@ jobs:
           cp -r app.py solver.py models.py parts_db.py run_local.py templates static manifest.webmanifest service-worker.js android_app/app/src/main/python/
 
           # توليد Keystore ثابت في كل مرة بدون الاعتماد على Termux
-          python3 -c "import os; os.system('keytool -genkeypair -noprompt -keystore android_app/prosim_release.jks -alias prosim_key -keyalg RSA -keysize 2048 -validity 10000 -storepass prosim123456 -keypass prosim123456 -dname "CN=ProSim, OU=Electronics, O=ProSim, L=Cairo, S=Cairo, C=EG"')"
+          keytool -genkeypair -noprompt -keystore android_app/prosim_release.jks -alias prosim_key -keyalg RSA -keysize 2048 -validity 10000 -storepass prosim123456 -keypass prosim123456 -dname "CN=ProSim, OU=Electronics, O=ProSim, L=Cairo, S=Cairo, C=EG"
 
           cat << 'INNER' > android_app/app/src/main/python/android_server.py
           import threading, time, socket
