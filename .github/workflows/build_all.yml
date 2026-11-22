@@ -139,11 +139,11 @@ jobs:
           }
           chaquopy {
               defaultConfig {
-                  version "3.11"
+                  version "3.8"
                   pip {
-                        install "Flask>=3.0,<4.0"
-                        install "numpy>=2.0,<3.0"
-                  }
+                        install "flask"
+                        install "numpy"
+                    }
               }
           }
           dependencies {}
