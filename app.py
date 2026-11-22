@@ -195,14 +195,14 @@ def build_circuit(data, override_pid=None, seed=None):
             ckt.add_transformer(pins[0], pins[1], pins[2], pins[3], ratio=val if val > 0 else 0.1)
         elif ctype == 'D':
             mp, note = resolve_model(comp, 'D', part, PART_MODELS.get(part)); ckt.model_notes.append(note)
-            ckt.add_element({'type': 'D', 'pins': [pins[0], pins[1]], 'part': part, 'id': comp['id'], **{k: mp[k] for k in ('Is', 'n', 'rs', 'bv') if k in mp}})
+            ckt.add_element({'type': 'D', 'pins': [pins[0], pins[1]], 'part': part, 'id': comp['id'], **{k: mp[k] for k in ('Is', 'n', 'rs', 'bv', 'cjo', 'vj', 'm', 'tt') if k in mp}})
         elif ctype == 'LED':
             mp, note = resolve_model(comp, 'LED', part, PART_MODELS.get(part, 1.85)); ckt.model_notes.append(note)
-            ckt.add_element({'type': 'LED', 'pins': [pins[0], pins[1]], 'part': part, 'id': comp['id'], 'vf': mp.get('vf', 1.85), **{k: mp[k] for k in ('Is', 'n', 'rs') if k in mp}})
+            ckt.add_element({'type': 'LED', 'pins': [pins[0], pins[1]], 'part': part, 'id': comp['id'], 'vf': mp.get('vf', 1.85), **{k: mp[k] for k in ('Is', 'n', 'rs', 'cjo') if k in mp}})
         elif ctype == 'Z':
             mp, note = resolve_model(comp, 'Z', part, PART_MODELS.get(part, val if val > 0 else 5.1)); ckt.model_notes.append(note)
             vz = float(mp.get('val', val if val > 0 else 5.1))
-            ckt.add_element({'type': 'Z', 'pins': [pins[0], pins[1]], 'part': part, 'id': comp['id'], 'val': vz * tol, 'rz': mp.get('rz', zener_rz(vz))})
+            ckt.add_element({'type': 'Z', 'pins': [pins[0], pins[1]], 'part': part, 'id': comp['id'], 'val': vz * tol, 'rz': mp.get('rz', zener_rz(vz)), **({ 'cjo': mp['cjo'] } if 'cjo' in mp else {})})
         elif ctype == 'REG':
             vout = PART_MODELS.get(part, val if val > 0 else 5.0)
             ckt.add_regulator(pins[0], pins[1], pins[2], vout=vout, part=part)
@@ -237,11 +237,11 @@ def build_circuit(data, override_pid=None, seed=None):
         elif ctype == 'M':
             mp, note = resolve_model(comp, 'M', part, PART_MODELS.get(part)); ckt.model_notes.append(note)
             if note['source'] == 'generic' and val > 0 and 'vth' not in comp: mp['vth'] = val
-            ckt.add_element({'type': 'M', 'pins': list(pins[:3]), 'part': part, 'id': comp['id'], **{k: mp[k] for k in ('vth', 'kp', 'lambda', 'pol') if k in mp}})
+            ckt.add_element({'type': 'M', 'pins': list(pins[:3]), 'part': part, 'id': comp['id'], **{k: mp[k] for k in ('vth', 'kp', 'lambda', 'pol', 'cgs', 'cgd', 'cds') if k in mp}})
         elif ctype == 'Q':
             mp, note = resolve_model(comp, 'Q', part, PART_MODELS.get(part)); ckt.model_notes.append(note)
             if note['source'] == 'generic' and val > 0 and 'bf' not in comp: mp['bf'] = val
-            ckt.add_element({'type': 'Q', 'pins': list(pins[:3]), 'part': part, 'id': comp['id'], **{k: mp[k] for k in ('Is', 'bf', 'br', 'vaf', 'nf', 'pol') if k in mp}})
+            ckt.add_element({'type': 'Q', 'pins': list(pins[:3]), 'part': part, 'id': comp['id'], **{k: mp[k] for k in ('Is', 'bf', 'br', 'vaf', 'nf', 'pol', 'cje', 'vje', 'mje', 'cjc', 'vjc', 'mjc', 'tf', 'tr') if k in mp}})
         elif ctype == 'SCR':
             vgt, ih = PART_MODELS.get(part, (parse_eng_val(comp.get('vgt', 0.7)), parse_eng_val(comp.get('ih', 0.005))))
             ckt.add_scr(pins[0], pins[1], pins[2], vgt=vgt, ih=ih, part=part)

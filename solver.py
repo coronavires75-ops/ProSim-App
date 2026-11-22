@@ -54,6 +54,34 @@ def _led_params(el):
     return Is, nvt, rs
 
 
+def _jcap_q_c(v, cjo=0.0, vj=0.75, m=0.333, tt=0.0, i_fwd=0.0, g_fwd=0.0):
+    """نموذج شحنة الوصلة غير الخطية + سعة الانتشار (SPICE): يرجع (Q, C=dQ/dv)."""
+    q = 0.0
+    c = 0.0
+    if cjo > 0.0:
+        vj = max(0.1, float(vj or 0.75))
+        m = max(0.05, min(0.9, float(m or 0.333)))
+        fc = 0.5
+        v_fc = fc * vj
+        if v <= v_fc:
+            arg = max(1e-6, 1.0 - v / vj)
+            c_dep = cjo * (arg ** (-m))
+            q_dep = (cjo * vj / (1.0 - m)) * (1.0 - arg ** (1.0 - m))
+        else:
+            f1 = (1.0 - fc) ** (-(1.0 + m))
+            q_fc = (cjo * vj / (1.0 - m)) * (1.0 - (1.0 - fc) ** (1.0 - m))
+            dv = v - v_fc
+            c_fc = cjo * ((1.0 - fc) ** (-m))
+            slope = cjo * m * f1 / vj
+            c_dep = c_fc + slope * dv
+            q_dep = q_fc + c_fc * dv + 0.5 * slope * dv * dv
+        q += q_dep
+        c += c_dep
+    if tt > 0.0 and i_fwd > 0.0:
+        q += tt * i_fwd
+        c += tt * max(0.0, g_fwd)
+    return q, min(c, 1e-3)
+
 class ProSpiceBDF2Solver:
     PIN_COUNTS = {
         'GND': 1,
@@ -341,6 +369,35 @@ class ProSpiceBDF2Solver:
 
         leds, ammeters, powers = {}, {}, {}
 
+        jc_q1, jc_q2, jc_i = {}, {}, {}
+
+        def stamp_qcap(G, I_vec, n1, n2, key, q_now, c_now, v_now, dt_c, m_tr, u_bdf2):
+            q1 = jc_q1.get(key, 0.0)
+            q2 = jc_q2.get(key, q1)
+            if m_tr or not u_bdf2:
+                g_eq = (2.0 / dt_c) * c_now
+                i_c0 = (2.0 / dt_c) * (q_now - q1) - jc_i.get(key, 0.0)
+            else:
+                g_eq = (1.5 / dt_c) * c_now
+                i_c0 = (1.5 * q_now - 2.0 * q1 + 0.5 * q2) / dt_c
+            stamp_g(G, n1, n2, g_eq)
+            stamp_i(I_vec, n1, n2, i_c0 - g_eq * v_now)
+
+        def update_qcap(key, q_now, dt_c, m_tr, u_bdf2, is_dc_op, stp):
+            if stp == 0 and is_dc_op:
+                jc_q1[key] = jc_q2[key] = q_now
+                jc_i[key] = 0.0
+            else:
+                q1 = jc_q1.get(key, 0.0)
+                q2 = jc_q2.get(key, q1)
+                if m_tr or not u_bdf2:
+                    i_new = (2.0 / dt_c) * (q_now - q1) - jc_i.get(key, 0.0)
+                else:
+                    i_new = (1.5 * q_now - 2.0 * q1 + 0.5 * q2) / dt_c
+                jc_q2[key] = q1
+                jc_q1[key] = q_now
+                jc_i[key] = i_new
+
         def stamp_g(G, n1, n2, g):
             if n1 > 0: G[n1 - 1, n1 - 1] += g
             if n2 > 0: G[n2 - 1, n2 - 1] += g
@@ -479,6 +536,12 @@ class ProSpiceBDF2Solver:
                             i_eq = i_d - g_d * vd
                             stamp_g(G, p0, p1, g_d)
                             stamp_i(I_vec, p0, p1, i_eq)
+                            if not is_op:
+                                _cjo = float(el.get('cjo', 0.0) or 0.0)
+                                _tt = float(el.get('tt', 0.0) or 0.0)
+                                if _cjo > 0.0 or _tt > 0.0:
+                                    _qd, _cd = _jcap_q_c(vd, _cjo, el.get('vj', 0.75), el.get('m', 0.333), _tt, max(0.0, i_d), max(0.0, g_d))
+                                    stamp_qcap(G, I_vec, p0, p1, ('D', idx), _qd, _cd, vd, dt, mode_tr, use_bdf2)
 
                         elif etype == 'DIAC':
                             vd = node_v(p0) - node_v(p1)
@@ -584,6 +647,17 @@ class ProSpiceBDF2Solver:
                                 I_vec[nk - 1] -= i0 - sum(j * x for j, x in zip(Jr, vv))
                             for (n1, n2) in ((nb, ne), (nb, nc), (nc, ne)):
                                 stamp_g(G, n1, n2, 1e-12)
+                            if not is_op:
+                                _cje = float(el.get('cje', 0.0) or 0.0); _tf = float(el.get('tf', 0.0) or 0.0)
+                                _cjc = float(el.get('cjc', 0.0) or 0.0); _tr = float(el.get('tr', 0.0) or 0.0)
+                                if _cje > 0.0 or _tf > 0.0:
+                                    _n1, _n2 = (nb, ne) if pol > 0 else (ne, nb)
+                                    _qbe, _cbe = _jcap_q_c(vbe, _cje, el.get('vje', 0.75), el.get('mje', 0.333), _tf, max(0.0, Is_q * (eF - 1.0)), gF)
+                                    stamp_qcap(G, I_vec, _n1, _n2, ('Qbe', idx), _qbe, _cbe, vbe, dt, mode_tr, use_bdf2)
+                                if _cjc > 0.0 or _tr > 0.0:
+                                    _n1, _n2 = (nb, nc) if pol > 0 else (nc, nb)
+                                    _qbc, _cbc = _jcap_q_c(vbc, _cjc, el.get('vjc', 0.75), el.get('mjc', 0.333), _tr, max(0.0, Is_q * (eR - 1.0)), gR)
+                                    stamp_qcap(G, I_vec, _n1, _n2, ('Qbc', idx), _qbc, _cbc, vbc, dt, mode_tr, use_bdf2)
 
                         elif etype == 'M' and len(pins) >= 3:
                             ng, nd, ns = pins[0], pins[1], pins[2]
@@ -616,6 +690,20 @@ class ProSpiceBDF2Solver:
                                         G[nk - 1, nj - 1] += sign * jv
                                         tot += sign * jv * vmap[nj]
                                 I_vec[nk - 1] -= sign * i0 - tot
+                            if not is_op:
+                                _ng0, _nd0, _ns0 = pins[0], pins[1], pins[2]
+                                _cgs = float(el.get('cgs', 0.0) or 0.0)
+                                _cgd = float(el.get('cgd', 0.0) or 0.0)
+                                _cds = float(el.get('cds', 0.0) or 0.0)
+                                if _cgs > 0.0:
+                                    _v = node_v(_ng0) - node_v(_ns0)
+                                    stamp_qcap(G, I_vec, _ng0, _ns0, ('Mgs', idx), _cgs * _v, _cgs, _v, dt, mode_tr, use_bdf2)
+                                if _cgd > 0.0:
+                                    _v = node_v(_ng0) - node_v(_nd0)
+                                    stamp_qcap(G, I_vec, _ng0, _nd0, ('Mgd', idx), _cgd * _v, _cgd, _v, dt, mode_tr, use_bdf2)
+                                if _cds > 0.0:
+                                    _v = node_v(_nd0) - node_v(_ns0)
+                                    stamp_qcap(G, I_vec, _nd0, _ns0, ('Mds', idx), _cds * _v, _cds, _v, dt, mode_tr, use_bdf2)
 
                         elif etype in ('TRIAC', 'SCR') and len(pins) >= 3:
                             ng, nk, na = pins[0], pins[1], pins[2]
@@ -898,6 +986,41 @@ class ProSpiceBDF2Solver:
                 v1 = 0.0 if p1 <= 0 else x_guess[p1 - 1]
                 v_diff = v0 - v1
 
+                if etype in ('D', 'LED', 'Z'):
+                    _cjo = float(el.get('cjo', 0.0) or 0.0); _tt = float(el.get('tt', 0.0) or 0.0)
+                    if _cjo > 0.0 or _tt > 0.0:
+                        if etype == 'LED': _is, _nvt, _rs = _led_params(el)
+                        else: _is = float(el.get('Is', 2.55e-9)); _nvt = float(el.get('n', 1.75)) * VT_THERMAL; _rs = float(el.get('rs', 0.042))
+                        _id_f, _gd_f = _diode_iv(v_diff, _is, _nvt, _rs)
+                        _qd, _ = _jcap_q_c(v_diff, _cjo, el.get('vj', 0.75), el.get('m', 0.333), _tt, max(0.0, _id_f), max(0.0, _gd_f))
+                        update_qcap(('D', idx), _qd, dt, mode_tr, use_bdf2, is_op, step)
+                elif etype == 'Q' and len(pins) >= 3:
+                    _cje = float(el.get('cje', 0.0) or 0.0); _tf = float(el.get('tf', 0.0) or 0.0)
+                    _cjc = float(el.get('cjc', 0.0) or 0.0); _tr = float(el.get('tr', 0.0) or 0.0)
+                    if _cje > 0.0 or _tf > 0.0 or _cjc > 0.0 or _tr > 0.0:
+                        _nb, _nc, _ne = pins[0], pins[1], pins[2]
+                        _pol = 1.0 if el.get('pol', 'NPN') == 'NPN' else -1.0
+                        _vb = 0.0 if _nb <= 0 else x_guess[_nb - 1]
+                        _vc = 0.0 if _nc <= 0 else x_guess[_nc - 1]
+                        _ve = 0.0 if _ne <= 0 else x_guess[_ne - 1]
+                        _vbe = _pol * (_vb - _ve); _vbc = _pol * (_vb - _vc)
+                        _Isq = float(el.get('Is', 1.4e-14) or 1.4e-14)
+                        _vtf = VT_THERMAL * float(el.get('nf', 1.0) or 1.0)
+                        if _cje > 0.0 or _tf > 0.0:
+                            _qbe, _ = _jcap_q_c(_vbe, _cje, el.get('vje', 0.75), el.get('mje', 0.333), _tf, max(0.0, _Isq * (_ex(_vbe / _vtf) - 1.0)), 0.0)
+                            update_qcap(('Qbe', idx), _qbe, dt, mode_tr, use_bdf2, is_op, step)
+                        if _cjc > 0.0 or _tr > 0.0:
+                            _qbc, _ = _jcap_q_c(_vbc, _cjc, el.get('vjc', 0.75), el.get('mjc', 0.333), _tr, max(0.0, _Isq * (_ex(_vbc / VT_THERMAL) - 1.0)), 0.0)
+                            update_qcap(('Qbc', idx), _qbc, dt, mode_tr, use_bdf2, is_op, step)
+                elif etype == 'M' and len(pins) >= 3:
+                    _cgs = float(el.get('cgs', 0.0) or 0.0); _cgd = float(el.get('cgd', 0.0) or 0.0); _cds = float(el.get('cds', 0.0) or 0.0)
+                    if _cgs > 0.0 or _cgd > 0.0 or _cds > 0.0:
+                        _vg = 0.0 if pins[0] <= 0 else x_guess[pins[0] - 1]
+                        _vd = 0.0 if pins[1] <= 0 else x_guess[pins[1] - 1]
+                        _vs = 0.0 if pins[2] <= 0 else x_guess[pins[2] - 1]
+                        if _cgs > 0.0: update_qcap(('Mgs', idx), _cgs * (_vg - _vs), dt, mode_tr, use_bdf2, is_op, step)
+                        if _cgd > 0.0: update_qcap(('Mgd', idx), _cgd * (_vg - _vd), dt, mode_tr, use_bdf2, is_op, step)
+                        if _cds > 0.0: update_qcap(('Mds', idx), _cds * (_vd - _vs), dt, mode_tr, use_bdf2, is_op, step)
                 if etype in ('C', 'CELEC') and step == 0 and is_op:
                     cap_v_prev1[idx] = cap_v_prev2[idx] = v_diff; setattr(self, f'_ic_{idx}', 0.0)
                 elif etype == 'L' and step == 0 and is_op:
